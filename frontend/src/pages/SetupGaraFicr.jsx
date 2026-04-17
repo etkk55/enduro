@@ -1,0 +1,1708 @@
+import { useState, useEffect } from 'react';
+import { Search, Download, CheckCircle, AlertCircle, Loader2, Calendar, MapPin, Clock, Save, Settings, Trash2 } from 'lucide-react';
+
+import { API_BASE } from '../services/api';
+
+export default function SetupGaraFicr() {
+  // === STEP 1-3: Selezione FICR e creazione eventi ===
+  const [anno, setAnno] = useState(new Date().getFullYear());
+  const [gare, setGare] = useState([]);
+  const [garaSelezionata, setGaraSelezionata] = useState(null);
+  const [categorie, setCategorie] = useState([]);
+  const [categorieSelezionate, setCategorieSelezionate] = useState([]);
+  const [codiceFmi, setCodiceFmi] = useState('');
+  const [codiciFmi, setCodiciFmi] = useState({}); // {1: 'FRIEN009', 2: 'FRIEP003', ...}
+  const [nomeEvento, setNomeEvento] = useState('');
+  
+  const [loading, setLoading] = useState(false);
+  const [loadingCategorie, setLoadingCategorie] = useState(false);
+  const [creando, setCreando] = useState(false);
+  const [risultato, setRisultato] = useState(null);
+  const [errore, setErrore] = useState('');
+  const [filtro, setFiltro] = useState('');
+  
+  // === STEP 4: Struttura Gara (NUOVO) ===
+  const [numGiri, setNumGiri] = useState(3);
+  const [prove, setProve] = useState([
+    { nome: 'Cross Test', finale: false },
+    { nome: 'Enduro Test', finale: false }
+  ]);
+  const [psGenerate, setPsGenerate] = useState([]);
+  const [showPreviewStruttura, setShowPreviewStruttura] = useState(false);
+  const [salvandoStruttura, setSalvandoStruttura] = useState(false);
+  
+  // === STEP 5: Tempi Settore (era Step 4) ===
+  const [eventiCreati, setEventiCreati] = useState([]); // Eventi creati dallo step 3
+  const [tempiSettore, setTempiSettore] = useState({});
+  const [salvandoTempi, setSalvandoTempi] = useState(false);
+  
+  // === STEP 6: GPS & Sicurezza (era Step 5) ===
+  const [paddock1Lat, setPaddock1Lat] = useState('');
+  const [paddock1Lon, setPaddock1Lon] = useState('');
+  const [paddock2Lat, setPaddock2Lat] = useState('');
+  const [paddock2Lon, setPaddock2Lon] = useState('');
+  const [paddockRaggio, setPaddockRaggio] = useState(500);
+  const [gpsFrequenza, setGpsFrequenza] = useState(30);
+  const [allarmeFermoMinuti, setAllarmeFermoMinuti] = useState(10);
+  const [codiceDdG, setCodiceDdG] = useState('');
+  const [codiceAccesso, setCodiceAccesso] = useState('');
+  const [codiceAccessoPubblico, setCodiceAccessoPubblico] = useState('');
+  const [salvandoGPS, setSalvandoGPS] = useState(false);
+  
+  // === STEP 7: Import Pre-Gara (era Step 6) ===
+  const [importandoFicr, setImportandoFicr] = useState({});
+  const [importResult, setImportResult] = useState({});
+  const [cancellandoPiloti, setCancellandoPiloti] = useState(false);
+  
+  // === Step corrente ===
+  const [stepCorrente, setStepCorrente] = useState(1);
+  const [garaEsistente, setGaraEsistente] = useState(false);
+  const [verificandoGara, setVerificandoGara] = useState(false);
+
+  // ========== STEP 1-3: Funzioni esistenti ==========
+  
+  const caricaGare = async () => {
+    setLoading(true);
+    setErrore('');
+    setGare([]);
+    setGaraSelezionata(null);
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/ficr/gare/${anno}`);
+      const data = await res.json();
+      
+      // API FICR restituisce {code, status, data:[...]}
+      if (data.status && data.data) {
+        // Mappa i campi FICR ai nostri campi
+        const gareMappate = data.data.map(g => ({
+          equipe: g.ma_CodiceEquipe || g.TeamCode,
+          manifestazione: g.ma_Manifestazione,
+          nome: g.ma_Descrizione || g.Description,  // Tipo campionato come titolo
+          luogo: g.ma_Localita || g.Place,
+          data: g.Data,
+          organizzatore: g.ma_Organizzatore
+        }));
+        setGare(gareMappate);
+      } else if (data.success && data.gare) {
+        // Fallback per formato vecchio
+        setGare(data.gare);
+      } else {
+        setErrore(data.error || data.message || 'Errore caricamento gare');
+      }
+    } catch (err) {
+      setErrore('Errore connessione: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const caricaCategorie = async (gara) => {
+    setLoadingCategorie(true);
+    setCategorie([]);
+    setCategorieSelezionate([]);
+    
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/ficr/categorie/${anno}/${gara.equipe}/${gara.manifestazione}`
+      );
+      const data = await res.json();
+      
+      if (data.success && data.categorie) {
+        setCategorie(data.categorie);
+        setCategorieSelezionate(data.categorie.map(c => c.id));
+      }
+    } catch (err) {
+      console.error('Errore categorie:', err);
+    } finally {
+      setLoadingCategorie(false);
+    }
+  };
+
+  const selezionaGara = async (gara) => {
+    setGaraSelezionata(gara);
+    setNomeEvento(gara.nome || `${gara.luogo} - Gara`);
+    setGaraEsistente(false);
+    setEventiCreati([]);
+    
+    // Verifica se la gara esiste già nel DB
+    setVerificandoGara(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/eventi?ficr_codice_equipe=${gara.equipe}&ficr_manifestazione=${gara.manifestazione}&ficr_anno=${anno}`);
+      const data = await res.json();
+      
+      if (res.ok && data.length > 0) {
+        // Gara già configurata - carica dati esistenti
+        setGaraEsistente(true);
+        setEventiCreati(data);
+        
+        // Carica i dati del primo evento per popolare i campi
+        const primo = data[0];
+        if (primo.paddock1_lat) setPaddock1Lat(primo.paddock1_lat.toString());
+        if (primo.paddock1_lon) setPaddock1Lon(primo.paddock1_lon.toString());
+        if (primo.paddock2_lat) setPaddock2Lat(primo.paddock2_lat.toString());
+        if (primo.paddock2_lon) setPaddock2Lon(primo.paddock2_lon.toString());
+        if (primo.paddock_raggio) setPaddockRaggio(primo.paddock_raggio);
+        if (primo.gps_frequenza) setGpsFrequenza(primo.gps_frequenza);
+        if (primo.allarme_fermo_minuti) setAllarmeFermoMinuti(primo.allarme_fermo_minuti);
+        if (primo.codice_ddg) setCodiceDdG(primo.codice_ddg);
+        if (primo.codice_accesso) { setCodiceAccesso(primo.codice_accesso); setCodiceFmi(primo.codice_accesso); }
+        // Carica codice accesso pubblico, default = codice_accesso (codice FMI)
+        setCodiceAccessoPubblico(primo.codice_accesso_pubblico || primo.codice_accesso || '');
+        
+        // Seleziona le categorie già create
+        const catIds = data.map(e => {
+          const parts = e.codice_gara?.split('-');
+          return parts ? parseInt(parts[1]) : null;
+        }).filter(Boolean);
+        setCategorieSelezionate(catIds);
+        
+        // Carica codici FMI dagli eventi esistenti
+        const codici = {};
+        for (const ev of data) {
+          const catId = parseInt(ev.codice_gara?.split('-')[1]);
+          if (catId && ev.codice_accesso) {
+            codici[catId] = ev.codice_accesso;
+          }
+        }
+        setCodiciFmi(codici);
+        
+        // Carica tempi settore dalla tabella separata
+        const tempi = {};
+        for (const ev of data) {
+          try {
+            const tempiRes = await fetch(`${API_BASE}/api/eventi/${ev.id}/tempi-settore`);
+            if (tempiRes.ok) {
+              const tempiData = await tempiRes.json();
+              if (tempiData && tempiData.length > 0) {
+                const t = tempiData[0];
+                // Usa gli stessi nomi usati nello Step 5
+                tempi[ev.codice_gara] = {
+                  tempo_par_co1: t.tempo_par_co1 || 0,
+                  tempo_co1_co2: t.tempo_co1_co2 || '',
+                  tempo_co2_co3: t.tempo_co2_co3 || '',
+                  tempo_co3_co4: t.tempo_co3_co4 || '',
+                  tempo_co4_co5: t.tempo_co4_co5 || '',
+                  tempo_co5_co6: t.tempo_co5_co6 || '',
+                  tempo_co6_co7: t.tempo_co6_co7 || '',
+                  tempo_co7_co8: t.tempo_co7_co8 || '',
+                  tempo_co8_co9: t.tempo_co8_co9 || '',
+                  tempo_co9_co10: t.tempo_co9_co10 || '',
+                  tempo_ultimo_arr: t.tempo_ultimo_arr || '',
+                  co1_attivo: t.co1_attivo,
+                  co2_attivo: t.co2_attivo,
+                  co3_attivo: t.co3_attivo,
+                  co4_attivo: t.co4_attivo,
+                  co5_attivo: t.co5_attivo,
+                  co6_attivo: t.co6_attivo,
+                  co7_attivo: t.co7_attivo,
+                  co8_attivo: t.co8_attivo,
+                  co9_attivo: t.co9_attivo,
+                  co10_attivo: t.co10_attivo
+                };
+              }
+            }
+          } catch (e) {
+            console.log('Errore caricamento tempi settore:', e);
+          }
+        }
+        setTempiSettore(tempi);
+      }
+    } catch (err) {
+      console.log('Errore verifica gara esistente:', err);
+    }
+    setVerificandoGara(false);
+    
+    caricaCategorie(gara);
+    setStepCorrente(3);
+  };
+
+  const toggleCategoria = (cat) => {
+    setCategorieSelezionate(prev => 
+      prev.includes(cat) 
+        ? prev.filter(c => c !== cat)
+        : [...prev, cat].sort()
+    );
+  };
+
+  const creaEventi = async () => {
+    if (!garaSelezionata || categorieSelezionate.length === 0) {
+      setErrore('Seleziona almeno una categoria');
+      return;
+    }
+    
+    setCreando(true);
+    setErrore('');
+    setRisultato(null);
+    
+    try {
+      // 1. Carica tutti gli eventi esistenti
+      const eventiRes = await fetch(`${API_BASE}/api/eventi`);
+      const tuttiEventi = await eventiRes.json();
+      
+      // 2. Verifica quali codici_gara esistono già
+      const codiciDaCreare = categorieSelezionate.map(cat => 
+        `${garaSelezionata.manifestazione}-${cat}`
+      );
+      
+      const eventiEsistenti = tuttiEventi.filter(ev => 
+        codiciDaCreare.includes(ev.codice_gara)
+      );
+      
+      const codiciEsistenti = eventiEsistenti.map(ev => ev.codice_gara);
+      const codiciNuovi = codiciDaCreare.filter(c => !codiciEsistenti.includes(c));
+      
+      let eventiFinali = [...eventiEsistenti];
+      
+      // 3. Crea solo quelli nuovi (se ce ne sono)
+      if (codiciNuovi.length > 0) {
+        const categorieNuove = categorieSelezionate.filter(cat => 
+          codiciNuovi.includes(`${garaSelezionata.manifestazione}-${cat}`)
+        );
+        
+        if (categorieNuove.length > 0) {
+          // Costruisco mappa nomi categorie da FICR
+          const nomiCategorie = {};
+          categorieNuove.forEach(catId => {
+            const catInfo = categorie.find(c => c.id === catId);
+            nomiCategorie[catId] = catInfo?.nome || nomeEvento;
+          });
+          
+          const res = await fetch(`${API_BASE}/api/eventi/setup-da-ficr`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              anno,
+              equipe: garaSelezionata.equipe,
+              manifestazione: garaSelezionata.manifestazione,
+              nome_evento: nomeEvento,
+              nomi_categorie: nomiCategorie,  // Nomi specifici da FICR
+              luogo: garaSelezionata.luogo,
+              data_gara: garaSelezionata.data,
+              codice_accesso_fmi: codiceFmi,  // p32: unico codice per tutte le categorie
+              categorie_selezionate: categorieNuove,
+              codici_fmi: Object.fromEntries(categorieNuove.map(c => [c, codiceFmi]))  // p32: stesso codice per tutti
+            })
+          });
+          
+          const data = await res.json();
+          
+          if (data.success && data.risultati?.eventi_creati) {
+            eventiFinali = [...eventiFinali, ...data.risultati.eventi_creati];
+          }
+        }
+      }
+      
+      // 4. Messaggio risultato
+      if (eventiEsistenti.length > 0 && codiciNuovi.length === 0) {
+        setRisultato({
+          messaggio: `✅ Caricati ${eventiEsistenti.length} eventi esistenti`,
+          eventi_creati: eventiEsistenti
+        });
+      } else if (eventiEsistenti.length > 0) {
+        setRisultato({
+          messaggio: `✅ ${eventiEsistenti.length} esistenti + ${codiciNuovi.length} nuovi`,
+          eventi_creati: eventiFinali
+        });
+      } else {
+        setRisultato({
+          messaggio: `✅ Creati ${eventiFinali.length} nuovi eventi`,
+          eventi_creati: eventiFinali
+        });
+      }
+      
+      setEventiCreati(eventiFinali);
+      
+      // Imposta default codice accesso pubblico = primo codice FMI
+      if (!codiceAccessoPubblico && categorieSelezionate.length > 0) {
+        const primoCodiceFmi = codiciFmi[categorieSelezionate[0]];
+        if (primoCodiceFmi) {
+          setCodiceAccessoPubblico(primoCodiceFmi);
+        }
+      }
+      
+      // 5. Carica tempi settore esistenti o inizializza
+      const tempiInit = {};
+      for (const ev of eventiFinali) {
+        try {
+          const tsRes = await fetch(`${API_BASE}/api/eventi/${ev.id}/tempi-settore`);
+          const tsData = await tsRes.json();
+          const existing = Array.isArray(tsData) ? tsData.find(t => t.codice_gara === ev.codice_gara) : null;
+          
+          if (existing) {
+            tempiInit[ev.codice_gara] = {
+              co1_attivo: existing.co1_attivo ?? true,
+              co2_attivo: existing.co2_attivo ?? true,
+              co3_attivo: existing.co3_attivo ?? false,
+              co4_attivo: existing.co4_attivo ?? false,
+              co5_attivo: existing.co5_attivo ?? false,
+              co6_attivo: existing.co6_attivo ?? false,
+              co7_attivo: existing.co7_attivo ?? false,
+              co8_attivo: existing.co8_attivo ?? false,
+              co9_attivo: existing.co9_attivo ?? false,
+              co10_attivo: existing.co10_attivo ?? false,
+              tempo_par_co1: existing.tempo_par_co1 || 0,
+              tempo_co1_co2: existing.tempo_co1_co2 || '',
+              tempo_co2_co3: existing.tempo_co2_co3 || '',
+              tempo_co3_co4: existing.tempo_co3_co4 || '',
+              tempo_co4_co5: existing.tempo_co4_co5 || '',
+              tempo_co5_co6: existing.tempo_co5_co6 || '',
+              tempo_co6_co7: existing.tempo_co6_co7 || '',
+              tempo_co7_co8: existing.tempo_co7_co8 || '',
+              tempo_co8_co9: existing.tempo_co8_co9 || '',
+              tempo_co9_co10: existing.tempo_co9_co10 || '',
+              tempo_ultimo_arr: existing.tempo_ultimo_arr || ''
+            };
+          } else {
+            tempiInit[ev.codice_gara] = {
+              co1_attivo: true, co2_attivo: true, co3_attivo: false,
+              co4_attivo: false, co5_attivo: false, co6_attivo: false,
+              co7_attivo: false, co8_attivo: false, co9_attivo: false, co10_attivo: false,
+              tempo_par_co1: 0, tempo_co1_co2: '', tempo_co2_co3: '',
+              tempo_co3_co4: '', tempo_co4_co5: '', tempo_co5_co6: '',
+              tempo_co6_co7: '', tempo_co7_co8: '', tempo_co8_co9: '',
+              tempo_co9_co10: '', tempo_ultimo_arr: ''
+            };
+          }
+        } catch {
+          tempiInit[ev.codice_gara] = {
+            co1_attivo: true, co2_attivo: true, co3_attivo: false,
+            co4_attivo: false, co5_attivo: false, co6_attivo: false,
+            co7_attivo: false, co8_attivo: false, co9_attivo: false, co10_attivo: false,
+            tempo_par_co1: 0, tempo_co1_co2: '', tempo_co2_co3: '',
+            tempo_co3_co4: '', tempo_co4_co5: '', tempo_co5_co6: '',
+            tempo_co6_co7: '', tempo_co7_co8: '', tempo_co8_co9: '',
+            tempo_co9_co10: '', tempo_ultimo_arr: ''
+          };
+        }
+      }
+      setTempiSettore(tempiInit);
+      
+      // 6. Carica parametri GPS dal primo evento esistente
+      if (eventiFinali.length > 0) {
+        const primo = eventiFinali[0];
+        setPaddock1Lat(primo.paddock1_lat || '');
+        setPaddock1Lon(primo.paddock1_lon || '');
+        setPaddock2Lat(primo.paddock2_lat || '');
+        setPaddock2Lon(primo.paddock2_lon || '');
+        setPaddockRaggio(primo.paddock_raggio || 500);
+        setGpsFrequenza(primo.gps_frequenza || 30);
+        setAllarmeFermoMinuti(primo.allarme_fermo_minuti || 10);
+        setCodiceDdG(primo.codice_ddg || '');
+        setCodiceAccesso(primo.codice_accesso || '');
+        setCodiceAccessoPubblico(primo.codice_accesso_pubblico || '');
+      }
+      
+      // Passa allo step 4 (Struttura Gara)
+      setStepCorrente(4);
+      
+    } catch (err) {
+      setErrore('Errore: ' + err.message);
+    } finally {
+      setCreando(false);
+    }
+  };
+
+  const gareFiltrate = gare.filter(g => {
+    const cerca = filtro.toLowerCase();
+    return (
+      (g.nome || '').toLowerCase().includes(cerca) ||
+      (g.luogo || '').toLowerCase().includes(cerca) ||
+      (g.descrizione || '').toLowerCase().includes(cerca)
+    );
+  });
+
+  // ========== STEP 4: Struttura Gara (NUOVO) ==========
+  
+  // Genera lista PS quando cambiano giri o prove
+  useEffect(() => {
+    generaPS();
+  }, [numGiri, prove]);
+
+  const generaPS = () => {
+    const ps = [];
+    let numero = 1;
+    
+    // PS dei giri normali
+    for (let giro = 1; giro <= numGiri; giro++) {
+      for (const prova of prove) {
+        if (prova.nome.trim()) {
+          ps.push({
+            numero,
+            nome: prova.nome.trim(),
+            giro,
+            gruppo: prova.nome.trim(),
+            isFinale: false
+          });
+          numero++;
+        }
+      }
+    }
+    
+    // PS finali
+    const finali = prove.filter(p => p.finale && p.nome.trim());
+    for (const prova of finali) {
+      ps.push({
+        numero,
+        nome: prova.nome.trim(),
+        giro: 'finale',
+        gruppo: prova.nome.trim(),
+        isFinale: true
+      });
+      numero++;
+    }
+    
+    setPsGenerate(ps);
+  };
+
+  const updateProva = (index, field, value) => {
+    const newProve = [...prove];
+    newProve[index] = { ...newProve[index], [field]: value };
+    setProve(newProve);
+  };
+
+  const addProva = () => {
+    setProve([...prove, { nome: '', finale: false }]);
+  };
+
+  const removeProva = (index) => {
+    if (prove.length > 1) {
+      setProve(prove.filter((_, i) => i !== index));
+    }
+  };
+
+  const moveProva = (index, direction) => {
+    const newIndex = index + direction;
+    if (newIndex >= 0 && newIndex < prove.length) {
+      const newProve = [...prove];
+      [newProve[index], newProve[newIndex]] = [newProve[newIndex], newProve[index]];
+      setProve(newProve);
+    }
+  };
+
+  const salvaStrutturaGara = async () => {
+    if (eventiCreati.length === 0) return;
+    setSalvandoStruttura(true);
+    
+    try {
+      // p32: Salva struttura PS per TUTTI gli eventi
+      let successi = 0;
+      let errori = [];
+      
+      for (const evento of eventiCreati) {
+        try {
+          const res = await fetch(`${API_BASE}/api/eventi/${evento.id}/struttura-ps`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              numGiri, 
+              prove,
+              psGenerate 
+            })
+          });
+          
+          if (res.ok) {
+            successi++;
+            console.log(`✅ Struttura salvata per ${evento.codice_gara}`);
+          } else {
+            errori.push(evento.codice_gara);
+            console.log(`⚠️ Errore struttura per ${evento.codice_gara}`);
+          }
+        } catch (e) {
+          errori.push(evento.codice_gara);
+          console.log(`⚠️ Errore struttura per ${evento.codice_gara}:`, e.message);
+        }
+      }
+      
+      console.log(`Struttura salvata: ${successi}/${eventiCreati.length} eventi`);
+      
+      // Passa allo step 5 (Tempi CO)
+      setStepCorrente(5);
+    } catch (err) {
+      console.log('Errore salvataggio struttura:', err);
+      setStepCorrente(5);
+    } finally {
+      setSalvandoStruttura(false);
+    }
+  };
+
+  // ========== STEP 5: Tempi Settore (era Step 4) ==========
+  
+  const updateTempoSettore = (codiceGara, campo, valore) => {
+    setTempiSettore(prev => ({
+      ...prev,
+      [codiceGara]: {
+        ...prev[codiceGara],
+        [campo]: valore
+      }
+    }));
+  };
+
+  const applicaATutte = () => {
+    if (eventiCreati.length < 2) return;
+    const primo = tempiSettore[eventiCreati[0].codice_gara];
+    if (!primo) return;
+    
+    const nuoviTempi = {};
+    eventiCreati.forEach(ev => {
+      nuoviTempi[ev.codice_gara] = { ...primo };
+    });
+    setTempiSettore(nuoviTempi);
+  };
+
+  const salvaTempiSettore = async () => {
+    setSalvandoTempi(true);
+    setErrore('');
+    
+    try {
+      for (const evento of eventiCreati) {
+        const config = tempiSettore[evento.codice_gara];
+        if (!config) continue;
+        
+        // Verifica che l'evento abbia un ID valido
+        if (!evento.id) {
+          console.error('Evento senza ID:', evento);
+          throw new Error(`Evento ${evento.codice_gara} non ha ID valido`);
+        }
+        
+        const url = `${API_BASE}/api/eventi/${evento.id}/tempi-settore`;
+        console.log('Salvando tempi per:', evento.codice_gara, 'URL:', url);
+        
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            codice_gara: evento.codice_gara,
+            ...config
+          })
+        });
+        
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`HTTP ${res.status}: ${errText}`);
+        }
+      }
+      setStepCorrente(6);
+    } catch (err) {
+      console.error('Errore salvataggio tempi:', err);
+      setErrore('Errore salvataggio tempi: ' + err.message);
+    } finally {
+      setSalvandoTempi(false);
+    }
+  };
+
+  // Helper per conversione minuti <-> hh:mm
+  const minToHM = (min) => {
+    if (!min) return { h: '', m: '' };
+    const m = parseInt(min);
+    return { h: Math.floor(m / 60).toString(), m: (m % 60).toString() };
+  };
+
+  const hmToMin = (h, m) => {
+    const ore = parseInt(h) || 0;
+    const minuti = parseInt(m) || 0;
+    return ore * 60 + minuti;
+  };
+
+  // ========== STEP 6: GPS & Sicurezza (era Step 5) ==========
+  
+  const salvaParametriGPS = async () => {
+    setSalvandoGPS(true);
+    
+    try {
+      for (const evento of eventiCreati) {
+        await fetch(`${API_BASE}/api/eventi/${evento.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            paddock1_lat: paddock1Lat || null,
+            paddock1_lon: paddock1Lon || null,
+            paddock2_lat: paddock2Lat || null,
+            paddock2_lon: paddock2Lon || null,
+            paddock_raggio: paddockRaggio,
+            gps_frequenza: gpsFrequenza,
+            allarme_fermo_minuti: allarmeFermoMinuti,
+            codice_ddg: codiceDdG || null,
+            codice_accesso: codiceAccesso || null,
+            codice_accesso_pubblico: codiceAccessoPubblico || null
+          })
+        });
+      }
+      setStepCorrente(7);
+    } catch (err) {
+      setErrore('Errore salvataggio GPS: ' + err.message);
+    } finally {
+      setSalvandoGPS(false);
+    }
+  };
+
+  // ========== STEP 7: Import Pre-Gara (era Step 6) ==========
+  
+  const handleImportFicr = async (modalita, label) => {
+    if (eventiCreati.length === 0) return;
+    
+    setImportandoFicr(prev => ({ ...prev, [modalita]: true }));
+    setImportResult(prev => ({ ...prev, [modalita]: null }));
+    
+    try {
+      // Usa il primo evento come riferimento
+      const eventoId = eventiCreati[0].id;
+      
+      const res = await fetch(`${API_BASE}/api/eventi/${eventoId}/import-ficr-tutte`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ modalita })
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        const dettagli = Object.entries(data.risultati || {})
+          .map(([codice, r]) => `${codice}: ${r.created || 0}+${r.updated || 0}`)
+          .join(' | ');
+        
+        setImportResult(prev => ({
+          ...prev,
+          [modalita]: { 
+            success: true, 
+            message: `✅ ${data.message}`,
+            dettagli 
+          }
+        }));
+      } else {
+        setImportResult(prev => ({
+          ...prev,
+          [modalita]: { success: false, message: `❌ ${data.error}` }
+        }));
+      }
+    } catch (err) {
+      setImportResult(prev => ({
+        ...prev,
+        [modalita]: { success: false, message: `❌ ${err.message}` }
+      }));
+    }
+    
+    setImportandoFicr(prev => ({ ...prev, [modalita]: false }));
+  };
+
+  const handleCancellaTutti = async () => {
+    if (eventiCreati.length === 0) return;
+    
+    const conferma = window.confirm(
+      `⚠️ ATTENZIONE!\n\nVuoi cancellare TUTTI i piloti da TUTTE le gare?\n\nQuesta azione è irreversibile!`
+    );
+    
+    if (!conferma) return;
+    
+    setCancellandoPiloti(true);
+    setImportResult({});
+    
+    try {
+      const eventoId = eventiCreati[0].id;
+      const res = await fetch(`${API_BASE}/api/eventi/${eventoId}/piloti-tutte`, {
+        method: 'DELETE'
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        setImportResult({
+          cancella: { 
+            success: true, 
+            message: `🗑️ ${data.message}`
+          }
+        });
+      } else {
+        setImportResult({
+          cancella: { success: false, message: `❌ ${data.error}` }
+        });
+      }
+    } catch (err) {
+      setImportResult({
+        cancella: { success: false, message: `❌ ${err.message}` }
+      });
+    }
+    
+    setCancellandoPiloti(false);
+  };
+
+  // ========== RENDER ==========
+  
+  return (
+    <div className="p-6 max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 rounded-lg shadow-lg mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Settings className="w-8 h-8" />
+            <div>
+              <h1 className="text-2xl font-bold">Setup Gara da FICR</h1>
+              <p className="text-indigo-200 text-sm">Configurazione completa evento</p>
+            </div>
+          </div>
+          <span className="text-sm font-mono bg-indigo-800 px-3 py-1 rounded">v3.0.2-p32</span>
+        </div>
+      </div>
+      
+      {/* Progress Steps - ORA 7 STEP */}
+      <div className="flex items-center justify-between mb-4 bg-white rounded-lg shadow p-4 overflow-x-auto">
+        {[
+          { n: 1, label: 'Anno' },
+          { n: 2, label: 'Gara' },
+          { n: 3, label: 'Eventi' },
+          { n: 4, label: 'Struttura', icon: '🏁' },
+          { n: 5, label: 'Tempi CO' },
+          { n: 6, label: 'GPS' },
+          { n: 7, label: 'Import' }
+        ].map((step, i) => (
+          <div key={step.n} className="flex items-center flex-shrink-0">
+            <div 
+              className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
+                stepCorrente === step.n 
+                  ? step.n === 4 ? 'bg-purple-600 text-white' : 'bg-indigo-600 text-white'
+                  : stepCorrente > step.n || (garaEsistente && step.n >= 3)
+                    ? 'bg-green-500 text-white cursor-pointer hover:bg-green-600'
+                    : 'bg-gray-200 text-gray-500'
+              }`}
+              onClick={() => {
+                // Permetti navigazione: indietro sempre, avanti solo se gara esistente o già completato
+                if (stepCorrente > step.n || (garaEsistente && step.n >= 3 && eventiCreati.length > 0)) {
+                  setStepCorrente(step.n);
+                }
+              }}
+            >
+              {stepCorrente > step.n || (garaEsistente && step.n >= 3) ? '✓' : step.icon || step.n}
+            </div>
+            <span className={`ml-1 text-xs font-medium ${stepCorrente >= step.n || (garaEsistente && step.n >= 3) ? 'text-gray-800' : 'text-gray-400'}`}>
+              {step.label}
+            </span>
+            {i < 6 && <div className={`w-4 h-1 mx-1 ${stepCorrente > step.n || (garaEsistente && step.n > 2) ? 'bg-green-500' : 'bg-gray-200'}`} />}
+          </div>
+        ))}
+      </div>
+      
+      {/* Banner gara esistente */}
+      {garaEsistente && (
+        <div className="mb-6 bg-green-50 border-2 border-green-500 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">⚡</span>
+            <div>
+              <p className="font-bold text-green-800">Gara già configurata!</p>
+              <p className="text-green-700 text-sm">
+                {eventiCreati.length} categorie trovate. Clicca sullo step che vuoi modificare.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Loading verifica gara */}
+      {verificandoGara && (
+        <div className="mb-6 bg-blue-50 border-2 border-blue-400 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <div className="animate-spin w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+            <p className="text-blue-800">Verifico se la gara esiste già nel database...</p>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 1: Anno */}
+      {stepCorrente === 1 && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <Calendar className="text-indigo-600" />
+            1️⃣ Seleziona Anno
+          </h2>
+          <div className="flex gap-4 items-end">
+            <div>
+              <label className="block text-sm font-medium mb-2">Anno gara</label>
+              <select 
+                value={anno} 
+                onChange={e => setAnno(parseInt(e.target.value))}
+                className="border-2 border-gray-300 rounded-lg px-4 py-3 text-lg font-semibold focus:border-indigo-500"
+              >
+                {[2024, 2025, 2026, 2027].map(a => (
+                  <option key={a} value={a}>{a}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={() => { caricaGare(); setStepCorrente(2); }}
+              disabled={loading}
+              className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {loading ? 'Caricamento...' : 'Cerca Gare FICR →'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 2: Selezione Gara */}
+      {stepCorrente === 2 && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <MapPin className="text-indigo-600" />
+              2️⃣ Seleziona Gara FICR ({gare.length} trovate)
+            </h2>
+            <button
+              onClick={() => setStepCorrente(1)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ← Cambia anno
+            </button>
+          </div>
+          
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Filtra per nome o località..."
+                value={filtro}
+                onChange={(e) => setFiltro(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500"
+              />
+            </div>
+          </div>
+          
+          {loading ? (
+            <div className="text-center py-8">
+              <Loader2 className="animate-spin mx-auto mb-2" size={32} />
+              <p>Caricamento gare FICR...</p>
+            </div>
+          ) : (
+            <div className="max-h-[400px] overflow-y-auto space-y-2">
+              {gareFiltrate.map((gara, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => selezionaGara(gara)}
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-indigo-500 hover:bg-indigo-50 ${
+                    garaSelezionata?.manifestazione === gara.manifestazione 
+                      ? 'border-indigo-500 bg-indigo-50' 
+                      : 'border-gray-200'
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-bold text-lg text-gray-800">{gara.nome || gara.descrizione}</p>
+                      <p className="text-gray-600">{gara.luogo}</p>
+                      {gara.organizzatore && (
+                        <p className="text-sm text-gray-500">Org: {gara.organizzatore}</p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-indigo-600">{gara.data}</p>
+                      <p className="text-xs text-gray-400 font-mono">{gara.equipe}/{gara.manifestazione}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* STEP 3: Conferma e Crea Eventi */}
+      {stepCorrente === 3 && garaSelezionata && (
+        <div className="bg-yellow-50 rounded-xl shadow-lg p-6 border-4 border-yellow-400">
+          <h2 className="text-xl font-bold text-yellow-800 mb-4 flex items-center gap-2">
+            <CheckCircle className="w-6 h-6 text-yellow-600" />
+            3️⃣ Conferma Gara e Categorie
+          </h2>
+
+          {loadingCategorie ? (
+            <div className="text-center py-4">
+              <Loader2 className="animate-spin mx-auto" />
+              <p className="text-sm text-gray-500 mt-2">Caricamento categorie...</p>
+            </div>
+          ) : (
+            <>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Nome Evento</label>
+                <input
+                  type="text"
+                  value={nomeEvento}
+                  onChange={(e) => setNomeEvento(e.target.value)}
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg"
+                />
+              </div>
+
+              {categorie.length > 0 && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">
+                    Categorie da creare ({categorieSelezionate.length} selezionate)
+                  </label>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {categorie.map(cat => (
+                      <div key={cat.id} className="flex items-center gap-3 p-2 bg-white rounded-lg border">
+                        <input
+                          type="checkbox"
+                          checked={categorieSelezionate.includes(cat.id)}
+                          onChange={() => toggleCategoria(cat.id)}
+                          className="w-5 h-5"
+                        />
+                        <div className="flex-1">
+                          <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                            {garaSelezionata.manifestazione}-{cat.id}
+                          </span>
+                          <span className="ml-2 text-sm">{cat.nome}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* p32: Campo unico codice FMI per tutte le categorie */}
+              {categorieSelezionate.length > 0 && (
+                <div className="mb-4 p-4 bg-yellow-50 border-2 border-yellow-400 rounded-lg">
+                  <label className="block text-sm font-bold mb-2 text-yellow-800">
+                    🔑 Codice FMI per accesso ERTA (obbligatorio)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="es. NAZEN032"
+                    value={codiceFmi}
+                    onChange={(e) => setCodiceFmi(e.target.value.toUpperCase())}
+                    className="w-full px-4 py-3 border-2 border-yellow-400 rounded-lg text-lg uppercase font-mono"
+                  />
+                  <p className="text-xs text-yellow-700 mt-1">
+                    Questo codice verrà usato per tutte le {categorieSelezionate.length} categorie selezionate
+                  </p>
+                </div>
+              )}
+            </>
+          )}
+
+          <div className="bg-white p-4 rounded-lg mb-4 text-sm">
+            <h3 className="font-semibold mb-2">📋 Riepilogo:</h3>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <p>📍 Località: <strong>{garaSelezionata.luogo}</strong></p>
+              <p>📅 Data: <strong>{garaSelezionata.data}</strong></p>
+              <p>🔑 FICR: <strong>{anno}/{garaSelezionata.equipe}/{garaSelezionata.manifestazione}</strong></p>
+            </div>
+            <p className="mt-2 text-sm">
+              📂 Eventi: <strong>{categorieSelezionate.map(c => 
+                `${garaSelezionata.manifestazione}-${c}`
+              ).join(', ') || 'nessuno'}</strong>
+            </p>
+            {categorieSelezionate.length > 0 && (
+              <p className="mt-1 text-sm">
+                🎫 Codice ERTA: <strong className="font-mono">{codiceFmi || '⚠️ DA INSERIRE'}</strong>
+                <span className="text-gray-500 ml-2">(per tutte le {categorieSelezionate.length} categorie)</span>
+              </p>
+            )}
+          </div>
+
+          <div className="flex justify-between">
+            <button
+              onClick={() => setStepCorrente(2)}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+            >
+              ← Indietro
+            </button>
+            <button
+              onClick={creaEventi}
+              disabled={creando || categorieSelezionate.length === 0 || !codiceFmi.trim()}
+              className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-green-700 disabled:opacity-50"
+            >
+              {creando ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  Creazione...
+                </>
+              ) : (
+                <>
+                  <Download size={20} />
+                  Crea Eventi →
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 4: Struttura Gara (NUOVO) */}
+      {stepCorrente === 4 && eventiCreati.length > 0 && (
+        <div className="rounded-xl shadow-lg overflow-hidden" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '3px' }}>
+          <div className="bg-white rounded-lg p-6">
+            {/* Header */}
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                🏁
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">4️⃣ Struttura Gara</h2>
+                <p className="text-gray-500 text-sm">Definisci giri e prove speciali per la curva di apprendimento</p>
+              </div>
+            </div>
+
+            {/* Numero Giri */}
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl mb-6">
+              <span className="font-semibold text-gray-700">Numero giri</span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setNumGiri(Math.max(1, numGiri - 1))}
+                  className="w-10 h-10 rounded-lg border-2 border-gray-300 bg-white text-xl font-bold hover:bg-gray-100 transition"
+                >
+                  −
+                </button>
+                <span className="w-12 text-center text-3xl font-bold" style={{ color: '#667eea' }}>
+                  {numGiri}
+                </span>
+                <button
+                  onClick={() => setNumGiri(Math.min(10, numGiri + 1))}
+                  className="w-10 h-10 rounded-lg border-2 border-gray-300 bg-white text-xl font-bold hover:bg-gray-100 transition"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* Lista Prove */}
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-sm text-gray-600">Prove nel giro (in ordine di percorrenza)</span>
+                <span className="text-xs px-3 py-1 rounded-full" style={{ background: '#e8f4fd', color: '#0066cc' }}>
+                  {prove.filter(p => p.nome.trim()).length} prove
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {prove.map((prova, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-3 p-4 rounded-xl border-2 transition ${
+                      prova.finale 
+                        ? 'bg-amber-50 border-amber-400' 
+                        : 'bg-gray-50 border-gray-200'
+                    }`}
+                  >
+                    {/* Numero */}
+                    <span className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0" style={{ background: '#667eea' }}>
+                      {index + 1}
+                    </span>
+
+                    {/* Input */}
+                    <input
+                      type="text"
+                      value={prova.nome}
+                      onChange={(e) => updateProva(index, 'nome', e.target.value)}
+                      placeholder="Nome prova (es. Cross Test Bosco)..."
+                      className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg text-base focus:border-indigo-500 focus:outline-none"
+                    />
+
+                    {/* Finale toggle */}
+                    <button
+                      onClick={() => updateProva(index, 'finale', !prova.finale)}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition whitespace-nowrap ${
+                        prova.finale
+                          ? 'bg-amber-500 text-white'
+                          : 'bg-white text-gray-600 border border-gray-300 hover:border-amber-400'
+                      }`}
+                    >
+                      {prova.finale ? '⭐ Finale' : '☆ Finale'}
+                    </button>
+
+                    {/* Frecce */}
+                    <div className="flex flex-col gap-1">
+                      <button
+                        onClick={() => moveProva(index, -1)}
+                        disabled={index === 0}
+                        className="w-7 h-5 rounded text-xs bg-gray-200 hover:bg-gray-300 disabled:opacity-40"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        onClick={() => moveProva(index, 1)}
+                        disabled={index === prove.length - 1}
+                        className="w-7 h-5 rounded text-xs bg-gray-200 hover:bg-gray-300 disabled:opacity-40"
+                      >
+                        ▼
+                      </button>
+                    </div>
+
+                    {/* Rimuovi */}
+                    <button
+                      onClick={() => removeProva(index)}
+                      disabled={prove.length <= 1}
+                      className="w-9 h-9 rounded-full flex items-center justify-center text-lg bg-red-100 text-red-500 hover:bg-red-200 disabled:opacity-40"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Aggiungi */}
+              <button
+                onClick={addProva}
+                className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-medium hover:border-indigo-400 hover:text-indigo-600 transition flex items-center justify-center gap-2"
+              >
+                <span className="text-xl">+</span> Aggiungi prova
+              </button>
+            </div>
+
+            {/* Toggle Anteprima */}
+            <button
+              onClick={() => setShowPreviewStruttura(!showPreviewStruttura)}
+              className="w-full py-4 rounded-xl text-white font-semibold flex items-center justify-center gap-2"
+              style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+            >
+              {showPreviewStruttura ? '🔼 Nascondi' : '🔽 Mostra'} anteprima PS ({psGenerate.length} totali)
+            </button>
+
+            {/* Anteprima */}
+            {showPreviewStruttura && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-xl max-h-80 overflow-y-auto">
+                {Array.from({ length: numGiri }, (_, i) => i + 1).map(giro => (
+                  <div key={giro} className="mb-4">
+                    <div className="text-xs font-bold text-indigo-600 uppercase mb-2 tracking-wide">
+                      Giro {giro}
+                    </div>
+                    {psGenerate
+                      .filter(ps => ps.giro === giro)
+                      .map(ps => (
+                        <div
+                          key={ps.numero}
+                          className="flex items-center gap-3 p-3 bg-white rounded-lg mb-2 border border-gray-200"
+                        >
+                          <span className="px-3 py-1 rounded-lg text-white text-sm font-bold" style={{ background: '#667eea' }}>
+                            PS{ps.numero}
+                          </span>
+                          <span className="flex-1 text-sm">{ps.nome}</span>
+                        </div>
+                      ))}
+                  </div>
+                ))}
+
+                {/* Finali */}
+                {psGenerate.filter(ps => ps.isFinale).length > 0 && (
+                  <div className="border-t-2 border-dashed border-amber-400 pt-4 mt-4">
+                    <div className="text-xs font-bold text-amber-600 uppercase mb-2 tracking-wide">
+                      ⭐ PS Finali
+                    </div>
+                    {psGenerate
+                      .filter(ps => ps.isFinale)
+                      .map(ps => (
+                        <div
+                          key={ps.numero}
+                          className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg mb-2 border-2 border-amber-400"
+                        >
+                          <span className="px-3 py-1 rounded-lg text-white text-sm font-bold bg-amber-500">
+                            PS{ps.numero}
+                          </span>
+                          <span className="flex-1 text-sm font-medium">{ps.nome}</span>
+                          <span className="text-xs text-amber-600 font-semibold">FINALE</span>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Info */}
+            <div className="mt-6 p-4 rounded-xl flex items-start gap-3" style={{ background: '#e8f4fd' }}>
+              <span className="text-lg">💡</span>
+              <div className="text-sm" style={{ color: '#0066cc' }}>
+                <strong>Curva di apprendimento:</strong> le PS con lo stesso nome verranno 
+                raggruppate per mostrare come il pilota migliora (o peggiora) nei giri successivi.
+              </div>
+            </div>
+
+            {/* Navigation */}
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={() => setStepCorrente(3)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                ← Indietro
+              </button>
+              <button
+                onClick={salvaStrutturaGara}
+                disabled={salvandoStruttura}
+                className="px-6 py-3 rounded-lg text-white font-semibold flex items-center gap-2 hover:opacity-90 disabled:opacity-50"
+                style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+              >
+                {salvandoStruttura ? (
+                  <>
+                    <Loader2 className="animate-spin" size={20} />
+                    Salvataggio...
+                  </>
+                ) : (
+                  <>
+                    <Save size={20} />
+                    Salva e Continua →
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 5: Tempi Settore (era Step 4) */}
+      {stepCorrente === 5 && eventiCreati.length > 0 && (
+        <div className="bg-green-50 rounded-xl shadow-lg p-6 border-4 border-green-400">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-green-800 flex items-center gap-2">
+              <Clock className="w-6 h-6 text-green-600" />
+              5️⃣ Tempi Settore (Orari Teorici CO)
+            </h2>
+            {eventiCreati.length > 1 && (
+              <button
+                onClick={applicaATutte}
+                className="text-sm px-3 py-1 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200"
+              >
+                📋 Applica prima gara a tutte
+              </button>
+            )}
+          </div>
+          
+          <p className="text-sm text-gray-600 mb-4">
+            Configura i tempi di trasferimento (hh:mm) per calcolare gli orari teorici ai Controlli Orario.
+          </p>
+          
+          <div className="space-y-6">
+            {eventiCreati.map(evento => {
+              const config = tempiSettore[evento.codice_gara] || {};
+              const coList = [
+                { num: 1, isPartenza: true },
+                { num: 2, attivo: 'co2_attivo', tempo: 'tempo_co1_co2', label: 'CO1→CO2' },
+                { num: 3, attivo: 'co3_attivo', tempo: 'tempo_co2_co3', label: 'CO2→CO3' },
+                { num: 4, attivo: 'co4_attivo', tempo: 'tempo_co3_co4', label: 'CO3→CO4' },
+                { num: 5, attivo: 'co5_attivo', tempo: 'tempo_co4_co5', label: 'CO4→CO5' },
+                { num: 6, attivo: 'co6_attivo', tempo: 'tempo_co5_co6', label: 'CO5→CO6' },
+                { num: 7, attivo: 'co7_attivo', tempo: 'tempo_co6_co7', label: 'CO6→CO7' },
+                { num: 8, attivo: 'co8_attivo', tempo: 'tempo_co7_co8', label: 'CO7→CO8' },
+                { num: 9, attivo: 'co9_attivo', tempo: 'tempo_co8_co9', label: 'CO8→CO9' },
+                { num: 10, attivo: 'co10_attivo', tempo: 'tempo_co9_co10', label: 'CO9→CO10' },
+              ];
+              
+              return (
+                <div key={evento.codice_gara} className="bg-white rounded-lg p-4 shadow">
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-bold text-gray-800 text-lg">
+                      🏁 {evento.codice_gara}
+                      <span className="ml-2 text-sm font-normal text-indigo-600">
+                        {evento.codice_gara.endsWith('-1') ? '(Campionato)' :
+                         evento.codice_gara.endsWith('-2') ? '(Sprint/Training)' :
+                         evento.codice_gara.endsWith('-3') ? '(Regolarità/Epoca)' : ''}
+                      </span>
+                    </h3>
+                    <button
+                      onClick={() => {
+                        const co2Tempo = config.tempo_co1_co2 || 100;
+                        const updated = { ...config };
+                        ['tempo_co2_co3','tempo_co3_co4','tempo_co4_co5',
+                         'tempo_co5_co6','tempo_co6_co7','tempo_co7_co8','tempo_co8_co9','tempo_co9_co10']
+                          .forEach(k => { updated[k] = co2Tempo; });
+                        setTempiSettore(prev => ({ ...prev, [evento.codice_gara]: updated }));
+                      }}
+                      className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 font-semibold"
+                    >
+                      ⚡ Applica CO2 a tutti i CO
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-4">
+                    {coList.map(co => {
+                      // CO1 = PARTENZA (sempre visibile, nessun tempo)
+                      if (co.isPartenza) {
+                        return (
+                          <div key={co.num} className="p-3 rounded-lg border-2 border-blue-500 bg-blue-50 flex items-center justify-center">
+                            <span className="text-lg font-bold text-blue-800">🚩 PARTENZA</span>
+                          </div>
+                        );
+                      }
+                      
+                      const isAttivo = config[co.attivo] ?? (co.num <= 2);
+                      const tempoVal = minToHM(config[co.tempo]);
+                      
+                      return (
+                        <div key={co.num} className={`p-3 rounded-lg border-2 ${isAttivo ? 'border-green-500 bg-green-50' : 'border-gray-300 bg-gray-100'}`}>
+                          <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={isAttivo}
+                              onChange={(e) => updateTempoSettore(evento.codice_gara, co.attivo, e.target.checked)}
+                              className="w-5 h-5 text-green-600 rounded"
+                            />
+                            <span className="text-sm font-bold">CO{co.num}</span>
+                          </label>
+                          {isAttivo && (
+                            <div className="flex items-center gap-1 justify-center">
+                              <input
+                                type="number" min="0" max="23" placeholder="h"
+                                value={tempoVal.h}
+                                onChange={(e) => updateTempoSettore(evento.codice_gara, co.tempo, hmToMin(e.target.value, tempoVal.m))}
+                                className="w-14 px-2 py-2 border-2 border-gray-300 rounded text-center text-lg font-mono"
+                              />
+                              <span className="text-lg font-bold">:</span>
+                              <input
+                                type="number" min="0" max="59" placeholder="m"
+                                value={tempoVal.m}
+                                onChange={(e) => updateTempoSettore(evento.codice_gara, co.tempo, hmToMin(tempoVal.h, e.target.value))}
+                                className="w-14 px-2 py-2 border-2 border-gray-300 rounded text-center text-lg font-mono"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Arrivo */}
+                  <div className="flex items-center gap-4 p-4 bg-red-50 rounded-lg border-2 border-red-300">
+                    <span className="font-bold text-red-800 text-lg">🏁 Arrivo</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number" min="0" max="23" placeholder="h"
+                        value={minToHM(config.tempo_ultimo_arr).h}
+                        onChange={(e) => updateTempoSettore(evento.codice_gara, 'tempo_ultimo_arr', hmToMin(e.target.value, minToHM(config.tempo_ultimo_arr).m))}
+                        className="w-16 px-2 py-2 border-2 border-gray-300 rounded text-center text-lg font-mono"
+                      />
+                      <span className="text-lg font-bold">:</span>
+                      <input
+                        type="number" min="0" max="59" placeholder="m"
+                        value={minToHM(config.tempo_ultimo_arr).m}
+                        onChange={(e) => updateTempoSettore(evento.codice_gara, 'tempo_ultimo_arr', hmToMin(minToHM(config.tempo_ultimo_arr).h, e.target.value))}
+                        className="w-16 px-2 py-2 border-2 border-gray-300 rounded text-center text-lg font-mono"
+                      />
+                    </div>
+                    <span className="text-sm text-gray-600">dall'ultimo CO</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="flex justify-between mt-6">
+            <button
+              onClick={() => setStepCorrente(4)}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+            >
+              ← Indietro
+            </button>
+            <button
+              onClick={salvaTempiSettore}
+              disabled={salvandoTempi}
+              className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-green-700 disabled:opacity-50"
+            >
+              {salvandoTempi ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  Salvataggio...
+                </>
+              ) : (
+                <>
+                  <Save size={20} />
+                  Salva e Continua →
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 6: GPS & Sicurezza (era Step 5) */}
+      {stepCorrente === 6 && eventiCreati.length > 0 && (
+        <div className="bg-orange-50 rounded-xl shadow-lg p-6 border-4 border-orange-400">
+          <h2 className="text-xl font-bold text-orange-800 mb-4 flex items-center gap-2">
+            <MapPin className="w-6 h-6 text-orange-600" />
+            6️⃣ Parametri GPS e Sicurezza
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Paddock 1 */}
+            <div className="bg-white rounded-lg p-4 shadow">
+              <h3 className="font-bold mb-3 flex items-center gap-2">
+                📍 Paddock Principale
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-500">Latitudine</label>
+                  <input
+                    type="text"
+                    value={paddock1Lat}
+                    onChange={(e) => setPaddock1Lat(e.target.value)}
+                    placeholder="46.1234"
+                    className="w-full px-3 py-2 border rounded-lg font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500">Longitudine</label>
+                  <input
+                    type="text"
+                    value={paddock1Lon}
+                    onChange={(e) => setPaddock1Lon(e.target.value)}
+                    placeholder="11.5678"
+                    className="w-full px-3 py-2 border rounded-lg font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* Paddock 2 */}
+            <div className="bg-white rounded-lg p-4 shadow">
+              <h3 className="font-bold mb-3 flex items-center gap-2">
+                📍 Paddock Secondario (opzionale)
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-500">Latitudine</label>
+                  <input
+                    type="text"
+                    value={paddock2Lat}
+                    onChange={(e) => setPaddock2Lat(e.target.value)}
+                    placeholder="46.1234"
+                    className="w-full px-3 py-2 border rounded-lg font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500">Longitudine</label>
+                  <input
+                    type="text"
+                    value={paddock2Lon}
+                    onChange={(e) => setPaddock2Lon(e.target.value)}
+                    placeholder="11.5678"
+                    className="w-full px-3 py-2 border rounded-lg font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-white rounded-lg p-4 shadow">
+              <label className="text-sm font-medium text-gray-700 mb-1 block">
+                Raggio Paddock (metri)
+              </label>
+              <input
+                type="number"
+                value={paddockRaggio}
+                onChange={(e) => setPaddockRaggio(parseInt(e.target.value) || 500)}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow">
+              <label className="text-sm font-medium text-gray-700 mb-1 block">
+                Frequenza GPS (secondi)
+              </label>
+              <input
+                type="number"
+                value={gpsFrequenza}
+                onChange={(e) => setGpsFrequenza(parseInt(e.target.value) || 30)}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow">
+              <label className="text-sm font-medium text-gray-700 mb-1 block">
+                Allarme Fermo (minuti)
+              </label>
+              <input
+                type="number"
+                value={allarmeFermoMinuti}
+                onChange={(e) => setAllarmeFermoMinuti(parseInt(e.target.value) || 10)}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+            </div>
+          </div>
+          
+          {/* Codici accesso */}
+          <div className="bg-white rounded-lg p-4 shadow mb-6">
+            <h3 className="font-bold mb-3">🔐 Codici Accesso</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Codice Direttore di Gara
+                </label>
+                <input
+                  type="text"
+                  value={codiceDdG}
+                  onChange={(e) => setCodiceDdG(e.target.value.toUpperCase())}
+                  placeholder="es. D03478"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-orange-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Per accesso Direttore di Gara</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Codice Accesso Pubblico
+                </label>
+                <input
+                  type="text"
+                  value={codiceAccessoPubblico}
+                  onChange={(e) => setCodiceAccessoPubblico(e.target.value.toUpperCase())}
+                  placeholder="es. NAZEN032"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-orange-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Per visualizzazione classifica pubblica</p>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-3">I codici piloti ERTA sono già impostati allo Step 3</p>
+          </div>
+          
+          <div className="flex justify-between">
+            <button
+              onClick={() => setStepCorrente(5)}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+            >
+              ← Indietro
+            </button>
+            <button
+              onClick={salvaParametriGPS}
+              disabled={salvandoGPS}
+              className="bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-orange-700 disabled:opacity-50"
+            >
+              {salvandoGPS ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  Salvataggio...
+                </>
+              ) : (
+                <>
+                  <Save size={20} />
+                  Salva e Continua →
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 7: Import Pre-Gara (era Step 6) */}
+      {stepCorrente === 7 && (
+        <div className="bg-blue-50 rounded-xl shadow-lg p-6 border-4 border-blue-400">
+          <h2 className="text-xl font-bold text-blue-800 mb-2 flex items-center gap-2">
+            <Download className="w-6 h-6 text-blue-600" />
+            7️⃣ Import Dati Pre-Gara
+          </h2>
+          <p className="text-sm text-blue-600 mb-4">
+            Importa piloti da FICR per: <strong>{eventiCreati.map(e => e.codice_gara).join(', ')}</strong>
+          </p>
+          
+          {/* 3 Bottoni Import */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {/* T-5: Programma */}
+            <div className="bg-white rounded-lg p-4 shadow border-l-4 border-yellow-500">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-3xl">📋</span>
+                <div>
+                  <h3 className="font-bold text-gray-800">T-5 Programma</h3>
+                  <p className="text-xs text-gray-500">5 giorni prima</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handleImportFicr('program', 'Programma')}
+                disabled={importandoFicr['program']}
+                className="w-full px-4 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:opacity-50 font-semibold"
+              >
+                {importandoFicr['program'] ? '⏳ Importando...' : '📋 Import Programma'}
+              </button>
+              {importResult['program'] && (
+                <div className={`text-sm mt-2 ${importResult['program'].success ? 'text-green-600' : 'text-red-600'}`}>
+                  <p>{importResult['program'].message}</p>
+                  {importResult['program'].dettagli && (
+                    <p className="text-xs text-gray-500 mt-1">{importResult['program'].dettagli}</p>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {/* T-2: Numeri */}
+            <div className="bg-white rounded-lg p-4 shadow border-l-4 border-blue-500">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-3xl">🔢</span>
+                <div>
+                  <h3 className="font-bold text-gray-800">T-2 Numeri</h3>
+                  <p className="text-xs text-gray-500">2 giorni prima</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handleImportFicr('entrylist', 'Numeri')}
+                disabled={importandoFicr['entrylist']}
+                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-semibold"
+              >
+                {importandoFicr['entrylist'] ? '⏳ Importando...' : '🔢 Import Numeri'}
+              </button>
+              {importResult['entrylist'] && (
+                <div className={`text-sm mt-2 ${importResult['entrylist'].success ? 'text-green-600' : 'text-red-600'}`}>
+                  <p>{importResult['entrylist'].message}</p>
+                  {importResult['entrylist'].dettagli && (
+                    <p className="text-xs text-gray-500 mt-1">{importResult['entrylist'].dettagli}</p>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {/* T-1: Ordine */}
+            <div className="bg-white rounded-lg p-4 shadow border-l-4 border-green-500">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-3xl">🏁</span>
+                <div>
+                  <h3 className="font-bold text-gray-800">T-1 Ordine</h3>
+                  <p className="text-xs text-gray-500">1 giorno prima</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handleImportFicr('startlist', 'Ordine')}
+                disabled={importandoFicr['startlist']}
+                className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-semibold"
+              >
+                {importandoFicr['startlist'] ? '⏳ Importando...' : '🏁 Import Ordine'}
+              </button>
+              {importResult['startlist'] && (
+                <div className={`text-sm mt-2 ${importResult['startlist'].success ? 'text-green-600' : 'text-red-600'}`}>
+                  <p>{importResult['startlist'].message}</p>
+                  {importResult['startlist'].dettagli && (
+                    <p className="text-xs text-gray-500 mt-1">{importResult['startlist'].dettagli}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex justify-between mt-6">
+            <button
+              onClick={() => setStepCorrente(6)}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+            >
+              ← Indietro
+            </button>
+            <button
+              onClick={() => window.location.href = '/eventi'}
+              className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-green-700"
+            >
+              <CheckCircle size={20} />
+              Setup Completato! →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Errori */}
+      {errore && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mt-4 flex items-center gap-2">
+          <AlertCircle size={20} />
+          {errore}
+        </div>
+      )}
+
+      {/* Risultato creazione (step 3) */}
+      {risultato && stepCorrente === 3 && (
+        <div className="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded-lg mt-4">
+          <div className="flex items-center gap-2 font-semibold mb-2">
+            <CheckCircle size={20} />
+            Eventi creati con successo!
+          </div>
+          <div className="text-sm">
+            {risultato.eventi_creati?.map(e => (
+              <p key={e.id}>✅ {e.codice_gara}</p>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -103,28 +103,17 @@ export default function Tempi() {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto">
-      {/* Header Pagina */}
-      <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white px-8 py-6 rounded-lg shadow-lg mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Clock className="w-10 h-10" />
-            <div>
-              <h1 className="text-3xl font-bold">Cronometraggio Live</h1>
-              <p className="text-slate-300 text-sm mt-1">Tempi e classifiche in tempo reale</p>
-            </div>
-          </div>
-          <Trophy className="w-12 h-12 text-yellow-400 opacity-50" />
-        </div>
+    <div className="p-4 lg:p-8 max-w-[1600px] mx-auto animate-fade-in">
+      <div className="mb-6">
+        <h1 className="text-heading-1">Cronometraggio</h1>
+        <p className="text-content-secondary mt-1 text-sm">Classifica della prova e classifica cumulativa</p>
       </div>
 
-      {/* Filtri */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-200">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Filters */}
+      <div className="bg-surface border border-border-subtle rounded-lg p-4 mb-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
-              📅 Evento
-            </label>
+            <label className="block text-xs font-medium text-content-secondary mb-1.5">Evento</label>
             <select
               value={eventoSelezionato}
               onChange={(e) => {
@@ -132,40 +121,39 @@ export default function Tempi() {
                 setProvaSelezionata('');
                 setDatiTempi(null);
               }}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+              className="w-full h-9 px-3 pr-8 rounded-md border border-border bg-surface text-sm font-medium cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 20 20%22%3E%3Cpath stroke=%22%2394A3B8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.5%22 d=%22m6 8 4 4 4-4%22/%3E%3C/svg%3E')] bg-no-repeat bg-[length:1.25rem] bg-[right_0.5rem_center] focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500"
             >
               {eventi.map((evento) => (
-                <option key={evento.id} value={evento.id}>
-                  {evento.nome_evento}
-                </option>
+                <option key={evento.id} value={evento.id}>{evento.nome_evento}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
-              🏁 Prova Speciale
-            </label>
+            <label className="block text-xs font-medium text-content-secondary mb-1.5">Prova Speciale</label>
             <select
               value={provaSelezionata}
               onChange={(e) => setProvaSelezionata(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg font-medium focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
+              className="w-full h-9 px-3 pr-8 rounded-md border border-border bg-surface text-sm font-medium cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 20 20%22%3E%3Cpath stroke=%22%2394A3B8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.5%22 d=%22m6 8 4 4 4-4%22/%3E%3C/svg%3E')] bg-no-repeat bg-[length:1.25rem] bg-[right_0.5rem_center] focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500"
             >
               {proveFiltrate.map((prova) => (
-                <option key={prova.id} value={prova.id}>
-                  {prova.nome_completo}
-                </option>
+                <option key={prova.id} value={prova.id}>{prova.nome_completo}</option>
               ))}
             </select>
           </div>
         </div>
       </div>
 
-      {/* Risultati */}
+      {/* Results */}
       {loading ? (
-        <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
-          <p className="text-gray-500 mt-4 font-medium">Caricamento dati...</p>
+        <div className="flex items-center justify-center py-20">
+          <div className="inline-flex items-center gap-3 text-content-secondary">
+            <svg className="animate-spin w-5 h-5 text-brand-500" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
+              <path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z" className="opacity-75" />
+            </svg>
+            <span className="text-sm">Caricamento tempi…</span>
+          </div>
         </div>
       ) : datiTempi ? (
         <div className="space-y-0">
@@ -316,11 +304,12 @@ export default function Tempi() {
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md py-20 text-center">
-          <Clock className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg font-medium">
-            Seleziona un evento e una prova speciale per visualizzare i tempi
-          </p>
+        <div className="bg-surface border border-border-subtle rounded-lg py-16 px-4 text-center">
+          <div className="w-12 h-12 rounded-full bg-surface-2 flex items-center justify-center mx-auto mb-4">
+            <Clock className="w-6 h-6 text-content-tertiary" />
+          </div>
+          <h3 className="text-heading-2 mb-1">Seleziona una prova</h3>
+          <p className="text-content-secondary text-sm">Scegli evento e prova speciale per visualizzare i tempi.</p>
         </div>
       )}
     </div>

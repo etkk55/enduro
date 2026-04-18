@@ -1324,14 +1324,16 @@ export default function LiveTiming() {
     );
   }
 
-  // NUOVO: Nessun evento disponibile
+  // Nessun evento disponibile
   if (eventi.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center bg-yellow-50 p-8 rounded-lg">
-          <AlertTriangle className="w-16 h-16 text-yellow-600 mx-auto mb-4" />
-          <p className="text-3xl font-semibold text-gray-800">Nessun evento disponibile</p>
-          <p className="text-xl text-gray-600 mt-2">Importa prima un evento da FICR</p>
+      <div className="flex items-center justify-center min-h-[70vh] px-4">
+        <div className="text-center max-w-md">
+          <div className="w-12 h-12 rounded-full bg-warning-bg text-warning-fg flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-6 h-6" />
+          </div>
+          <h2 className="text-heading-1 mb-1">Nessun evento disponibile</h2>
+          <p className="text-content-secondary text-sm">Importa prima un evento da FICR per iniziare.</p>
         </div>
       </div>
     );
@@ -1339,10 +1341,15 @@ export default function LiveTiming() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[70vh]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Caricamento dati replay...</p>
+          <div className="inline-flex items-center gap-3 text-content-secondary">
+            <svg className="animate-spin w-5 h-5 text-brand-500" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
+              <path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z" className="opacity-75" />
+            </svg>
+            <span className="text-sm">Caricamento dati replay…</span>
+          </div>
         </div>
       </div>
     );
@@ -1350,45 +1357,29 @@ export default function LiveTiming() {
 
   if (!replayData || !replayData.snapshots || replayData.snapshots.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center bg-yellow-50 p-8 rounded-lg">
-          <AlertTriangle className="w-16 h-16 text-yellow-600 mx-auto mb-4" />
-          <p className="text-3xl font-semibold text-gray-800">Nessun dato disponibile per questa gara</p>
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <label className="font-semibold text-gray-700">Seleziona Gara:</label>
+      <div className="flex items-center justify-center min-h-[70vh] px-4">
+        <div className="text-center max-w-md w-full">
+          <div className="w-12 h-12 rounded-full bg-warning-bg text-warning-fg flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-6 h-6" />
+          </div>
+          <h2 className="text-heading-1 mb-1">Nessun dato per questa gara</h2>
+          <p className="text-content-secondary text-sm mb-5">Seleziona un'altra gara o recupera i tempi dalla FICR.</p>
+          <div className="flex flex-col sm:flex-row gap-2 items-center justify-center">
             <select
               value={eventoSelezionato}
               onChange={(e) => setEventoSelezionato(e.target.value)}
-              className="px-4 py-2 border-2 border-gray-300 rounded-lg font-semibold bg-white hover:border-red-500 focus:border-red-500 focus:outline-none transition-colors"
+              className="h-9 px-3 pr-8 rounded-md border border-border bg-surface text-sm font-medium cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 20 20%22%3E%3Cpath stroke=%22%2394A3B8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.5%22 d=%22m6 8 4 4 4-4%22/%3E%3C/svg%3E')] bg-no-repeat bg-[length:1.25rem] bg-[right_0.5rem_center] focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 min-w-[200px]"
             >
               {eventi.map(evento => (
-                <option key={evento.id} value={evento.id}>
-                  {evento.nome_evento}
-                </option>
+                <option key={evento.id} value={evento.id}>{evento.nome_evento}</option>
               ))}
             </select>
-          </div>
-          <div className="mt-4 flex justify-center gap-3">
             <button
               onClick={handlePollFicrLive}
               disabled={!eventoSelezionato || pollFicrLoading}
-              className={`px-6 py-2 rounded-lg font-bold transition-colors ${
-                pollFicrLoading
-                  ? 'bg-orange-400 text-white animate-pulse cursor-wait'
-                  : 'bg-orange-600 text-white hover:bg-orange-700'
-              } disabled:opacity-50`}
+              className="h-9 px-4 rounded-md bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {pollFicrLoading ? '⏳ FICR...' : '🔄 Aggiorna da FICR'}
-            </button>
-            <button
-              onClick={() => setLiveMode(!liveMode)}
-              className={`px-6 py-2 rounded-lg font-bold transition-colors ${
-                liveMode
-                  ? 'bg-red-600 text-white animate-pulse'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              📡 LIVE {liveMode ? 'ON' : 'OFF'}
+              {pollFicrLoading ? 'Scarico…' : 'Aggiorna da FICR'}
             </button>
           </div>
         </div>
@@ -1403,155 +1394,136 @@ export default function LiveTiming() {
   const nomeEvento = eventoCorrente?.nome_evento || 'Evento';
 
   return (
-    <div className="w-full px-4 space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-6 rounded-lg shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Radio className="w-10 h-10" />
-            <div>
-              <h1 className="text-3xl font-bold">Live Timing — {nomeEvento}</h1>
-            </div>
+    <div className="w-full px-3 lg:px-6 py-4 space-y-4">
+      {/* Event header */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 py-2">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-md bg-brand-50 dark:bg-brand-100 text-brand-600 dark:text-brand-500 flex items-center justify-center shrink-0">
+            <Radio className="w-5 h-5" />
           </div>
-          <div className="text-right">
-            <div className="text-xl text-red-100">Step {currentStep + 1}/{replayData.snapshots.length}</div>
-            <div className="text-4xl font-bold">
-              {isGaraConclusa ? '🏁 GARA CONCLUSA' : currentSnapshot.descrizione}
+          <div className="min-w-0">
+            <h1 className="text-heading-1 truncate">{nomeEvento}</h1>
+            <div className="flex items-center gap-2 mt-0.5 text-xs text-content-secondary">
+              <span>{isGaraConclusa ? 'Gara conclusa' : currentSnapshot.descrizione}</span>
+              <span className="text-content-tertiary">·</span>
+              <span className="font-mono tabular-nums">Step {currentStep + 1}/{replayData.snapshots.length}</span>
+              {liveMode && lastSync && (
+                <>
+                  <span className="text-content-tertiary">·</span>
+                  <span className="flex items-center gap-1 text-success-fg">
+                    <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                    Sync {lastSync.toLocaleTimeString('it-IT')}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Controlli - p29: UX semplificata */}
-      <div className="bg-white rounded-lg shadow-md p-4">
-        <div className="flex items-center gap-4 flex-wrap">
-          {/* Selettori Gara e Classe */}
-          <div className="flex items-center gap-2">
-            <select 
-              value={eventoSelezionato}
-              onChange={(e) => setEventoSelezionato(e.target.value)}
-              className="px-3 py-2 border-2 border-gray-300 rounded-lg font-semibold bg-white text-sm"
-            >
-              {eventi.map(evento => (
-                <option key={evento.id} value={evento.id}>{evento.nome_evento}</option>
-              ))}
-            </select>
-          </div>
+      {/* Control bar */}
+      <div className="bg-surface border border-border-subtle rounded-lg p-3 flex items-center gap-2 flex-wrap">
+        {/* Event selector */}
+        <select
+          value={eventoSelezionato}
+          onChange={(e) => setEventoSelezionato(e.target.value)}
+          className="h-9 px-3 pr-8 rounded-md border border-border bg-surface text-content-primary text-sm font-medium cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 20 20%22%3E%3Cpath stroke=%22%2394A3B8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.5%22 d=%22m6 8 4 4 4-4%22/%3E%3C/svg%3E')] bg-no-repeat bg-[length:1.25rem] bg-[right_0.5rem_center] focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 max-w-xs truncate"
+        >
+          {eventi.map(evento => (
+            <option key={evento.id} value={evento.id}>{evento.nome_evento}</option>
+          ))}
+        </select>
 
-          {/* Separatore */}
-          <div className="w-px h-8 bg-gray-300"></div>
+        <div className="w-px h-6 bg-border-subtle" />
 
-          {/* Pulsanti principali REPLAY e LIVE */}
+        {/* Mode toggles: segmented control */}
+        <div className="inline-flex bg-surface-2 rounded-md p-0.5">
           <button
             onClick={() => { setReplayMode(!replayMode); if (!replayMode) setLiveMode(false); }}
             disabled={liveMode}
-            className={`px-4 py-2 rounded-lg font-bold transition-colors ${
-              replayMode 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            🔄 REPLAY {replayMode ? 'ON' : ''}
-          </button>
-
-          <button
-            onClick={() => { setLiveMode(!liveMode); if (!liveMode) { setReplayMode(false); handlePollFicrLive(); } }}
-            className={`px-4 py-2 rounded-lg font-bold transition-colors ${
-              liveMode 
-                ? 'bg-red-600 text-white animate-pulse' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            className={`h-8 px-3 rounded-sm text-xs font-semibold transition-colors inline-flex items-center gap-1.5 ${
+              replayMode
+                ? 'bg-surface shadow-sm text-content-primary'
+                : 'text-content-secondary hover:text-content-primary disabled:opacity-40 disabled:cursor-not-allowed'
             }`}
           >
-            📡 LIVE {liveMode ? 'ON' : ''}
+            <RotateCcw className="w-3.5 h-3.5" />
+            Replay
           </button>
-
-          {/* Separatore */}
-          <div className="w-px h-8 bg-gray-300"></div>
-
-          {/* Controlli contestuali REPLAY */}
-          {replayMode && (
-            <>
-              <button
-                onClick={handleReset}
-                className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-sm"
-              >
-                <RotateCcw className="w-4 h-4 inline mr-1" />
-                Reset
-              </button>
-              
-              {!isPlaying ? (
-                <button
-                  onClick={handlePlay}
-                  className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-semibold"
-                >
-                  <Play className="w-4 h-4 inline mr-1" />
-                  Play
-                </button>
-              ) : (
-                <button
-                  onClick={handlePause}
-                  className="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm font-semibold"
-                >
-                  <Square className="w-4 h-4 inline mr-1" />
-                  Pausa
-                </button>
-              )}
-              
-              <button
-                onClick={handleNext}
-                disabled={currentStep >= replayData.snapshots.length - 1}
-                className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 text-sm"
-              >
-                <SkipForward className="w-4 h-4 inline mr-1" />
-                Avanti
-              </button>
-
-              <span className="text-sm text-gray-600 font-medium">
-                Step {currentStep + 1}/{replayData.snapshots.length}
-              </span>
-            </>
-          )}
-
-          {/* Controlli contestuali LIVE */}
-          {liveMode && (
-            <>
-              <select
-                value={refreshInterval}
-                onChange={(e) => setRefreshInterval(Number(e.target.value))}
-                className="px-2 py-2 rounded-lg border border-gray-300 bg-white text-sm"
-              >
-                {[1,2,3,5,10].map(sec => (
-                  <option key={sec} value={sec}>{sec}s</option>
-                ))}
-              </select>
-
-              {lastSync && (
-                <span className="text-sm text-green-600 font-semibold">
-                  📡 Sync: {lastSync.toLocaleTimeString('it-IT')}
-                </span>
-              )}
-
-              {currentStep === replayData.snapshots.length - 1 && (
-                <button
-                  onClick={() => setGaraConclusa(!garaConclusa)}
-                  className={`px-4 py-2 rounded-lg font-bold text-sm ${
-                    garaConclusa 
-                      ? 'bg-green-600 text-white' 
-                      : 'bg-yellow-500 text-black animate-pulse'
-                  }`}
-                >
-                  {garaConclusa ? '✅ Conclusa' : '🏁 Fine Gara'}
-                </button>
-              )}
-            </>
-          )}
+          <button
+            onClick={() => { setLiveMode(!liveMode); if (!liveMode) { setReplayMode(false); handlePollFicrLive(); } }}
+            className={`h-8 px-3 rounded-sm text-xs font-semibold transition-colors inline-flex items-center gap-1.5 ${
+              liveMode
+                ? 'bg-danger-fg text-white shadow-sm'
+                : 'text-content-secondary hover:text-content-primary'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${liveMode ? 'bg-white animate-pulse' : 'bg-danger-fg'}`} />
+            Live
+          </button>
         </div>
+
+        {/* Replay contextual controls */}
+        {replayMode && (
+          <>
+            <div className="w-px h-6 bg-border-subtle" />
+            <button
+              onClick={handleReset}
+              className="h-9 w-9 inline-flex items-center justify-center rounded-md text-content-secondary hover:bg-surface-2 hover:text-content-primary transition-colors"
+              title="Reset"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+            <button
+              onClick={isPlaying ? handlePause : handlePlay}
+              className="h-9 px-3.5 rounded-md bg-brand-600 text-white text-sm font-semibold inline-flex items-center gap-1.5 hover:bg-brand-700 shadow-sm"
+            >
+              {isPlaying ? <Square className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+              {isPlaying ? 'Pausa' : 'Play'}
+            </button>
+            <button
+              onClick={handleNext}
+              disabled={currentStep >= replayData.snapshots.length - 1}
+              className="h-9 px-3 rounded-md border border-border text-sm font-medium inline-flex items-center gap-1.5 hover:bg-surface-2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              <SkipForward className="w-3.5 h-3.5" />
+              Avanti
+            </button>
+          </>
+        )}
+
+        {/* Live contextual controls */}
+        {liveMode && (
+          <>
+            <div className="w-px h-6 bg-border-subtle" />
+            <label className="text-xs text-content-secondary font-medium">Refresh</label>
+            <select
+              value={refreshInterval}
+              onChange={(e) => setRefreshInterval(Number(e.target.value))}
+              className="h-9 px-2.5 pr-7 rounded-md border border-border bg-surface text-sm font-medium cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 20 20%22%3E%3Cpath stroke=%22%2394A3B8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.5%22 d=%22m6 8 4 4 4-4%22/%3E%3C/svg%3E')] bg-no-repeat bg-[length:1.25rem] bg-[right_0.25rem_center] focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+            >
+              {[1,2,3,5,10].map(sec => <option key={sec} value={sec}>{sec}s</option>)}
+            </select>
+            {currentStep === replayData.snapshots.length - 1 && (
+              <button
+                onClick={() => setGaraConclusa(!garaConclusa)}
+                className={`h-9 px-3.5 rounded-md text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${
+                  garaConclusa
+                    ? 'bg-success-fg text-white'
+                    : 'bg-warning-bg text-warning-fg border border-warning-border'
+                }`}
+              >
+                {garaConclusa ? '✓ Gara conclusa' : 'Fine gara'}
+              </button>
+            )}
+          </>
+        )}
       </div>
 
       {/* Stato Prove */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-4xl font-bold text-gray-800">Stato Prove Speciali</h2>
+      <div className="bg-surface border border-border-subtle rounded-lg p-5">
+        <div className="flex justify-between items-center mb-4 flex-wrap gap-3">
+          <h2 className="text-heading-2 text-content-primary">Prove Speciali</h2>
           
           {/* p35: Filtri CL e Moto - spostati qui */}
           <div className="flex gap-3">

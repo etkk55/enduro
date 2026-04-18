@@ -1,181 +1,220 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Calendar, Plus, Trash2, MapPin } from 'lucide-react';
-
+import { Calendar, Trash2, MapPin, Search, Plus } from 'lucide-react';
 import { API_BASE as _API_BASE } from '../services/api';
+import { Card, CardBody } from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Badge from '../components/ui/Badge';
+import Input from '../components/ui/Input';
+import { Skeleton } from '../components/ui/Skeleton';
+import EmptyState from '../components/ui/EmptyState';
+
 const API_BASE = `${_API_BASE}/api`;
 
-// p32: Colori per località (alternati)
-const COLORI_LOCALITA = [
-  'bg-blue-50 border-l-4 border-l-blue-400',
-  'bg-green-50 border-l-4 border-l-green-400',
-  'bg-amber-50 border-l-4 border-l-amber-400',
-  'bg-purple-50 border-l-4 border-l-purple-400',
-  'bg-rose-50 border-l-4 border-l-rose-400',
-  'bg-cyan-50 border-l-4 border-l-cyan-400',
-  'bg-orange-50 border-l-4 border-l-orange-400',
-  'bg-indigo-50 border-l-4 border-l-indigo-400',
-];
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('it-IT', {
+    day: '2-digit', month: 'short', year: 'numeric'
+  });
+}
+
+function DateChip({ iso }) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return (
+    <div className="w-11 h-11 rounded-md bg-brand-50 dark:bg-brand-100 text-brand-600 dark:text-brand-500 flex flex-col items-center justify-center shrink-0">
+      <div className="text-2xs font-semibold leading-none uppercase">
+        {d.toLocaleDateString('it-IT', { month: 'short' })}
+      </div>
+      <div className="text-base font-bold leading-none mt-0.5 tabular-nums">
+        {d.getDate()}
+      </div>
+    </div>
+  );
+}
+
+function statoVariant(stato) {
+  const map = {
+    bozza: 'neutral',
+    in_corso: 'info',
+    completato: 'success',
+    annullato: 'danger',
+  };
+  return map[stato] || 'neutral';
+}
+
+function EventItem({ evento, onDelete }) {
+  return (
+    <div className="flex items-center gap-4 px-4 py-3 hover:bg-surface-2 transition-colors group">
+      <DateChip iso={evento.data_inizio} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm font-semibold text-content-primary truncate">
+            {evento.nome_evento || evento.nome}
+          </span>
+          <Badge variant={statoVariant(evento.stato)} size="sm">
+            {evento.stato || 'bozza'}
+          </Badge>
+        </div>
+        <div className="flex items-center gap-3 mt-1 text-xs text-content-tertiary">
+          {evento.luogo && (
+            <span className="flex items-center gap-1 truncate">
+              <MapPin className="w-3 h-3 shrink-0" /> {evento.luogo}
+            </span>
+          )}
+          <span className="font-mono">{evento.codice_gara}</span>
+          <span className="hidden sm:inline">{formatDate(evento.data_inizio)}</span>
+        </div>
+      </div>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        onClick={() => onDelete(evento)}
+        className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-danger-fg hover:bg-danger-bg"
+        aria-label="Elimina evento"
+      >
+        <Trash2 className="w-4 h-4" />
+      </Button>
+    </div>
+  );
+}
+
+function LocationGroup({ luogo, eventi, onDelete }) {
+  return (
+    <Card className="overflow-hidden">
+      <div className="px-5 py-3 border-b border-border-subtle bg-surface-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <MapPin className="w-4 h-4 text-content-tertiary" />
+          <span className="text-sm font-semibold text-content-primary">{luogo}</span>
+        </div>
+        <Badge size="sm" variant="neutral">
+          {eventi.length} {eventi.length === 1 ? 'evento' : 'eventi'}
+        </Badge>
+      </div>
+      <div className="divide-y divide-border-subtle">
+        {eventi.map(e => (
+          <EventItem key={e.id} evento={e} onDelete={onDelete} />
+        ))}
+      </div>
+    </Card>
+  );
+}
 
 export default function Eventi() {
   const [eventi, setEventi] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
 
-  useEffect(() => {
-    loadEventi();
-  }, []);
+  useEffect(() => { loadEventi(); }, []);
 
-  const loadEventi = async () => {
+  async function loadEventi() {
+    setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/eventi`);
       const data = await res.json();
-      // p32: Ordina per data (più recenti prima), poi per località
-      const sorted = data.sort((a, b) => {
-        const dataA = new Date(a.data_inizio);
-        const dataB = new Date(b.data_inizio);
-        if (dataB - dataA !== 0) return dataB - dataA;
-        return (a.luogo || '').localeCompare(b.luogo || '');
-      });
-      setEventi(sorted);
+      setEventi(data.sort((a, b) => new Date(b.data_inizio || 0) - new Date(a.data_inizio || 0)));
     } catch (err) {
       console.error('Errore caricamento eventi:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  // p32: Raggruppa eventi per località
-  const eventiRaggruppati = useMemo(() => {
-    const gruppi = {};
-    eventi.forEach(ev => {
-      const luogo = ev.luogo || 'Senza località';
-      if (!gruppi[luogo]) gruppi[luogo] = [];
-      gruppi[luogo].push(ev);
-    });
-    // Ordina gruppi per data più recente
-    return Object.entries(gruppi).sort((a, b) => {
-      const dataA = Math.max(...a[1].map(e => new Date(e.data_inizio).getTime()));
-      const dataB = Math.max(...b[1].map(e => new Date(e.data_inizio).getTime()));
-      return dataB - dataA;
-    });
-  }, [eventi]);
-
-  // p32: Mappa località -> colore
-  const coloriMappa = useMemo(() => {
-    const mappa = {};
-    eventiRaggruppati.forEach(([luogo], idx) => {
-      mappa[luogo] = COLORI_LOCALITA[idx % COLORI_LOCALITA.length];
-    });
-    return mappa;
-  }, [eventiRaggruppati]);
-
-  const eliminaEvento = async (id, nome) => {
-    if (!confirm(`Eliminare l'evento "${nome}"?\n\nATTENZIONE: Verranno eliminate anche tutte le prove speciali, piloti e tempi collegati!`)) {
-      return;
-    }
-
+  async function onDelete(evento) {
+    if (!confirm(`Eliminare "${evento.nome_evento}"?\n\nAttenzione: saranno rimossi anche piloti, tempi e prove collegate.`)) return;
     try {
-      const res = await fetch(`${API_BASE}/eventi/${id}`, {
-        method: 'DELETE'
-      });
-
-      if (res.ok) {
-        alert('Evento eliminato con successo');
-        loadEventi();
-      } else {
-        alert('Errore durante l\'eliminazione');
-      }
+      const res = await fetch(`${API_BASE}/eventi/${evento.id}`, { method: 'DELETE' });
+      if (res.ok) loadEventi();
+      else alert('Errore durante eliminazione');
     } catch (err) {
       alert('Errore: ' + err.message);
     }
-  };
-
-  if (loading) {
-    return <div className="text-center py-8">Caricamento...</div>;
   }
 
+  const filtered = useMemo(() => {
+    if (!query.trim()) return eventi;
+    const q = query.toLowerCase();
+    return eventi.filter(e =>
+      (e.nome_evento || '').toLowerCase().includes(q) ||
+      (e.luogo || '').toLowerCase().includes(q) ||
+      (e.codice_gara || '').toLowerCase().includes(q)
+    );
+  }, [eventi, query]);
+
+  const gruppi = useMemo(() => {
+    const map = {};
+    filtered.forEach(e => {
+      const luogo = e.luogo || 'Senza localita';
+      if (!map[luogo]) map[luogo] = [];
+      map[luogo].push(e);
+    });
+    return Object.entries(map).sort((a, b) =>
+      Math.max(...b[1].map(e => new Date(e.data_inizio || 0).getTime())) -
+      Math.max(...a[1].map(e => new Date(e.data_inizio || 0).getTime()))
+    );
+  }, [filtered]);
+
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Calendar className="w-8 h-8 text-blue-600" />
-          <h1 className="text-3xl font-bold">Eventi</h1>
+    <div className="p-4 lg:p-8 max-w-5xl mx-auto animate-fade-in">
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-heading-1">Eventi</h1>
+          <p className="text-content-secondary mt-1 text-sm">
+            {loading ? 'Caricamento…' : `${eventi.length} evento/i configurati`}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <div className="hidden sm:block w-64">
+            <Input
+              leftIcon={<Search className="w-4 h-4" />}
+              placeholder="Cerca evento…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-800 text-white sticky top-0">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase">Nome Evento</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase">Data</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase">Luogo</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase">Codice</th>
-                <th className="px-6 py-3 text-center text-xs font-medium uppercase">Azioni</th>
-              </tr>
-            </thead>
-            <tbody>
-              {eventiRaggruppati.map(([luogo, eventiGruppo], groupIdx) => (
-                <>
-                  {/* p32: Riga vuota separatore tra gruppi (non prima del primo) */}
-                  {groupIdx > 0 && (
-                    <tr key={`spacer-${luogo}`}>
-                      <td colSpan={5} className="h-4 bg-gray-700"></td>
-                    </tr>
-                  )}
-                  {/* p32: Header separatore per località */}
-                  <tr key={`header-${luogo}`} className={`${coloriMappa[luogo]} bg-opacity-80`}>
-                    <td colSpan={5} className="px-6 py-2">
-                      <div className="flex items-center gap-2 font-bold text-gray-700">
-                        <MapPin className="w-4 h-4" />
-                        {luogo}
-                        <span className="text-xs font-normal text-gray-500">
-                          ({eventiGruppo.length} {eventiGruppo.length === 1 ? 'evento' : 'eventi'})
-                        </span>
+      {loading ? (
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i}>
+              <CardBody>
+                <Skeleton className="h-4 w-32 mb-3" />
+                <div className="space-y-3">
+                  {[...Array(2)].map((__, j) => (
+                    <div key={j} className="flex items-center gap-4">
+                      <Skeleton className="w-11 h-11 rounded-md" />
+                      <div className="flex-1">
+                        <Skeleton className="h-4 w-3/4 mb-2" />
+                        <Skeleton className="h-3 w-1/2" />
                       </div>
-                    </td>
-                  </tr>
-                  {/* p32: Righe eventi con colore località */}
-                  {eventiGruppo.map((evento) => (
-                    <tr key={evento.id} className={`${coloriMappa[luogo]} hover:brightness-95 transition-all`}>
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900">{evento.nome_evento}</div>
-                        {evento.descrizione && (
-                          <div className="text-sm text-gray-500">{evento.descrizione}</div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {new Date(evento.data_inizio).toLocaleDateString('it-IT')}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {evento.luogo}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-mono text-gray-600">
-                        {evento.codice_gara}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <button
-                          onClick={() => eliminaEvento(evento.id, evento.nome_evento)}
-                          className="inline-flex items-center gap-1 px-3 py-1 text-sm text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Elimina
-                        </button>
-                      </td>
-                    </tr>
+                    </div>
                   ))}
-                </>
-              ))}
-            </tbody>
-          </table>
-
-          {eventiRaggruppati.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              Nessun evento trovato
-            </div>
-          )}
+                </div>
+              </CardBody>
+            </Card>
+          ))}
         </div>
-      </div>
+      ) : gruppi.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={Calendar}
+            title={query ? 'Nessun evento trovato' : 'Nessun evento configurato'}
+            description={query ? 'Prova con un altro termine di ricerca.' : 'Crea il tuo primo evento dal wizard di setup.'}
+            action={!query && (
+              <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => window.location.href = '/setup-gara'}>
+                Nuovo evento
+              </Button>
+            )}
+          />
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {gruppi.map(([luogo, eventi]) => (
+            <LocationGroup key={luogo} luogo={luogo} eventi={eventi} onDelete={onDelete} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

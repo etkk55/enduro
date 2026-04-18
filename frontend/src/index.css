@@ -1,3 +1,225 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ==================== DESIGN TOKENS ==================== */
+@layer base {
+  :root {
+    /* Surface */
+    --bg-base: 250 250 252;           /* #FAFAFC - page background */
+    --bg-surface: 255 255 255;        /* #FFFFFF - cards, panels */
+    --bg-surface-2: 245 245 248;      /* #F5F5F8 - nested surfaces */
+    --bg-surface-3: 239 239 243;      /* #EFEFF3 - hover, inputs */
+
+    /* Text */
+    --text-primary: 15 23 42;         /* #0F172A - headings */
+    --text-secondary: 71 85 105;      /* #475569 - body */
+    --text-tertiary: 148 163 184;     /* #94A3B8 - captions, placeholders */
+    --text-disabled: 203 213 225;     /* #CBD5E1 */
+
+    /* Borders */
+    --border-subtle: 226 232 240;     /* #E2E8F0 */
+    --border-default: 203 213 225;    /* #CBD5E1 */
+    --border-strong: 148 163 184;     /* #94A3B8 */
+
+    /* Brand */
+    --brand-50: 239 246 255;
+    --brand-100: 219 234 254;
+    --brand-500: 59 130 246;          /* Primary blue #3B82F6 */
+    --brand-600: 37 99 235;           /* Hover */
+    --brand-700: 29 78 216;           /* Active */
+    --brand-contrast: 255 255 255;
+
+    /* Semantic */
+    --success-bg: 220 252 231;
+    --success-fg: 22 101 52;
+    --success-border: 134 239 172;
+
+    --warning-bg: 254 249 195;
+    --warning-fg: 133 77 14;
+    --warning-border: 253 224 71;
+
+    --danger-bg: 254 226 226;
+    --danger-fg: 153 27 27;
+    --danger-border: 252 165 165;
+
+    --info-bg: 224 242 254;
+    --info-fg: 7 89 133;
+    --info-border: 125 211 252;
+
+    /* Focus */
+    --focus-ring: 59 130 246;
+
+    /* Elevation */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    --shadow-md: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+    --shadow-lg: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+    --shadow-xl: 0 16px 32px -8px rgb(0 0 0 / 0.12), 0 4px 8px -2px rgb(0 0 0 / 0.06);
+  }
+
+  .dark {
+    /* Surface */
+    --bg-base: 9 9 11;                /* #09090B - page */
+    --bg-surface: 24 24 27;           /* #18181B - cards */
+    --bg-surface-2: 39 39 42;         /* #27272A - nested */
+    --bg-surface-3: 52 52 58;         /* #34343A - hover */
+
+    /* Text */
+    --text-primary: 250 250 250;      /* #FAFAFA */
+    --text-secondary: 161 161 170;    /* #A1A1AA */
+    --text-tertiary: 113 113 122;     /* #71717A */
+    --text-disabled: 63 63 70;
+
+    /* Borders */
+    --border-subtle: 39 39 42;        /* #27272A */
+    --border-default: 52 52 58;       /* #34343A */
+    --border-strong: 82 82 91;        /* #52525B */
+
+    /* Brand (stay vibrant in dark) */
+    --brand-50: 30 41 59;
+    --brand-100: 37 60 94;
+    --brand-500: 96 165 250;          /* Lighter for dark */
+    --brand-600: 59 130 246;
+    --brand-700: 37 99 235;
+
+    /* Semantic (darker backgrounds, lighter text) */
+    --success-bg: 20 83 45;
+    --success-fg: 187 247 208;
+    --success-border: 22 101 52;
+
+    --warning-bg: 113 63 18;
+    --warning-fg: 254 240 138;
+    --warning-border: 133 77 14;
+
+    --danger-bg: 127 29 29;
+    --danger-fg: 254 202 202;
+    --danger-border: 153 27 27;
+
+    --info-bg: 12 74 110;
+    --info-fg: 186 230 253;
+    --info-border: 7 89 133;
+
+    /* Elevation (darker, more pronounced) */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 4px 12px -2px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+    --shadow-xl: 0 16px 32px -8px rgb(0 0 0 / 0.6), 0 4px 8px -2px rgb(0 0 0 / 0.4);
+  }
+
+  /* ==================== BASE ==================== */
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: rgb(var(--bg-base));
+    color: rgb(var(--text-primary));
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--border-default));
+    border-radius: 10px;
+    border: 2px solid rgb(var(--bg-base));
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--border-strong));
+  }
+
+  /* Focus ring default */
+  *:focus-visible {
+    outline: 2px solid rgb(var(--focus-ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Remove tap highlight on mobile */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ==================== UTILITY CLASSES ==================== */
+@layer utilities {
+  .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    font-feature-settings: 'zero', 'ss01';
+  }
+
+  .text-display {
+    font-size: 2rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .text-heading-1 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .text-heading-2 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+
+  .text-body {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .text-caption {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: rgb(var(--text-tertiary));
+  }
+
+  .text-overline {
+    font-size: 0.6875rem;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(var(--text-tertiary));
+  }
+
+  /* Animations */
+  .animate-fade-in {
+    animation: fade-in 200ms ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+}

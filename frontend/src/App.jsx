@@ -1,7 +1,14 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import {
+  LayoutDashboard, Calendar, Users, Settings, Radio, Activity, User,
+  MessageSquare, Bell, Download, LifeBuoy, Flag, Clock, Trophy, X
+} from 'lucide-react';
 import ErrorBoundary from './components/ErrorBoundary';
-import { Home, Calendar, Users, Clock, Trophy, Download, Radio, MessageSquare, Activity, User, HelpCircle, Moon, Sun, Bell, Settings } from 'lucide-react';
+import Sidebar from './components/Sidebar';
+import TopBar from './components/TopBar';
+import { cn } from './components/ui/utils';
+
 import Dashboard from './pages/Dashboard';
 import Eventi from './pages/Eventi';
 import Piloti from './pages/Piloti';
@@ -18,120 +25,165 @@ import Help from './pages/Help';
 import MessaggiPiloti from './pages/MessaggiPiloti';
 import SetupGaraFicr from './pages/SetupGaraFicr';
 
-function NavLink({ to, icon: Icon, children, darkMode }) {
-  const location = useLocation();
-  const isActive = location.pathname === to;
-  
+const NAV_GROUPS = [
+  {
+    label: null,
+    items: [
+      { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+      { to: '/live', icon: Radio, label: 'Live Timing' },
+    ],
+  },
+  {
+    label: 'Gestione Gara',
+    items: [
+      { to: '/eventi', icon: Calendar, label: 'Eventi' },
+      { to: '/piloti', icon: Users, label: 'Piloti' },
+      { to: '/setup-gara', icon: Settings, label: 'Setup Gara' },
+      { to: '/controllo-gara', icon: Activity, label: 'Controllo Gara' },
+      { to: '/import-ficr', icon: Download, label: 'Import FICR' },
+    ],
+  },
+  {
+    label: 'Tempi & Risultati',
+    items: [
+      { to: '/tempi', icon: Clock, label: 'Tempi' },
+      { to: '/classifiche', icon: Trophy, label: 'Classifiche' },
+    ],
+  },
+  {
+    label: 'Comunicazione',
+    items: [
+      { to: '/comunicati', icon: MessageSquare, label: 'Comunicati' },
+      { to: '/messaggi-piloti', icon: Bell, label: 'Messaggi Piloti' },
+    ],
+  },
+  {
+    label: 'Pilota',
+    items: [
+      { to: '/la-mia-gara', icon: User, label: 'La Mia Gara' },
+    ],
+  },
+  {
+    label: 'Aiuto',
+    items: [
+      { to: '/help', icon: LifeBuoy, label: 'Help' },
+    ],
+  },
+];
+
+function useDarkMode() {
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const stored = localStorage.getItem('darkMode');
+    if (stored) return stored === 'true';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('darkMode', darkMode.toString());
+  }, [darkMode]);
+
+  return [darkMode, () => setDarkMode(v => !v)];
+}
+
+function useSidebarState() {
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('sidebarCollapsed') === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', collapsed.toString());
+  }, [collapsed]);
+
+  return [collapsed, () => setCollapsed(v => !v)];
+}
+
+function MobileDrawer({ open, onClose }) {
+  if (!open) return null;
   return (
-    <Link
-      to={to}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors whitespace-nowrap ${
-        isActive
-          ? 'bg-blue-600 text-white'
-          : darkMode 
-            ? 'text-gray-300 hover:bg-gray-700'
-            : 'text-gray-700 hover:bg-gray-100'
-      }`}
-    >
-      <Icon className="w-5 h-5" />
-      <span className="font-medium">{children}</span>
-    </Link>
+    <>
+      <div className="fixed inset-0 z-40 bg-black/40 animate-fade-in lg:hidden" onClick={onClose} />
+      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-surface border-r border-border-subtle animate-slide-up lg:hidden">
+        <div className="h-14 flex items-center justify-between px-4 border-b border-border-subtle">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-md bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">E</span>
+            </div>
+            <div className="text-sm font-semibold">Enduro FMI</div>
+          </div>
+          <button onClick={onClose} className="p-2 -mr-2 text-content-secondary hover:text-content-primary" aria-label="Chiudi menu">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="overflow-y-auto h-[calc(100vh-3.5rem)]" onClick={onClose}>
+          <nav className="py-3 px-2">
+            {NAV_GROUPS.map((group, gi) => (
+              <div key={gi}>
+                {group.label && <div className="text-overline px-3 pt-5 pb-2">{group.label}</div>}
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <a
+                      key={item.to}
+                      href={item.to}
+                      className="flex items-center gap-3 h-10 px-3 rounded-md text-sm font-medium text-content-secondary hover:bg-surface-2 hover:text-content-primary transition-colors"
+                    >
+                      {Icon && <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={2} />}
+                      <span>{item.label}</span>
+                    </a>
+                  );
+                })}
+              </div>
+            ))}
+          </nav>
+        </div>
+      </div>
+    </>
   );
 }
 
-function Layout({ children }) {
-  const location = useLocation();
-  const isLiveTiming = location.pathname === '/live';
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('darkMode') === 'true';
-    }
-    return false;
-  });
-
-  const toggleDarkMode = () => {
-    const newValue = !darkMode;
-    setDarkMode(newValue);
-    localStorage.setItem('darkMode', newValue.toString());
-  };
+function AppLayout({ children }) {
+  const [darkMode, toggleDarkMode] = useDarkMode();
+  const [collapsed, toggleCollapsed] = useSidebarState();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      {/* Header */}
-      <header className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm border-b`}>
-        <div className={`${isLiveTiming ? 'w-full px-4' : 'max-w-7xl mx-auto px-4'} py-4`}>
-          <div className="flex items-center justify-between"><div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">E</span>
-            </div>
-            <div>
-              <h1 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Enduro Events Platform</h1>
-              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Sistema Gestione Gare Enduro</p></div><span className={`text-sm font-mono font-bold ${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>FE v3.1.0-p37 | BE v3.1.0-p37</span>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-base text-content-primary">
+      {/* Desktop sidebar */}
+      <div className="hidden lg:block">
+        <Sidebar groups={NAV_GROUPS} collapsed={collapsed} />
+      </div>
 
-      {/* Navigation */}
-      <nav className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b sticky top-0 z-10`}>
-        <div className={`${isLiveTiming ? 'w-full px-4' : 'max-w-7xl mx-auto px-4'}`}>
-          <div className="flex flex-wrap gap-2 py-3">
-            <NavLink to="/" icon={Home} darkMode={darkMode}>Dashboard</NavLink>
-            <NavLink to="/eventi" icon={Calendar} darkMode={darkMode}>Eventi</NavLink>
-            <NavLink to="/piloti" icon={Users} darkMode={darkMode}>Piloti</NavLink>
-            <NavLink to="/setup-gara" icon={Settings} darkMode={darkMode}>Setup Gara</NavLink>
-            <NavLink to="/controllo-gara" icon={Activity} darkMode={darkMode}>Impostazione Gara</NavLink>
-            <NavLink to="/live" icon={Radio} darkMode={darkMode}>Live Timing</NavLink>
-            <NavLink to="/la-mia-gara" icon={User} darkMode={darkMode}>La Mia Gara</NavLink>
-            <NavLink to="/comunicati" icon={MessageSquare} darkMode={darkMode}>Comunicati</NavLink>
-            <NavLink to="/messaggi-piloti" icon={Bell} darkMode={darkMode}>Msg Piloti</NavLink>
-            <NavLink to="/import-ficr" icon={Download} darkMode={darkMode}>Import FICR</NavLink>
-            <Link
-              to="/help"
-              className="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg hover:bg-yellow-500 transition-colors font-bold"
-            >
-              <HelpCircle className="w-5 h-5" />
-              <span>HELP</span>
-            </Link>
-            <button
-              onClick={toggleDarkMode}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-bold ${
-                darkMode 
-                  ? 'bg-yellow-400 text-gray-900 hover:bg-yellow-500' 
-                  : 'bg-gray-800 text-white hover:bg-gray-700'
-              }`}
-            >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              <span>{darkMode ? 'LIGHT' : 'DARK'}</span>
-            </button>
-          </div>
-        </div>
-      </nav>
+      {/* Mobile drawer */}
+      <MobileDrawer open={mobileOpen} onClose={() => setMobileOpen(false)} />
 
-      {/* Main Content - Full width per LiveTiming */}
-      <main className={`${isLiveTiming ? 'w-full px-2' : 'max-w-7xl mx-auto px-4'} py-8`}>
-        {children}
-      </main>
+      {/* Main area */}
+      <div className={cn('flex flex-col min-h-screen transition-[padding] duration-200', 'lg:pl-60', collapsed && 'lg:pl-16')}>
+        <TopBar
+          onToggleSidebar={toggleCollapsed}
+          sidebarCollapsed={collapsed}
+          darkMode={darkMode}
+          onToggleDarkMode={toggleDarkMode}
+          onOpenMobileMenu={() => setMobileOpen(true)}
+        />
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-12">
-        <div className={`${isLiveTiming ? 'w-full px-4' : 'max-w-7xl mx-auto px-4'} py-6`}>
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-gray-600">
-              © 2025 Enduro Events Platform - Powered by FICR API
-            </p>
-            <div className="flex gap-4 text-sm text-gray-600">
-              <a href="https://enduro.ficr.it" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">
-                FICR Enduro
-              </a>
-              <span>•</span>
-              <a href="https://github.com/etkk55" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">
-                GitHub
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+function NotFound() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+      <div className="w-14 h-14 rounded-full bg-surface-2 flex items-center justify-center mb-4">
+        <Flag className="w-7 h-7 text-content-tertiary" />
+      </div>
+      <h1 className="text-heading-1 text-content-primary mb-2">Pagina non trovata</h1>
+      <p className="text-content-secondary">La risorsa richiesta non esiste o e' stata spostata.</p>
     </div>
   );
 }
@@ -139,7 +191,7 @@ function Layout({ children }) {
 export default function App() {
   return (
     <Router>
-      <Layout>
+      <AppLayout>
         <ErrorBoundary>
           <Routes>
             <Route path="/" element={<Dashboard />} />
@@ -157,10 +209,10 @@ export default function App() {
             <Route path="/messaggi-piloti" element={<MessaggiPiloti />} />
             <Route path="/setup-gara" element={<SetupGaraFicr />} />
             <Route path="/import-ficr" element={<ImportFicr />} />
-            <Route path="*" element={<div className="p-8 text-center"><h1 className="text-2xl font-bold text-gray-700">404 - Pagina non trovata</h1><p className="text-gray-500 mt-2">La pagina richiesta non esiste.</p></div>} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </ErrorBoundary>
-      </Layout>
+      </AppLayout>
     </Router>
   );
 }

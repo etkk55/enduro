@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { User, TrendingUp, TrendingDown, Minus, Trophy, Target, HelpCircle } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, BarChart, Bar, Cell, LabelList } from 'recharts';
 
 import { API_BASE } from '../services/api';
 
@@ -510,7 +510,7 @@ export default function LaMiaGara() {
             }
           });
           
-          return { giro: psInfo.giro, label: `G${psInfo.giro}`, tempi: tempiPiloti, psNumero: psInfo.numero };
+          return { giro: psInfo.giro, label: `Giro ${psInfo.giro}`, tempi: tempiPiloti, psNumero: psInfo.numero };
         }).filter(Boolean);
         
         if (datiGiri.length > 0) curvaPerProva[nomeProva] = datiGiri;
@@ -519,21 +519,27 @@ export default function LaMiaGara() {
       setCurvaData(curvaPerProva);
     } else {
       // Fallback: pattern alternato (2 prove per giro)
+      // Usa nomi PS reali da replayData.prove se disponibili
       const numPS = replayData.snapshots.length;
       const numProvePerGiro = 2;
       const numGiri = Math.floor(numPS / numProvePerGiro);
-      
+
       if (numGiri >= 2) {
         const curvaPerProva = {};
         for (let provaIdx = 0; provaIdx < numProvePerGiro; provaIdx++) {
-          const nomeProva = `Prova ${provaIdx + 1}`;
+          // Deriva il nome reale della PS dal primo giro (rimuove prefissi tipo "G1 ")
+          const primoPsNumero = provaIdx + 1;
+          const primoPs = replayData.prove?.find(p => p.numero === primoPsNumero || p.numero_ordine === primoPsNumero);
+          const rawName = primoPs?.nome_ps || primoPs?.nome || `Prova ${provaIdx + 1}`;
+          // Pulisce prefissi giro tipo "G1 " o "G1-"
+          const nomeProva = rawName.replace(/^G\d+[\s\-\.]+/i, '').trim() || `Prova ${provaIdx + 1}`;
           const datiGiri = [];
-          
+
           for (let giro = 1; giro <= numGiri; giro++) {
             const psIdx = (giro - 1) * numProvePerGiro + provaIdx;
             const snap = replayData.snapshots[psIdx];
             if (!snap) continue;
-            
+
             const tempiPiloti = {};
             pilotiDaTracciare.forEach(pt => {
               const pilotaSnap = snap.classifica.find(p => p.num === pt.num);
@@ -541,10 +547,10 @@ export default function LaMiaGara() {
                 tempiPiloti[pt.num] = parseFloat(pilotaSnap[`ps${psIdx + 1}_time`]);
               }
             });
-            
-            datiGiri.push({ giro, label: `G${giro}`, tempi: tempiPiloti, psNumero: psIdx + 1 });
+
+            datiGiri.push({ giro, label: `Giro ${giro}`, tempi: tempiPiloti, psNumero: psIdx + 1 });
           }
-          
+
           if (datiGiri.length > 0) curvaPerProva[nomeProva] = datiGiri;
         }
         setCurvaData(curvaPerProva);
@@ -1226,161 +1232,193 @@ export default function LaMiaGara() {
             </div>
           )}
 
-          {/* === CURVA DI APPRENDIMENTO === */}
+          {/* === PROGRESSIONE SUI GIRI === */}
           {Object.keys(curvaData).length > 0 && (
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                📈 Curva di Apprendimento
-                <span className="text-sm font-normal text-gray-500">(stesso tipo prova nei giri)</span>
-              </h3>
-              
-              {/* Controlli */}
-              <div className="flex flex-wrap gap-2 mb-4 items-center">
-                <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                  <input type="checkbox" checked={curvaScalaInvertita} onChange={() => setCurvaScalaInvertita(!curvaScalaInvertita)} className="w-4 h-4" />
-                  Inverti scala
-                </label>
+            <div className="bg-surface border border-border-subtle rounded-lg p-5 shadow-sm">
+              <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
+                <div>
+                  <h3 className="text-heading-2">Progressione sui giri</h3>
+                  <p className="text-xs text-content-tertiary mt-1">
+                    Come si evolve il tuo tempo nella stessa prova ripetuta ad ogni giro.
+                  </p>
+                </div>
               </div>
-              
-              {/* Tabs prove */}
-              <div className="flex gap-2 mb-4 overflow-x-auto">
+
+              {/* Tabs per prova (segmented control) */}
+              <div className="inline-flex bg-surface-2 rounded-md p-0.5 mb-5 overflow-x-auto max-w-full">
                 {Object.keys(curvaData).map((nomeProva, idx) => (
                   <button
                     key={nomeProva}
                     onClick={() => setCurvaProvaAttiva(idx)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                      curvaProvaAttiva === idx ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    className={`h-9 px-3 rounded-sm text-xs font-semibold transition-colors whitespace-nowrap ${
+                      curvaProvaAttiva === idx
+                        ? 'bg-surface shadow-sm text-content-primary'
+                        : 'text-content-secondary hover:text-content-primary'
                     }`}
                   >
                     {nomeProva}
                   </button>
                 ))}
               </div>
-              
-              {/* Grafico */}
+
+              {/* Chart: BarChart con tempi per giro */}
               {(() => {
                 const proveArray = Object.entries(curvaData);
                 if (proveArray.length === 0) return null;
                 const [nomeProva, datiGiri] = proveArray[curvaProvaAttiva] || proveArray[0];
-                
-                // Fallback: se curvaPilotiVisibili vuoto, usa primi 5 piloti
-                const pilotiVisibiliArray = Object.keys(curvaPilotiVisibili).length > 0
-                  ? legendaData.filter(l => curvaPilotiVisibili[l.num])
-                  : legendaData.slice(0, 5);
-                
-                if (pilotiVisibiliArray.length === 0 || datiGiri.length < 2) {
-                  return <p className="text-gray-500 text-center py-4">Dati insufficienti</p>;
-                }
-                
+
                 const mioNum = pilotaInfo?.num;
-                const mieiTempi = datiGiri.map(g => g.tempi[mioNum]).filter(t => t);
-                const miaMedia = mieiTempi.length > 0 ? mieiTempi.reduce((a, b) => a + b, 0) / mieiTempi.length : 0;
-                
-                const chartData = datiGiri.map(giro => {
-                  const punto = { label: giro.label };
-                  pilotiVisibiliArray.forEach(p => {
-                    const tempo = giro.tempi[p.num];
-                    if (tempo && miaMedia > 0) {
-                      const delta = tempo - miaMedia;
-                      punto[`d${p.num}`] = curvaScalaInvertita ? -delta : delta;
-                      punto[`t${p.num}`] = tempo;
-                    }
-                  });
-                  return punto;
+                if (!mioNum) {
+                  return (
+                    <div className="py-8 text-center text-sm text-content-tertiary">
+                      Trova prima il tuo numero per vedere la progressione.
+                    </div>
+                  );
+                }
+
+                const mieiTempi = datiGiri.map(g => g.tempi[mioNum]);
+                const validi = mieiTempi.filter(t => t !== undefined && t !== null);
+
+                if (validi.length < 2) {
+                  return (
+                    <div className="py-8 text-center text-sm text-content-tertiary">
+                      Servono almeno 2 giri completati per mostrare la progressione.
+                    </div>
+                  );
+                }
+
+                // Dati per grafico: ogni giro -> tuo tempo
+                const miglior = Math.min(...validi);
+                const chartData = datiGiri.map((giro, idx) => {
+                  const tempo = giro.tempi[mioNum];
+                  const prevTempo = idx > 0 ? datiGiri[idx - 1].tempi[mioNum] : null;
+                  const delta = (tempo && prevTempo) ? tempo - prevTempo : null;
+                  return {
+                    label: giro.label,
+                    tempo: tempo || 0,
+                    tempoFmt: tempo ? formatTime(tempo) : '—',
+                    delta,
+                    deltaFmt: delta === null ? '' : (delta > 0 ? `+${delta.toFixed(2)}s` : `${delta.toFixed(2)}s`),
+                    isBest: tempo === miglior,
+                  };
                 });
-                
+
+                // Color logic: miglior tempo = success, miglioramento (delta<0) = success, peggioramento = danger, primo giro = brand
+                const getBarColor = (d) => {
+                  if (d.isBest) return 'rgb(var(--success-fg))';
+                  if (d.delta === null) return 'rgb(var(--brand-600))';
+                  return d.delta < 0 ? 'rgb(var(--success-fg))' : 'rgb(var(--warning-fg))';
+                };
+
+                const totalDelta = validi[validi.length - 1] - validi[0];
+                const migliorato = totalDelta < 0;
+
                 return (
                   <div>
-                    <ResponsiveContainer width="100%" height={260}>
-                      <LineChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                        <XAxis dataKey="label" tick={{ fill: '#6b7280', fontSize: 12 }} />
-                        <YAxis 
-                          tick={{ fill: '#6b7280', fontSize: 11 }}
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={chartData} margin={{ top: 30, right: 20, left: 10, bottom: 20 }} barCategoryGap="25%">
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--border-subtle))" vertical={false} />
+                        <XAxis
+                          dataKey="label"
+                          tick={{ fill: 'rgb(var(--text-secondary))', fontSize: 12 }}
+                          axisLine={{ stroke: 'rgb(var(--border))' }}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          tick={{ fill: 'rgb(var(--text-tertiary))', fontSize: 11 }}
+                          axisLine={false}
+                          tickLine={false}
                           tickFormatter={(v) => {
-                            const val = curvaScalaInvertita ? -v : v;
-                            return (val >= 0 ? '+' : '') + val.toFixed(0) + 's';
+                            if (v === 0) return '';
+                            const mins = Math.floor(v / 60);
+                            const secs = (v % 60).toFixed(0);
+                            return mins > 0 ? `${mins}:${secs.padStart(2, '0')}` : `${secs}s`;
+                          }}
+                          domain={['dataMin - 5', 'dataMax + 5']}
+                        />
+                        <Tooltip
+                          cursor={{ fill: 'rgb(var(--bg-surface-2))' }}
+                          content={({ active, payload }) => {
+                            if (!active || !payload?.length) return null;
+                            const d = payload[0].payload;
+                            return (
+                              <div className="bg-surface border border-border rounded-md p-3 shadow-lg text-xs">
+                                <div className="font-semibold text-content-primary mb-1">{d.label} · {nomeProva}</div>
+                                <div className="font-mono tabular-nums text-lg font-bold text-content-primary">{d.tempoFmt}</div>
+                                {d.delta !== null && (
+                                  <div className={`font-mono tabular-nums text-xs mt-1 ${d.delta < 0 ? 'text-success-fg' : 'text-warning-fg'}`}>
+                                    {d.delta < 0 ? '▼' : '▲'} {d.deltaFmt} vs {datiGiri[chartData.indexOf(d) - 1]?.label}
+                                  </div>
+                                )}
+                                {d.isBest && <div className="text-success-fg text-xs mt-1">✓ Tuo miglior tempo</div>}
+                              </div>
+                            );
                           }}
                         />
-                        <ReferenceLine y={0} stroke="#888" strokeDasharray="5 5" />
-                        <Tooltip content={({ active, payload, label }) => {
-                          if (!active || !payload) return null;
-                          return (
-                            <div className="bg-gray-900 border border-gray-600 rounded-lg p-3 shadow-lg">
-                              <p className="font-bold text-white mb-2">{label} - {nomeProva}</p>
-                              {payload.filter(p => p.value !== undefined).map((entry) => {
-                                const num = parseInt(entry.dataKey.replace('d', ''));
-                                const pilota = legendaData.find(l => l.num === num);
-                                const tempoAbs = chartData.find(d => d.label === label)?.[`t${num}`];
-                                const mins = Math.floor(tempoAbs / 60);
-                                const secs = (tempoAbs % 60).toFixed(1);
-                                return (
-                                  <div key={entry.dataKey} className="flex items-center gap-2 py-0.5">
-                                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.stroke }} />
-                                    <span style={{ color: entry.stroke }} className="font-bold">#{num}</span>
-                                    <span className="text-gray-300 truncate max-w-[80px]">{pilota?.nome?.split(' ')[0]}</span>
-                                    <span className="text-white font-mono ml-auto">{mins}:{secs.padStart(4, '0')}</span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          );
-                        }} />
-                        {pilotiVisibiliArray.map((p) => (
-                          <Line
-                            key={p.num}
-                            type="linear"
-                            dataKey={`d${p.num}`}
-                            stroke={p.colore}
-                            strokeWidth={p.num === mioNum ? 3 : 1.5}
-                            dot={{ r: p.num === mioNum ? 5 : 3, fill: p.colore }}
-                            connectNulls
+                        <Bar dataKey="tempo" radius={[6, 6, 0, 0]}>
+                          {chartData.map((d, idx) => (
+                            <Cell key={idx} fill={getBarColor(d)} />
+                          ))}
+                          <LabelList
+                            dataKey="tempoFmt"
+                            position="top"
+                            style={{ fill: 'rgb(var(--text-primary))', fontSize: 12, fontWeight: 600, fontFamily: 'JetBrains Mono, monospace' }}
                           />
-                        ))}
-                      </LineChart>
+                        </Bar>
+                      </BarChart>
                     </ResponsiveContainer>
-                    
-                    {mioNum && mieiTempi.length >= 2 && (() => {
-                      const delta = mieiTempi[mieiTempi.length - 1] - mieiTempi[0];
-                      const migliorato = delta < 0;
-                      return (
-                        <div className="text-center mt-2">
-                          <span className={`font-bold ${migliorato ? 'text-green-600' : 'text-red-500'}`}>
-                            {migliorato ? '▼' : '▲'} G1→G{datiGiri.length}: {migliorato ? '' : '+'}{delta.toFixed(1)}s {migliorato ? 'migliorato' : 'peggiorato'}
-                          </span>
+
+                    {/* Delta annotations between bars */}
+                    <div className="grid mt-2 px-2" style={{ gridTemplateColumns: `repeat(${chartData.length}, 1fr)` }}>
+                      {chartData.map((d, idx) => (
+                        <div key={idx} className="flex justify-center">
+                          {d.delta !== null ? (
+                            <span className={`inline-flex items-center gap-1 text-xs font-semibold font-mono tabular-nums ${d.delta < 0 ? 'text-success-fg' : 'text-warning-fg'}`}>
+                              {d.delta < 0 ? '▼' : '▲'} {d.deltaFmt}
+                            </span>
+                          ) : (
+                            <span className="text-2xs text-content-tertiary">base</span>
+                          )}
                         </div>
-                      );
-                    })()}
+                      ))}
+                    </div>
+
+                    {/* Summary card */}
+                    <div className="mt-5 grid grid-cols-3 gap-3">
+                      <div className="bg-surface-2 rounded-md p-3 text-center">
+                        <div className="text-2xs text-content-tertiary uppercase font-semibold tracking-wider">Giri completati</div>
+                        <div className="text-xl font-bold font-mono tabular-nums mt-1">{validi.length}<span className="text-content-tertiary text-sm"> / {datiGiri.length}</span></div>
+                      </div>
+                      <div className="bg-surface-2 rounded-md p-3 text-center">
+                        <div className="text-2xs text-content-tertiary uppercase font-semibold tracking-wider">Miglior tempo</div>
+                        <div className="text-xl font-bold font-mono tabular-nums text-success-fg mt-1">{formatTime(miglior)}</div>
+                      </div>
+                      <div className={`rounded-md p-3 text-center border ${migliorato ? 'bg-success-bg border-success-border' : 'bg-warning-bg border-warning-border'}`}>
+                        <div className={`text-2xs uppercase font-semibold tracking-wider ${migliorato ? 'text-success-fg' : 'text-warning-fg'}`}>Trend {datiGiri[0].label}→{datiGiri[validi.length - 1].label}</div>
+                        <div className={`text-xl font-bold font-mono tabular-nums mt-1 ${migliorato ? 'text-success-fg' : 'text-warning-fg'}`}>
+                          {migliorato ? '▼' : '▲'} {Math.abs(totalDelta).toFixed(2)}s
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Legend */}
+                    <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-content-tertiary">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-sm" style={{ background: 'rgb(var(--success-fg))' }} />
+                        Miglior tempo o miglioramento
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-sm" style={{ background: 'rgb(var(--warning-fg))' }} />
+                        Peggioramento
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-sm" style={{ background: 'rgb(var(--brand-600))' }} />
+                        Primo giro (riferimento)
+                      </span>
+                    </div>
                   </div>
                 );
               })()}
-              
-              {/* Lista piloti */}
-              <div className="mt-4 border-t pt-4">
-                <input
-                  type="text"
-                  placeholder="Cerca numero o cognome..."
-                  value={curvaRicerca}
-                  onChange={(e) => setCurvaRicerca(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mb-3"
-                />
-                <div className="flex flex-wrap gap-2">
-                  {legendaData
-                    .filter(p => !curvaRicerca || p.num.toString().includes(curvaRicerca) || p.nome.toLowerCase().includes(curvaRicerca.toLowerCase()))
-                    .map((p) => (
-                      <button
-                        key={p.num}
-                        onClick={() => setCurvaPilotiVisibili(prev => ({ ...prev, [p.num]: !prev[p.num] }))}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                          curvaPilotiVisibili[p.num] ? 'text-white' : 'opacity-40 bg-gray-300 text-gray-600'
-                        }`}
-                        style={{ backgroundColor: curvaPilotiVisibili[p.num] ? p.colore : undefined }}
-                      >
-                        {p.tipo === 'tu' ? '⭐ ' : ''}#{p.num} {p.nome.split(' ')[0]}
-                      </button>
-                    ))}
-                </div>
-              </div>
             </div>
           )}
         </div>

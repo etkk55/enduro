@@ -40,14 +40,48 @@ export default function Classifiche() {
   async function loadClassifica(idEvento) {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/classifiche/${idEvento}`);
-      const data = await res.json();
-      setClassifica(data);
+      // Endpoint corretto: /api/eventi/:id/classifica (ritorna array di piloti con tempo_totale)
+      const res = await fetch(`${API_BASE}/eventi/${idEvento}/classifica`);
+      if (!res.ok) {
+        console.error('[Classifiche] HTTP', res.status);
+        setClassifica([]);
+        return;
+      }
+      const raw = await res.json();
+
+      // Filtra solo piloti con tempo_totale valido (hanno tempi registrati)
+      const validi = (Array.isArray(raw) ? raw : [])
+        .filter(r => r.tempo_totale !== null && !isNaN(parseFloat(r.tempo_totale)))
+        .map(r => ({ ...r, tempo_num: parseFloat(r.tempo_totale) }))
+        .sort((a, b) => a.tempo_num - b.tempo_num);
+
+      const leaderTime = validi[0]?.tempo_num || 0;
+
+      const normalized = validi.map((r, idx) => ({
+        ...r,
+        posizione: idx + 1,
+        pilota: [r.cognome, r.nome].filter(Boolean).join(' ').trim() || 'Senza nome',
+        tempo_totale: formatSeconds(r.tempo_num),
+        distacco: idx === 0 ? '—' : `+${formatSeconds(r.tempo_num - leaderTime)}`,
+      }));
+
+      setClassifica(normalized);
     } catch (err) {
       console.error('[Classifiche]', err);
+      setClassifica([]);
     } finally {
       setLoading(false);
     }
+  }
+
+  function formatSeconds(sec) {
+    if (sec === null || sec === undefined || isNaN(sec)) return '—';
+    const s = Math.abs(sec);
+    const mins = Math.floor(s / 60);
+    const rest = s - mins * 60;
+    if (mins === 0) return rest.toFixed(2);
+    const restStr = rest.toFixed(2).padStart(5, '0');
+    return `${mins}:${restStr}`;
   }
 
   const eventoCorrente = eventi.find(e => e.id === eventoSelezionato);

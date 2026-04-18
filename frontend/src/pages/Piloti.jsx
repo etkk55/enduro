@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Users, MapPin, RefreshCw, Search, ExternalLink } from 'lucide-react';
+import { Users, MapPin, RefreshCw, Search, ExternalLink, X } from 'lucide-react';
 import { API_BASE as _API_BASE } from '../services/api';
 import { Card } from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -42,6 +42,9 @@ export default function Piloti() {
   const [piloti, setPiloti] = useState([]);
   const [eventi, setEventi] = useState([]);
   const [eventoSelezionato, setEventoSelezionato] = useState('');
+  const [filtroClasse, setFiltroClasse] = useState('');
+  const [filtroMoto, setFiltroMoto] = useState('');
+  const [filtroMotoclub, setFiltroMotoclub] = useState('');
   const [posizioniGPS, setPosizioniGPS] = useState({});
   const [caricandoGPS, setCaricandoGPS] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -71,6 +74,13 @@ export default function Piloti() {
     return () => clearInterval(interval);
   }, [eventoSelezionato]);
 
+  // Reset dependent filters when event changes
+  useEffect(() => {
+    setFiltroClasse('');
+    setFiltroMoto('');
+    setFiltroMotoclub('');
+  }, [eventoSelezionato]);
+
   async function caricaGps() {
     if (!eventoSelezionato) return;
     setCaricandoGPS(true);
@@ -89,10 +99,33 @@ export default function Piloti() {
     }
   }
 
-  const pilotiFiltrati = useMemo(() => {
-    let p = eventoSelezionato
+  // Piloti scoped by event first (for filter option lists)
+  const pilotiScopedByEvento = useMemo(() => {
+    return eventoSelezionato
       ? piloti.filter(pl => String(pl.id_evento) === String(eventoSelezionato))
       : piloti;
+  }, [piloti, eventoSelezionato]);
+
+  // Unique values for filter dropdowns (sorted)
+  const classi = useMemo(() => {
+    const s = new Set(pilotiScopedByEvento.map(p => p.classe).filter(Boolean));
+    return Array.from(s).sort();
+  }, [pilotiScopedByEvento]);
+  const moto = useMemo(() => {
+    const s = new Set(pilotiScopedByEvento.map(p => p.moto).filter(Boolean));
+    return Array.from(s).sort();
+  }, [pilotiScopedByEvento]);
+  const motoclub = useMemo(() => {
+    const s = new Set(pilotiScopedByEvento.map(p => p.motoclub).filter(Boolean));
+    return Array.from(s).sort();
+  }, [pilotiScopedByEvento]);
+
+  // Final filtered list
+  const pilotiFiltrati = useMemo(() => {
+    let p = pilotiScopedByEvento;
+    if (filtroClasse) p = p.filter(pl => pl.classe === filtroClasse);
+    if (filtroMoto) p = p.filter(pl => pl.moto === filtroMoto);
+    if (filtroMotoclub) p = p.filter(pl => pl.motoclub === filtroMotoclub);
     if (query.trim()) {
       const q = query.toLowerCase();
       p = p.filter(pl =>
@@ -100,11 +133,23 @@ export default function Piloti() {
         (pl.nome || '').toLowerCase().includes(q) ||
         (pl.cognome || '').toLowerCase().includes(q) ||
         (pl.classe || '').toLowerCase().includes(q) ||
-        (pl.moto || '').toLowerCase().includes(q)
+        (pl.moto || '').toLowerCase().includes(q) ||
+        (pl.motoclub || '').toLowerCase().includes(q)
       );
     }
     return p;
-  }, [piloti, eventoSelezionato, query]);
+  }, [pilotiScopedByEvento, query, filtroClasse, filtroMoto, filtroMotoclub]);
+
+  const activeFilters = [
+    filtroClasse && { key: 'classe', label: `Classe: ${filtroClasse}`, clear: () => setFiltroClasse('') },
+    filtroMoto && { key: 'moto', label: `Moto: ${filtroMoto}`, clear: () => setFiltroMoto('') },
+    filtroMotoclub && { key: 'mc', label: `MotoClub: ${filtroMotoclub}`, clear: () => setFiltroMotoclub('') },
+    query.trim() && { key: 'q', label: `"${query}"`, clear: () => setQuery('') },
+  ].filter(Boolean);
+
+  const clearAllFilters = () => {
+    setFiltroClasse(''); setFiltroMoto(''); setFiltroMotoclub(''); setQuery('');
+  };
 
   return (
     <div className="p-4 lg:p-8 max-w-7xl mx-auto animate-fade-in">
@@ -112,42 +157,93 @@ export default function Piloti() {
         <div>
           <h1 className="text-heading-1">Piloti</h1>
           <p className="text-content-secondary mt-1 text-sm">
-            {loading ? 'Caricamento…' : `${pilotiFiltrati.length.toLocaleString('it-IT')} piloti`}
-            {eventoSelezionato && ' · GPS refresh ogni 30s'}
+            {loading ? 'Caricamento…' : `${pilotiFiltrati.length.toLocaleString('it-IT')} / ${pilotiScopedByEvento.length.toLocaleString('it-IT')} piloti`}
+            {eventoSelezionato && ' · GPS refresh 30s'}
           </p>
         </div>
       </div>
 
       {/* Filters */}
       <Card className="mb-4">
-        <div className="p-4 grid grid-cols-1 md:grid-cols-[2fr_1fr_auto] gap-3 items-end">
-          <div>
-            <Label>Cerca</Label>
-            <Input
-              leftIcon={<Search className="w-4 h-4" />}
-              placeholder="Numero, nome, classe, moto…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+        <div className="p-4 space-y-3">
+          {/* Row 1: search + evento + GPS action */}
+          <div className="grid grid-cols-1 md:grid-cols-[2fr_1.5fr_auto] gap-3 items-end">
+            <div>
+              <Label>Cerca</Label>
+              <Input
+                leftIcon={<Search className="w-4 h-4" />}
+                placeholder="Numero, nome, cognome, motoclub…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Evento</Label>
+              <Select value={eventoSelezionato} onChange={(e) => setEventoSelezionato(e.target.value)}>
+                <option value="">Tutti gli eventi</option>
+                {eventi.map(ev => (
+                  <option key={ev.id} value={ev.id}>{ev.nome_evento}</option>
+                ))}
+              </Select>
+            </div>
+            {eventoSelezionato && (
+              <Button
+                variant="secondary"
+                onClick={caricaGps}
+                loading={caricandoGPS}
+                leftIcon={<RefreshCw className="w-4 h-4" />}
+              >
+                Aggiorna GPS
+              </Button>
+            )}
           </div>
-          <div>
-            <Label>Evento</Label>
-            <Select value={eventoSelezionato} onChange={(e) => setEventoSelezionato(e.target.value)}>
-              <option value="">Tutti gli eventi</option>
-              {eventi.map(ev => (
-                <option key={ev.id} value={ev.id}>{ev.nome_evento}</option>
+
+          {/* Row 2: classe + moto + motoclub */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <Label>Classe</Label>
+              <Select value={filtroClasse} onChange={(e) => setFiltroClasse(e.target.value)}>
+                <option value="">Tutte le classi{classi.length ? ` · ${classi.length}` : ''}</option>
+                {classi.map(c => <option key={c} value={c}>{c}</option>)}
+              </Select>
+            </div>
+            <div>
+              <Label>Moto</Label>
+              <Select value={filtroMoto} onChange={(e) => setFiltroMoto(e.target.value)}>
+                <option value="">Tutte le moto{moto.length ? ` · ${moto.length}` : ''}</option>
+                {moto.map(m => <option key={m} value={m}>{m}</option>)}
+              </Select>
+            </div>
+            <div>
+              <Label>MotoClub</Label>
+              <Select value={filtroMotoclub} onChange={(e) => setFiltroMotoclub(e.target.value)}>
+                <option value="">Tutti i motoclub{motoclub.length ? ` · ${motoclub.length}` : ''}</option>
+                {motoclub.map(mc => <option key={mc} value={mc}>{mc}</option>)}
+              </Select>
+            </div>
+          </div>
+
+          {/* Active filters chips */}
+          {activeFilters.length > 0 && (
+            <div className="flex items-center gap-2 flex-wrap pt-1">
+              <span className="text-2xs text-content-tertiary uppercase font-semibold tracking-wider">Filtri attivi:</span>
+              {activeFilters.map(f => (
+                <button
+                  key={f.key}
+                  onClick={f.clear}
+                  className="inline-flex items-center gap-1 h-6 pl-2 pr-1.5 rounded-md bg-brand-50 dark:bg-brand-100/20 text-brand-700 dark:text-brand-500 text-xs font-medium border border-brand-100 dark:border-brand-500/30 hover:bg-brand-100 transition-colors"
+                >
+                  {f.label}
+                  <X className="w-3 h-3" />
+                </button>
               ))}
-            </Select>
-          </div>
-          {eventoSelezionato && (
-            <Button
-              variant="secondary"
-              onClick={caricaGps}
-              loading={caricandoGPS}
-              leftIcon={<RefreshCw className="w-4 h-4" />}
-            >
-              Aggiorna GPS
-            </Button>
+              <button
+                onClick={clearAllFilters}
+                className="text-xs font-medium text-content-tertiary hover:text-content-primary transition-colors ml-1"
+              >
+                Azzera tutti
+              </button>
+            </div>
           )}
         </div>
       </Card>
@@ -164,7 +260,8 @@ export default function Piloti() {
           <EmptyState
             icon={Users}
             title="Nessun pilota trovato"
-            description={query ? 'Prova con un altro termine.' : 'Importa i piloti da FICR o XML.'}
+            description={activeFilters.length > 0 ? 'Prova a rimuovere qualche filtro.' : 'Importa i piloti da FICR o XML.'}
+            action={activeFilters.length > 0 ? <Button variant="secondary" onClick={clearAllFilters}>Azzera filtri</Button> : null}
           />
         ) : (
           <div className="overflow-x-auto">

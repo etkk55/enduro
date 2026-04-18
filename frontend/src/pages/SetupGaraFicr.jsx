@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, Download, CheckCircle, AlertCircle, Loader2, Calendar, MapPin, Clock, Save, Settings, Trash2 } from 'lucide-react';
 
 import { API_BASE } from '../services/api';
+import ProgressSteps from '../components/ui/ProgressSteps';
 
 export default function SetupGaraFicr() {
   // === STEP 1-3: Selezione FICR e creazione eventi ===
@@ -728,56 +729,25 @@ export default function SetupGaraFicr() {
   // ========== RENDER ==========
   
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-4 lg:p-8 max-w-5xl mx-auto animate-fade-in">
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 rounded-lg shadow-lg mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Settings className="w-8 h-8" />
-            <div>
-              <h1 className="text-2xl font-bold">Setup Gara da FICR</h1>
-              <p className="text-indigo-200 text-sm">Configurazione completa evento</p>
-            </div>
-          </div>
-          <span className="text-sm font-mono bg-indigo-800 px-3 py-1 rounded">v3.0.2-p32</span>
-        </div>
+      <div className="mb-4">
+        <h1 className="text-heading-1">Setup Gara</h1>
+        <p className="text-content-secondary mt-1 text-sm">Wizard configurazione completa evento da FICR</p>
       </div>
-      
-      {/* Progress Steps - ORA 7 STEP */}
-      <div className="flex items-center justify-between mb-4 bg-white rounded-lg shadow p-4 overflow-x-auto">
-        {[
-          { n: 1, label: 'Anno' },
-          { n: 2, label: 'Gara' },
-          { n: 3, label: 'Eventi' },
-          { n: 4, label: 'Struttura', icon: '🏁' },
-          { n: 5, label: 'Tempi CO' },
-          { n: 6, label: 'GPS' },
-          { n: 7, label: 'Import' }
-        ].map((step, i) => (
-          <div key={step.n} className="flex items-center flex-shrink-0">
-            <div 
-              className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
-                stepCorrente === step.n 
-                  ? step.n === 4 ? 'bg-purple-600 text-white' : 'bg-indigo-600 text-white'
-                  : stepCorrente > step.n || (garaEsistente && step.n >= 3)
-                    ? 'bg-green-500 text-white cursor-pointer hover:bg-green-600'
-                    : 'bg-gray-200 text-gray-500'
-              }`}
-              onClick={() => {
-                // Permetti navigazione: indietro sempre, avanti solo se gara esistente o già completato
-                if (stepCorrente > step.n || (garaEsistente && step.n >= 3 && eventiCreati.length > 0)) {
-                  setStepCorrente(step.n);
-                }
-              }}
-            >
-              {stepCorrente > step.n || (garaEsistente && step.n >= 3) ? '✓' : step.icon || step.n}
-            </div>
-            <span className={`ml-1 text-xs font-medium ${stepCorrente >= step.n || (garaEsistente && step.n >= 3) ? 'text-gray-800' : 'text-gray-400'}`}>
-              {step.label}
-            </span>
-            {i < 6 && <div className={`w-4 h-1 mx-1 ${stepCorrente > step.n || (garaEsistente && step.n > 2) ? 'bg-green-500' : 'bg-gray-200'}`} />}
-          </div>
-        ))}
+
+      {/* Progress Steps */}
+      <div className="bg-surface border border-border-subtle rounded-lg p-5 mb-4">
+        <ProgressSteps
+          steps={['Anno', 'Gara', 'Eventi', 'Struttura', 'Tempi CO', 'GPS', 'Import']}
+          currentStep={stepCorrente - 1}
+          onStepClick={(idx) => {
+            const targetStep = idx + 1;
+            if (stepCorrente > targetStep || (garaEsistente && targetStep >= 3 && eventiCreati.length > 0)) {
+              setStepCorrente(targetStep);
+            }
+          }}
+        />
       </div>
       
       {/* Banner gara esistente */}
@@ -807,7 +777,7 @@ export default function SetupGaraFicr() {
 
       {/* STEP 1: Anno */}
       {stepCorrente === 1 && (
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-surface border border-border-subtle rounded-lg p-5">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Calendar className="text-indigo-600" />
             1️⃣ Seleziona Anno
@@ -818,7 +788,7 @@ export default function SetupGaraFicr() {
               <select 
                 value={anno} 
                 onChange={e => setAnno(parseInt(e.target.value))}
-                className="border-2 border-gray-300 rounded-lg px-4 py-3 text-lg font-semibold focus:border-indigo-500"
+                className="border-2 border-border rounded-lg px-4 py-3 text-lg font-semibold focus:border-indigo-500"
               >
                 {[2024, 2025, 2026, 2027].map(a => (
                   <option key={a} value={a}>{a}</option>
@@ -838,7 +808,7 @@ export default function SetupGaraFicr() {
 
       {/* STEP 2: Selezione Gara */}
       {stepCorrente === 2 && (
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-surface border border-border-subtle rounded-lg p-5">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold flex items-center gap-2">
               <MapPin className="text-indigo-600" />
@@ -846,7 +816,7 @@ export default function SetupGaraFicr() {
             </h2>
             <button
               onClick={() => setStepCorrente(1)}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-content-tertiary hover:text-content-secondary"
             >
               ← Cambia anno
             </button>
@@ -854,13 +824,13 @@ export default function SetupGaraFicr() {
           
           <div className="mb-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-content-tertiary" size={20} />
               <input
                 type="text"
                 placeholder="Filtra per nome o località..."
                 value={filtro}
                 onChange={(e) => setFiltro(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500"
+                className="w-full pl-10 pr-4 py-3 border-2 border-border rounded-lg focus:border-indigo-500"
               />
             </div>
           </div>
@@ -879,20 +849,20 @@ export default function SetupGaraFicr() {
                   className={`p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-indigo-500 hover:bg-indigo-50 ${
                     garaSelezionata?.manifestazione === gara.manifestazione 
                       ? 'border-indigo-500 bg-indigo-50' 
-                      : 'border-gray-200'
+                      : 'border-border-subtle'
                   }`}
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-bold text-lg text-gray-800">{gara.nome || gara.descrizione}</p>
-                      <p className="text-gray-600">{gara.luogo}</p>
+                      <p className="font-bold text-lg text-content-primary">{gara.nome || gara.descrizione}</p>
+                      <p className="text-content-secondary">{gara.luogo}</p>
                       {gara.organizzatore && (
-                        <p className="text-sm text-gray-500">Org: {gara.organizzatore}</p>
+                        <p className="text-sm text-content-tertiary">Org: {gara.organizzatore}</p>
                       )}
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-indigo-600">{gara.data}</p>
-                      <p className="text-xs text-gray-400 font-mono">{gara.equipe}/{gara.manifestazione}</p>
+                      <p className="text-xs text-content-tertiary font-mono">{gara.equipe}/{gara.manifestazione}</p>
                     </div>
                   </div>
                 </div>
@@ -913,7 +883,7 @@ export default function SetupGaraFicr() {
           {loadingCategorie ? (
             <div className="text-center py-4">
               <Loader2 className="animate-spin mx-auto" />
-              <p className="text-sm text-gray-500 mt-2">Caricamento categorie...</p>
+              <p className="text-sm text-content-tertiary mt-2">Caricamento categorie...</p>
             </div>
           ) : (
             <>
@@ -923,7 +893,7 @@ export default function SetupGaraFicr() {
                   type="text"
                   value={nomeEvento}
                   onChange={(e) => setNomeEvento(e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg"
+                  className="w-full px-4 py-2 border-2 border-border rounded-lg"
                 />
               </div>
 
@@ -989,7 +959,7 @@ export default function SetupGaraFicr() {
             {categorieSelezionate.length > 0 && (
               <p className="mt-1 text-sm">
                 🎫 Codice ERTA: <strong className="font-mono">{codiceFmi || '⚠️ DA INSERIRE'}</strong>
-                <span className="text-gray-500 ml-2">(per tutte le {categorieSelezionate.length} categorie)</span>
+                <span className="text-content-tertiary ml-2">(per tutte le {categorieSelezionate.length} categorie)</span>
               </p>
             )}
           </div>
@@ -997,7 +967,7 @@ export default function SetupGaraFicr() {
           <div className="flex justify-between">
             <button
               onClick={() => setStepCorrente(2)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              className="px-4 py-2 text-content-secondary hover:text-content-primary"
             >
               ← Indietro
             </button>
@@ -1032,18 +1002,18 @@ export default function SetupGaraFicr() {
                 🏁
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-800">4️⃣ Struttura Gara</h2>
-                <p className="text-gray-500 text-sm">Definisci giri e prove speciali per la curva di apprendimento</p>
+                <h2 className="text-xl font-bold text-content-primary">4️⃣ Struttura Gara</h2>
+                <p className="text-content-tertiary text-sm">Definisci giri e prove speciali per la curva di apprendimento</p>
               </div>
             </div>
 
             {/* Numero Giri */}
             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl mb-6">
-              <span className="font-semibold text-gray-700">Numero giri</span>
+              <span className="font-semibold text-content-secondary">Numero giri</span>
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setNumGiri(Math.max(1, numGiri - 1))}
-                  className="w-10 h-10 rounded-lg border-2 border-gray-300 bg-white text-xl font-bold hover:bg-gray-100 transition"
+                  className="w-10 h-10 rounded-lg border-2 border-border bg-white text-xl font-bold hover:bg-gray-100 transition"
                 >
                   −
                 </button>
@@ -1052,7 +1022,7 @@ export default function SetupGaraFicr() {
                 </span>
                 <button
                   onClick={() => setNumGiri(Math.min(10, numGiri + 1))}
-                  className="w-10 h-10 rounded-lg border-2 border-gray-300 bg-white text-xl font-bold hover:bg-gray-100 transition"
+                  className="w-10 h-10 rounded-lg border-2 border-border bg-white text-xl font-bold hover:bg-gray-100 transition"
                 >
                   +
                 </button>
@@ -1062,7 +1032,7 @@ export default function SetupGaraFicr() {
             {/* Lista Prove */}
             <div className="mb-6">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-sm text-gray-600">Prove nel giro (in ordine di percorrenza)</span>
+                <span className="text-sm text-content-secondary">Prove nel giro (in ordine di percorrenza)</span>
                 <span className="text-xs px-3 py-1 rounded-full" style={{ background: '#e8f4fd', color: '#0066cc' }}>
                   {prove.filter(p => p.nome.trim()).length} prove
                 </span>
@@ -1075,7 +1045,7 @@ export default function SetupGaraFicr() {
                     className={`flex items-center gap-3 p-4 rounded-xl border-2 transition ${
                       prova.finale 
                         ? 'bg-amber-50 border-amber-400' 
-                        : 'bg-gray-50 border-gray-200'
+                        : 'bg-gray-50 border-border-subtle'
                     }`}
                   >
                     {/* Numero */}
@@ -1089,7 +1059,7 @@ export default function SetupGaraFicr() {
                       value={prova.nome}
                       onChange={(e) => updateProva(index, 'nome', e.target.value)}
                       placeholder="Nome prova (es. Cross Test Bosco)..."
-                      className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg text-base focus:border-indigo-500 focus:outline-none"
+                      className="flex-1 px-4 py-3 border-2 border-border-subtle rounded-lg text-base focus:border-indigo-500 focus:outline-none"
                     />
 
                     {/* Finale toggle */}
@@ -1098,7 +1068,7 @@ export default function SetupGaraFicr() {
                       className={`px-4 py-2 rounded-lg text-sm font-semibold transition whitespace-nowrap ${
                         prova.finale
                           ? 'bg-amber-500 text-white'
-                          : 'bg-white text-gray-600 border border-gray-300 hover:border-amber-400'
+                          : 'bg-white text-content-secondary border border-border hover:border-amber-400'
                       }`}
                     >
                       {prova.finale ? '⭐ Finale' : '☆ Finale'}
@@ -1137,7 +1107,7 @@ export default function SetupGaraFicr() {
               {/* Aggiungi */}
               <button
                 onClick={addProva}
-                className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-medium hover:border-indigo-400 hover:text-indigo-600 transition flex items-center justify-center gap-2"
+                className="w-full mt-4 py-3 border-2 border-dashed border-border rounded-xl text-content-tertiary font-medium hover:border-indigo-400 hover:text-indigo-600 transition flex items-center justify-center gap-2"
               >
                 <span className="text-xl">+</span> Aggiungi prova
               </button>
@@ -1165,7 +1135,7 @@ export default function SetupGaraFicr() {
                       .map(ps => (
                         <div
                           key={ps.numero}
-                          className="flex items-center gap-3 p-3 bg-white rounded-lg mb-2 border border-gray-200"
+                          className="flex items-center gap-3 p-3 bg-white rounded-lg mb-2 border border-border-subtle"
                         >
                           <span className="px-3 py-1 rounded-lg text-white text-sm font-bold" style={{ background: '#667eea' }}>
                             PS{ps.numero}
@@ -1214,7 +1184,7 @@ export default function SetupGaraFicr() {
             <div className="flex justify-between mt-6">
               <button
                 onClick={() => setStepCorrente(3)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                className="px-4 py-2 text-content-secondary hover:text-content-primary"
               >
                 ← Indietro
               </button>
@@ -1259,7 +1229,7 @@ export default function SetupGaraFicr() {
             )}
           </div>
           
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-content-secondary mb-4">
             Configura i tempi di trasferimento (hh:mm) per calcolare gli orari teorici ai Controlli Orario.
           </p>
           
@@ -1282,7 +1252,7 @@ export default function SetupGaraFicr() {
               return (
                 <div key={evento.codice_gara} className="bg-white rounded-lg p-4 shadow">
                   <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-bold text-gray-800 text-lg">
+                    <h3 className="font-bold text-content-primary text-lg">
                       🏁 {evento.codice_gara}
                       <span className="ml-2 text-sm font-normal text-indigo-600">
                         {evento.codice_gara.endsWith('-1') ? '(Campionato)' :
@@ -1320,7 +1290,7 @@ export default function SetupGaraFicr() {
                       const tempoVal = minToHM(config[co.tempo]);
                       
                       return (
-                        <div key={co.num} className={`p-3 rounded-lg border-2 ${isAttivo ? 'border-green-500 bg-green-50' : 'border-gray-300 bg-gray-100'}`}>
+                        <div key={co.num} className={`p-3 rounded-lg border-2 ${isAttivo ? 'border-green-500 bg-green-50' : 'border-border bg-gray-100'}`}>
                           <label className="flex items-center gap-2 mb-2 cursor-pointer">
                             <input
                               type="checkbox"
@@ -1336,14 +1306,14 @@ export default function SetupGaraFicr() {
                                 type="number" min="0" max="23" placeholder="h"
                                 value={tempoVal.h}
                                 onChange={(e) => updateTempoSettore(evento.codice_gara, co.tempo, hmToMin(e.target.value, tempoVal.m))}
-                                className="w-14 px-2 py-2 border-2 border-gray-300 rounded text-center text-lg font-mono"
+                                className="w-14 px-2 py-2 border-2 border-border rounded text-center text-lg font-mono"
                               />
                               <span className="text-lg font-bold">:</span>
                               <input
                                 type="number" min="0" max="59" placeholder="m"
                                 value={tempoVal.m}
                                 onChange={(e) => updateTempoSettore(evento.codice_gara, co.tempo, hmToMin(tempoVal.h, e.target.value))}
-                                className="w-14 px-2 py-2 border-2 border-gray-300 rounded text-center text-lg font-mono"
+                                className="w-14 px-2 py-2 border-2 border-border rounded text-center text-lg font-mono"
                               />
                             </div>
                           )}
@@ -1360,17 +1330,17 @@ export default function SetupGaraFicr() {
                         type="number" min="0" max="23" placeholder="h"
                         value={minToHM(config.tempo_ultimo_arr).h}
                         onChange={(e) => updateTempoSettore(evento.codice_gara, 'tempo_ultimo_arr', hmToMin(e.target.value, minToHM(config.tempo_ultimo_arr).m))}
-                        className="w-16 px-2 py-2 border-2 border-gray-300 rounded text-center text-lg font-mono"
+                        className="w-16 px-2 py-2 border-2 border-border rounded text-center text-lg font-mono"
                       />
                       <span className="text-lg font-bold">:</span>
                       <input
                         type="number" min="0" max="59" placeholder="m"
                         value={minToHM(config.tempo_ultimo_arr).m}
                         onChange={(e) => updateTempoSettore(evento.codice_gara, 'tempo_ultimo_arr', hmToMin(minToHM(config.tempo_ultimo_arr).h, e.target.value))}
-                        className="w-16 px-2 py-2 border-2 border-gray-300 rounded text-center text-lg font-mono"
+                        className="w-16 px-2 py-2 border-2 border-border rounded text-center text-lg font-mono"
                       />
                     </div>
-                    <span className="text-sm text-gray-600">dall'ultimo CO</span>
+                    <span className="text-sm text-content-secondary">dall'ultimo CO</span>
                   </div>
                 </div>
               );
@@ -1380,7 +1350,7 @@ export default function SetupGaraFicr() {
           <div className="flex justify-between mt-6">
             <button
               onClick={() => setStepCorrente(4)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              className="px-4 py-2 text-content-secondary hover:text-content-primary"
             >
               ← Indietro
             </button>
@@ -1421,7 +1391,7 @@ export default function SetupGaraFicr() {
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-gray-500">Latitudine</label>
+                  <label className="text-xs text-content-tertiary">Latitudine</label>
                   <input
                     type="text"
                     value={paddock1Lat}
@@ -1431,7 +1401,7 @@ export default function SetupGaraFicr() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Longitudine</label>
+                  <label className="text-xs text-content-tertiary">Longitudine</label>
                   <input
                     type="text"
                     value={paddock1Lon}
@@ -1450,7 +1420,7 @@ export default function SetupGaraFicr() {
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-gray-500">Latitudine</label>
+                  <label className="text-xs text-content-tertiary">Latitudine</label>
                   <input
                     type="text"
                     value={paddock2Lat}
@@ -1460,7 +1430,7 @@ export default function SetupGaraFicr() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Longitudine</label>
+                  <label className="text-xs text-content-tertiary">Longitudine</label>
                   <input
                     type="text"
                     value={paddock2Lon}
@@ -1475,7 +1445,7 @@ export default function SetupGaraFicr() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-white rounded-lg p-4 shadow">
-              <label className="text-sm font-medium text-gray-700 mb-1 block">
+              <label className="text-sm font-medium text-content-secondary mb-1 block">
                 Raggio Paddock (metri)
               </label>
               <input
@@ -1486,7 +1456,7 @@ export default function SetupGaraFicr() {
               />
             </div>
             <div className="bg-white rounded-lg p-4 shadow">
-              <label className="text-sm font-medium text-gray-700 mb-1 block">
+              <label className="text-sm font-medium text-content-secondary mb-1 block">
                 Frequenza GPS (secondi)
               </label>
               <input
@@ -1497,7 +1467,7 @@ export default function SetupGaraFicr() {
               />
             </div>
             <div className="bg-white rounded-lg p-4 shadow">
-              <label className="text-sm font-medium text-gray-700 mb-1 block">
+              <label className="text-sm font-medium text-content-secondary mb-1 block">
                 Allarme Fermo (minuti)
               </label>
               <input
@@ -1514,7 +1484,7 @@ export default function SetupGaraFicr() {
             <h3 className="font-bold mb-3">🔐 Codici Accesso</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-content-secondary mb-1">
                   Codice Direttore di Gara
                 </label>
                 <input
@@ -1522,12 +1492,12 @@ export default function SetupGaraFicr() {
                   value={codiceDdG}
                   onChange={(e) => setCodiceDdG(e.target.value.toUpperCase())}
                   placeholder="es. D03478"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2 border border-border rounded-lg uppercase focus:ring-2 focus:ring-orange-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">Per accesso Direttore di Gara</p>
+                <p className="text-xs text-content-tertiary mt-1">Per accesso Direttore di Gara</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-content-secondary mb-1">
                   Codice Accesso Pubblico
                 </label>
                 <input
@@ -1535,18 +1505,18 @@ export default function SetupGaraFicr() {
                   value={codiceAccessoPubblico}
                   onChange={(e) => setCodiceAccessoPubblico(e.target.value.toUpperCase())}
                   placeholder="es. NAZEN032"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg uppercase focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2 border border-border rounded-lg uppercase focus:ring-2 focus:ring-orange-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">Per visualizzazione classifica pubblica</p>
+                <p className="text-xs text-content-tertiary mt-1">Per visualizzazione classifica pubblica</p>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-3">I codici piloti ERTA sono già impostati allo Step 3</p>
+            <p className="text-xs text-content-tertiary mt-3">I codici piloti ERTA sono già impostati allo Step 3</p>
           </div>
           
           <div className="flex justify-between">
             <button
               onClick={() => setStepCorrente(5)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              className="px-4 py-2 text-content-secondary hover:text-content-primary"
             >
               ← Indietro
             </button>
@@ -1575,10 +1545,10 @@ export default function SetupGaraFicr() {
       {stepCorrente === 7 && (
         <div className="bg-blue-50 rounded-xl shadow-lg p-6 border-4 border-blue-400">
           <h2 className="text-xl font-bold text-blue-800 mb-2 flex items-center gap-2">
-            <Download className="w-6 h-6 text-blue-600" />
+            <Download className="w-6 h-6 text-brand-600 dark:text-brand-500" />
             7️⃣ Import Dati Pre-Gara
           </h2>
-          <p className="text-sm text-blue-600 mb-4">
+          <p className="text-sm text-brand-600 dark:text-brand-500 mb-4">
             Importa piloti da FICR per: <strong>{eventiCreati.map(e => e.codice_gara).join(', ')}</strong>
           </p>
           
@@ -1589,8 +1559,8 @@ export default function SetupGaraFicr() {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-3xl">📋</span>
                 <div>
-                  <h3 className="font-bold text-gray-800">T-5 Programma</h3>
-                  <p className="text-xs text-gray-500">5 giorni prima</p>
+                  <h3 className="font-bold text-content-primary">T-5 Programma</h3>
+                  <p className="text-xs text-content-tertiary">5 giorni prima</p>
                 </div>
               </div>
               <button
@@ -1604,7 +1574,7 @@ export default function SetupGaraFicr() {
                 <div className={`text-sm mt-2 ${importResult['program'].success ? 'text-green-600' : 'text-red-600'}`}>
                   <p>{importResult['program'].message}</p>
                   {importResult['program'].dettagli && (
-                    <p className="text-xs text-gray-500 mt-1">{importResult['program'].dettagli}</p>
+                    <p className="text-xs text-content-tertiary mt-1">{importResult['program'].dettagli}</p>
                   )}
                 </div>
               )}
@@ -1615,14 +1585,14 @@ export default function SetupGaraFicr() {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-3xl">🔢</span>
                 <div>
-                  <h3 className="font-bold text-gray-800">T-2 Numeri</h3>
-                  <p className="text-xs text-gray-500">2 giorni prima</p>
+                  <h3 className="font-bold text-content-primary">T-2 Numeri</h3>
+                  <p className="text-xs text-content-tertiary">2 giorni prima</p>
                 </div>
               </div>
               <button
                 onClick={() => handleImportFicr('entrylist', 'Numeri')}
                 disabled={importandoFicr['entrylist']}
-                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-semibold"
+                className="w-full px-4 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 font-semibold"
               >
                 {importandoFicr['entrylist'] ? '⏳ Importando...' : '🔢 Import Numeri'}
               </button>
@@ -1630,7 +1600,7 @@ export default function SetupGaraFicr() {
                 <div className={`text-sm mt-2 ${importResult['entrylist'].success ? 'text-green-600' : 'text-red-600'}`}>
                   <p>{importResult['entrylist'].message}</p>
                   {importResult['entrylist'].dettagli && (
-                    <p className="text-xs text-gray-500 mt-1">{importResult['entrylist'].dettagli}</p>
+                    <p className="text-xs text-content-tertiary mt-1">{importResult['entrylist'].dettagli}</p>
                   )}
                 </div>
               )}
@@ -1641,8 +1611,8 @@ export default function SetupGaraFicr() {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-3xl">🏁</span>
                 <div>
-                  <h3 className="font-bold text-gray-800">T-1 Ordine</h3>
-                  <p className="text-xs text-gray-500">1 giorno prima</p>
+                  <h3 className="font-bold text-content-primary">T-1 Ordine</h3>
+                  <p className="text-xs text-content-tertiary">1 giorno prima</p>
                 </div>
               </div>
               <button
@@ -1656,7 +1626,7 @@ export default function SetupGaraFicr() {
                 <div className={`text-sm mt-2 ${importResult['startlist'].success ? 'text-green-600' : 'text-red-600'}`}>
                   <p>{importResult['startlist'].message}</p>
                   {importResult['startlist'].dettagli && (
-                    <p className="text-xs text-gray-500 mt-1">{importResult['startlist'].dettagli}</p>
+                    <p className="text-xs text-content-tertiary mt-1">{importResult['startlist'].dettagli}</p>
                   )}
                 </div>
               )}
@@ -1666,7 +1636,7 @@ export default function SetupGaraFicr() {
           <div className="flex justify-between mt-6">
             <button
               onClick={() => setStepCorrente(6)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              className="px-4 py-2 text-content-secondary hover:text-content-primary"
             >
               ← Indietro
             </button>

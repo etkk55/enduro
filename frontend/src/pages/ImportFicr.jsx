@@ -110,17 +110,17 @@ function XmlImport() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-surface border border-border-subtle rounded-lg p-5">
       <h2 className="text-xl font-semibold mb-4">📂 Import file XML FMI</h2>
 
       {/* Upload file */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">File XML iscritti</label>
+        <label className="block text-sm font-medium text-content-secondary mb-2">File XML iscritti</label>
         <input
           type="file"
           accept=".xml"
           onChange={handleFile}
-          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+          className="block w-full text-sm text-content-tertiary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
         />
       </div>
 
@@ -135,11 +135,11 @@ function XmlImport() {
 
       {/* Selezione evento */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Evento di destinazione</label>
+        <label className="block text-sm font-medium text-content-secondary mb-2">Evento di destinazione</label>
         <select
           value={eventoSelezionato}
           onChange={e => setEventoSelezionato(e.target.value)}
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500"
+          className="w-full px-4 py-3 border-2 border-border rounded-lg focus:border-green-500"
         >
           <option value="">— Seleziona evento —</option>
           {eventi.map(ev => (
@@ -160,7 +160,7 @@ function XmlImport() {
       </button>
 
       {msg && (
-        <p className={`mt-3 text-center text-sm font-semibold ${stato === 'success' ? 'text-green-700' : stato === 'error' ? 'text-red-600' : 'text-gray-600'}`}>
+        <p className={`mt-3 text-center text-sm font-semibold ${stato === 'success' ? 'text-green-700' : stato === 'error' ? 'text-red-600' : 'text-content-secondary'}`}>
           {msg}
         </p>
       )}
@@ -507,10 +507,10 @@ export default function ImportFicr() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
-        <Download className="w-8 h-8 text-blue-600" />
-        <h1 className="text-3xl font-bold">Import FICR</h1>
+    <div className="p-4 lg:p-8 max-w-6xl mx-auto animate-fade-in">
+      <div className="mb-5">
+        <h1 className="text-heading-1">Import FICR</h1>
+        <p className="text-content-secondary mt-1 text-sm">Importa manifestazioni, piloti e tempi dal sistema FICR</p>
       </div>
 
       {/* STEP 1: Selezione */}
@@ -522,8 +522,8 @@ export default function ImportFicr() {
               onClick={() => setModalita('ricerca')}
               className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
                 modalita === 'ricerca'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-brand-600 text-white'
+                  : 'bg-gray-100 text-content-secondary hover:bg-gray-200'
               }`}
             >
               <Search className="w-5 h-5 inline mr-2" />
@@ -533,8 +533,8 @@ export default function ImportFicr() {
               onClick={() => setModalita('manuale')}
               className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
                 modalita === 'manuale'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-brand-600 text-white'
+                  : 'bg-gray-100 text-content-secondary hover:bg-gray-200'
               }`}
             >
               <Plus className="w-5 h-5 inline mr-2" />
@@ -545,7 +545,7 @@ export default function ImportFicr() {
               className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
                 modalita === 'xml'
                   ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-gray-100 text-content-secondary hover:bg-gray-200'
               }`}
             >
               📂 Import file XML
@@ -559,7 +559,7 @@ export default function ImportFicr() {
 
           {/* MODALITÀ RICERCA */}
           {modalita === 'ricerca' && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-surface border border-border-subtle rounded-lg p-5">
               <h2 className="text-xl font-semibold mb-4">Seleziona Manifestazione</h2>
               
               <div className="mb-6">
@@ -568,13 +568,13 @@ export default function ImportFicr() {
                   placeholder="Cerca per nome, luogo o data..."
                   value={termineRicerca}
                   onChange={(e) => setTermineRicerca(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="w-full px-4 py-3 border-2 border-border rounded-lg text-lg focus:border-brand-500 focus:ring-2 focus:ring-blue-200"
                 />
               </div>
 
               <div className="space-y-3">
                 {manifestazioniFiltrate.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
+                  <div className="text-center py-12 text-content-tertiary">
                     <Search className="w-16 h-16 mx-auto mb-4 opacity-30" />
                     <p className="text-lg">Nessuna manifestazione trovata</p>
                     <p className="text-sm mt-2">Prova a cercare con un termine diverso o usa l'inserimento manuale</p>
@@ -587,13 +587,13 @@ export default function ImportFicr() {
                       className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
                         manifestazioneSelezionata?.id === manif.id
                           ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                          : 'border-border-subtle hover:border-blue-300 hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex items-start justify-between">
                         <div>
-                          <h3 className="text-lg font-bold text-gray-900">{manif.nome}</h3>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                          <h3 className="text-lg font-bold text-content-primary">{manif.nome}</h3>
+                          <div className="flex items-center gap-4 mt-2 text-sm text-content-secondary">
                             <div className="flex items-center gap-1">
                               <Calendar className="w-4 h-4" />
                               {new Date(manif.data).toLocaleDateString('it-IT', {
@@ -609,7 +609,7 @@ export default function ImportFicr() {
                           </div>
                         </div>
                         {manifestazioneSelezionata?.id === manif.id && (
-                          <CheckCircle className="w-6 h-6 text-blue-600" />
+                          <CheckCircle className="w-6 h-6 text-brand-600 dark:text-brand-500" />
                         )}
                       </div>
                     </button>
@@ -621,7 +621,7 @@ export default function ImportFicr() {
                 <button
                   onClick={handleEsplora}
                   disabled={loading}
-                  className="w-full mt-6 bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center gap-2 text-lg font-semibold"
+                  className="w-full mt-6 bg-brand-600 text-white py-4 rounded-lg hover:bg-brand-700 disabled:bg-gray-400 flex items-center justify-center gap-2 text-lg font-semibold"
                 >
                   {loading ? (
                     <>
@@ -641,7 +641,7 @@ export default function ImportFicr() {
 
           {/* MODALITÀ MANUALE */}
           {modalita === 'manuale' && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-surface border border-border-subtle rounded-lg p-5">
               <h2 className="text-xl font-semibold mb-4">Inserimento Manuale</h2>
               
               <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
@@ -726,7 +726,7 @@ export default function ImportFicr() {
               <button
                 onClick={handleEsplora}
                 disabled={loading || !params.manifestazione || !params.nomeDisplay}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center gap-2"
+                className="w-full bg-brand-600 text-white py-3 rounded-lg hover:bg-brand-700 disabled:bg-gray-400 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -754,14 +754,14 @@ export default function ImportFicr() {
 
       {/* STEP 2: Conferma e Import */}
       {step === 2 && gare.length > 0 && (
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-surface border border-border-subtle rounded-lg p-5">
           <h2 className="text-xl font-semibold mb-4">Gare Trovate</h2>
 
           <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
               <strong>{params.nomeDisplay}</strong> | {params.data} | {params.luogo}
             </p>
-            <p className="text-sm text-blue-700 mt-1">
+            <p className="text-sm text-brand-700 dark:text-brand-500 mt-1">
               {gare.length} gare, {gare.reduce((sum, g) => sum + g.prove.length, 0)} prove totali
             </p>
           </div>
@@ -783,7 +783,7 @@ export default function ImportFicr() {
                   gara.prove.map((p, i) => (
                     <div key={i} className="text-sm bg-gray-50 p-2 rounded flex justify-between">
                       <span>Prova {p.numero}: {p.nome}</span>
-                      <span className="text-gray-600">{p.piloti} piloti</span>
+                      <span className="text-content-secondary">{p.piloti} piloti</span>
                     </div>
                   ))
                 )}
@@ -798,7 +798,7 @@ export default function ImportFicr() {
                 setGare([]);
                 setError('');
               }}
-              className="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold"
+              className="px-6 py-3 border-2 border-border rounded-lg hover:bg-gray-50 font-semibold"
             >
               Indietro
             </button>
@@ -834,7 +834,7 @@ export default function ImportFicr() {
                     {p.status === 'done' ? (
                       <CheckCircle className="w-5 h-5 text-green-600" />
                     ) : (
-                      <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                      <Loader2 className="w-5 h-5 animate-spin text-brand-600 dark:text-brand-500" />
                     )}
                     <span className="font-semibold">{p.gara}</span>
                   </div>
@@ -846,7 +846,7 @@ export default function ImportFicr() {
                   <button
                     onClick={handleCaricaIscritti}
                     disabled={caricandoIscritti}
-                    className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center gap-2 font-semibold"
+                    className="w-full bg-brand-600 text-white py-3 rounded-lg hover:bg-brand-700 disabled:bg-gray-400 flex items-center justify-center gap-2 font-semibold"
                   >
                     {caricandoIscritti ? (
                       <><Loader2 className="w-5 h-5 animate-spin" /> Caricamento iscritti...</>

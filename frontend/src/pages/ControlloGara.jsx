@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Settings, Play, Pause, Square, RotateCcw, Radio, ExternalLink, Trash2, MapPin, Save, Clock } from 'lucide-react';
+import { Settings, Play, Pause, Square, RotateCcw, Radio, ExternalLink, Trash2, MapPin, Save, Clock, Download } from 'lucide-react';
 
 import { API_BASE, SIMULATOR_URL as SIMULATORE_URL } from '../services/api';
+import { Card } from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Badge from '../components/ui/Badge';
+import Input, { Select, Label } from '../components/ui/Input';
+import LiveDot from '../components/ui/LiveDot';
 
 export default function ControlloGara() {
   // Stati eventi
@@ -601,86 +606,67 @@ export default function ControlloGara() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 lg:p-8 max-w-7xl mx-auto animate-fade-in space-y-4">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-8 py-6 rounded-lg shadow-lg">
-        <div className="flex items-center gap-4">
-          <Settings className="w-10 h-10" />
-          <div>
-            <h1 className="text-3xl font-bold">Impostazione Gara</h1>
-            <p className="text-purple-200">Configurazione evento, GPS, simulazione e dati live</p>
-          </div>
-        </div>
+      <div>
+        <h1 className="text-heading-1">Controllo Gara</h1>
+        <p className="text-content-secondary mt-1 text-sm">Configurazione evento, GPS, simulazione e fonte dati live</p>
       </div>
-      
-      {/* Selezione Evento e Fonte Dati */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Evento */}
+
+      {/* Event + source */}
+      <Card>
+        <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Evento</label>
-            <select
-              value={eventoSelezionato}
-              onChange={(e) => setEventoSelezionato(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-            >
-              <option value="">-- Seleziona evento --</option>
-              {eventi.map(evento => {
-                const dataEvento = evento.data_inizio || evento.data_evento;
-                const dataFormattata = dataEvento ? new Date(dataEvento).toLocaleDateString('it-IT') : 'N/D';
-                return (
-                  <option key={evento.id} value={evento.id}>
-                    {evento.nome_evento} ({dataFormattata})
-                  </option>
-                );
+            <Label>Evento</Label>
+            <Select value={eventoSelezionato} onChange={(e) => setEventoSelezionato(e.target.value)}>
+              <option value="">— Seleziona evento —</option>
+              {eventi.map(ev => {
+                const d = ev.data_inizio || ev.data_evento;
+                const fmt = d ? new Date(d).toLocaleDateString('it-IT') : 'N/D';
+                return <option key={ev.id} value={ev.id}>{ev.nome_evento} · {fmt}</option>;
               })}
-            </select>
+            </Select>
             {eventoInfo && (
-              <div className="mt-2 text-sm text-gray-600">
-                📍 {eventoInfo.luogo} • 👥 {eventoInfo.numPiloti} piloti
+              <div className="mt-2.5 flex items-center gap-3 text-xs text-content-tertiary">
+                {eventoInfo.luogo && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {eventoInfo.luogo}</span>}
+                <Badge size="sm" variant="neutral">{eventoInfo.numPiloti} piloti</Badge>
               </div>
             )}
           </div>
-          
-          {/* Fonte Dati */}
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Fonte Dati</label>
-            <div className="flex gap-2">
+            <Label>Fonte dati</Label>
+            <div className="inline-flex bg-surface-2 rounded-md p-0.5 w-full">
               <button
                 onClick={() => setFonteDati('simulatore')}
-                className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
-                  fonteDati === 'simulatore'
-                    ? 'border-purple-500 bg-purple-50 text-purple-700'
-                    : 'border-gray-300 hover:border-gray-400'
+                className={`flex-1 h-9 px-3 rounded-sm text-xs font-semibold transition-colors inline-flex items-center justify-center gap-1.5 ${
+                  fonteDati === 'simulatore' ? 'bg-surface shadow-sm text-content-primary' : 'text-content-secondary hover:text-content-primary'
                 }`}
               >
-                <Settings className="w-5 h-5 mx-auto mb-1" />
-                Simulatore
+                <Settings className="w-3.5 h-3.5" /> Simulatore
               </button>
               <button
                 onClick={() => setFonteDati('ficr')}
-                className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
-                  fonteDati === 'ficr'
-                    ? 'border-purple-500 bg-purple-50 text-purple-700'
-                    : 'border-gray-300 hover:border-gray-400'
+                className={`flex-1 h-9 px-3 rounded-sm text-xs font-semibold transition-colors inline-flex items-center justify-center gap-1.5 ${
+                  fonteDati === 'ficr' ? 'bg-surface shadow-sm text-content-primary' : 'text-content-secondary hover:text-content-primary'
                 }`}
               >
-                <Radio className="w-5 h-5 mx-auto mb-1" />
-                FICR Live
+                <Radio className="w-3.5 h-3.5" /> FICR Live
               </button>
             </div>
           </div>
         </div>
-      </div>
+      </Card>
       
-      {/* === SEZIONE 1: IMPORT DATI PRE-GARA (BLU) === */}
+      {/* === SEZIONE 1: IMPORT DATI PRE-GARA === */}
       {eventoSelezionato && (
-        <div className="bg-blue-50 rounded-xl shadow-lg p-6 border-4 border-blue-400">
-          <h2 className="text-xl font-bold text-blue-800 mb-2 flex items-center gap-2">
-            📥 Import Dati Pre-Gara
+        <div className="bg-surface border border-border-subtle border-l-4 border-l-brand-500 rounded-lg p-5 shadow-sm">
+          <h2 className="text-heading-2 flex items-center gap-2">
+            <Download className="w-4 h-4 text-brand-600 dark:text-brand-500" />
+            Import dati pre-gara
           </h2>
-          <p className="text-sm text-blue-600 mb-4">
-            Importa piloti da FICR per <strong>TUTTE</strong> le gare: {gareFratelle.map(g => g.codice_gara).join(', ') || 'nessuna'}
+          <p className="text-xs text-content-tertiary mt-1 mb-4">
+            Importa piloti da FICR per tutte le gare: <span className="font-mono">{gareFratelle.map(g => g.codice_gara).join(', ') || 'nessuna'}</span>
           </p>
           
           {/* 3 Bottoni Import per timing */}
@@ -804,9 +790,9 @@ export default function ControlloGara() {
 
       {/* === SEZIONE 2: TEMPI SETTORE (VERDE) === */}
       {eventoSelezionato && gareFratelle.length > 0 && (
-        <div className="bg-green-50 rounded-xl shadow-lg p-6 border-4 border-green-400">
+        <div className="bg-surface border border-border-subtle border-l-4 border-l-success-fg rounded-lg p-5 shadow-sm">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-green-800 flex items-center gap-2">
+            <h2 className="text-heading-2 flex items-center gap-2">
               <Clock className="w-6 h-6 text-green-600" />
               ⏱️ Tempi Settore (Orari Teorici CO)
             </h2>
@@ -936,8 +922,8 @@ export default function ControlloGara() {
 
       {/* === SEZIONE 3: CONFIGURAZIONE GPS (ARANCIONE) === */}
       {eventoSelezionato && (
-        <div className="bg-orange-50 rounded-xl shadow-lg p-6 border-4 border-orange-400">
-          <h2 className="text-xl font-bold text-orange-800 mb-4 flex items-center gap-2">
+        <div className="bg-surface border border-border-subtle border-l-4 border-l-warning-fg rounded-lg p-5 shadow-sm">
+          <h2 className="text-heading-2 mb-4 flex items-center gap-2">
             <MapPin className="w-6 h-6 text-orange-600" />
             📍 Configurazione GPS e Sicurezza
           </h2>
@@ -1261,8 +1247,8 @@ export default function ControlloGara() {
 
       {/* === SEZIONE 4: PARAMETRI SIMULAZIONE (VIOLA) === */}
       {fonteDati === 'simulatore' && (
-        <div className="bg-purple-50 rounded-xl shadow-lg p-6 border-4 border-purple-400">
-          <h2 className="text-xl font-bold text-purple-800 mb-4 flex items-center gap-2">
+        <div className="bg-surface border border-border-subtle border-l-4 border-l-brand-500 rounded-lg p-5 shadow-sm">
+          <h2 className="text-heading-2 mb-4 flex items-center gap-2">
             <Settings className="w-6 h-6 text-purple-600" />
             🎮 Parametri Simulazione
           </h2>

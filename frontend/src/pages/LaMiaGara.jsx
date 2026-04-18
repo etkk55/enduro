@@ -112,8 +112,24 @@ const GIRO_COLORS = [
 
 // Mini-chart "small multiple" per singolo pilota: mostra le performance del pilota
 // sulle prove ripetute nei vari giri. G1 = riferimento, G2/G3/... = delta vs G1.
+// - Scala INDIPENDENTE per ogni PS (zoom locale per rendere visibili piccole differenze)
+// - Sopra G1: "Rif." + tempo reale
+// - Sopra G2+: delta vs G1
+// - Angoli superiori delle barre: retti (no rounded-t)
 function PilotaProgressCard({ pilota, curvaData, isMe }) {
-  // Costruisci dati per PS: { nomeProva, barre: [{ giro, tempo, delta, isRif }] }
+  const fmtTempo = (t) => {
+    if (!t) return '—';
+    const m = Math.floor(t / 60);
+    const s = (t % 60).toFixed(2).padStart(5, '0');
+    return m > 0 ? `${m}:${s}` : `${s}s`;
+  };
+  const fmtDelta = (d) => {
+    const abs = Math.abs(d);
+    const str = abs < 10 ? abs.toFixed(2) : abs.toFixed(1);
+    return (d < 0 ? '−' : '+') + str + 's';
+  };
+
+  // Costruisci dati per PS: { nomeProva, barre, scala locale }
   const provePS = Object.entries(curvaData).map(([nomeProva, datiGiri]) => {
     const sorted = [...datiGiri].sort((a, b) => a.giro - b.giro);
     const riferimento = sorted[0]?.tempi[pilota.num] ?? null;
@@ -122,14 +138,36 @@ function PilotaProgressCard({ pilota, curvaData, isMe }) {
       const delta = (riferimento && tempo && g.giro !== sorted[0].giro) ? tempo - riferimento : null;
       return { giro: g.giro, tempo, delta, isRif: g.giro === sorted[0].giro };
     });
-    return { nomeProva, barre };
-  }).filter(ps => ps.barre.some(b => b.tempo !== null));
+
+    // SCALA LOCALE per questa PS (zoom sulle differenze di questo singolo PS)
+    const tempiValidi = barre.map(b => b.tempo).filter(t => t !== null && t > 0);
+    let baseline = 0, topT = 0;
+    if (tempiValidi.length > 0) {
+      const maxT = Math.max(...tempiValidi);
+      const minT = Math.min(...tempiValidi);
+      const range = maxT - minT;
+      // Se il range e' 0 (tempi identici) usa +/-1% come fallback
+      const padding = range > 0 ? range * 0.8 : maxT * 0.01;
+      baseline = Math.max(0, minT - padding);
+      topT = maxT + (range > 0 ? range * 0.15 : maxT * 0.005);
+    }
+
+    const barHeight = (tempo) => {
+      if (!tempo || topT === baseline) return 8;
+      const h = ((tempo - baseline) / (topT - baseline)) * 100;
+      return Math.max(6, Math.min(100, h));
+    };
+
+    return { nomeProva, barre, barHeight, hasData: tempiValidi.length > 0 };
+  });
+
+  const provaConDati = provePS.filter(ps => ps.hasData);
 
   // Nessun dato per questo pilota
-  if (provePS.length === 0) {
+  if (provaConDati.length === 0) {
     return (
       <div className="bg-surface-2 border border-border-subtle rounded-lg p-3 text-center opacity-50">
-        <div className="h-40 flex items-center justify-center text-2xs text-content-tertiary">
+        <div className="h-48 flex items-center justify-center text-2xs text-content-tertiary">
           Nessun dato disponibile
         </div>
         <div className="mt-2 pt-2 border-t border-border-subtle text-xs font-semibold text-content-tertiary">
@@ -139,24 +177,6 @@ function PilotaProgressCard({ pilota, curvaData, isMe }) {
     );
   }
 
-  // Scala globale per pilota: baseline = minT * 0.98, top = maxT + piccolo margine
-  const tempiTutti = provePS.flatMap(ps => ps.barre.map(b => b.tempo)).filter(t => t !== null);
-  const maxT = Math.max(...tempiTutti);
-  const minT = Math.min(...tempiTutti);
-  const baseline = Math.max(0, minT - (maxT - minT) * 0.5);
-  const topT = maxT + (maxT - minT) * 0.1;
-  const barHeight = (tempo) => {
-    if (!tempo) return 0;
-    const h = ((tempo - baseline) / (topT - baseline)) * 100;
-    return Math.max(4, Math.min(100, h));
-  };
-
-  const fmtDelta = (d) => {
-    const abs = Math.abs(d);
-    const str = abs < 10 ? abs.toFixed(2) : abs.toFixed(1);
-    return (d < 0 ? '−' : '+') + str + 's';
-  };
-
   return (
     <div className={`rounded-lg p-3 shadow-sm transition-all ${
       isMe
@@ -164,31 +184,38 @@ function PilotaProgressCard({ pilota, curvaData, isMe }) {
         : 'bg-surface border border-border-subtle'
     }`}>
       {/* Chart area */}
-      <div className="flex items-end justify-around gap-3" style={{ height: '160px' }}>
+      <div className="flex items-end justify-around gap-3" style={{ height: '180px' }}>
         {provePS.map(ps => (
           <div key={ps.nomeProva} className="flex-1 flex items-end justify-center gap-1.5 h-full">
             {ps.barre.map(b => {
-              const h = barHeight(b.tempo);
+              const h = ps.barHeight(b.tempo);
               const colorCls = GIRO_COLORS[(b.giro - 1) % GIRO_COLORS.length];
               return (
-                <div key={b.giro} className="flex-1 max-w-[32px] flex flex-col items-center justify-end h-full">
-                  {/* Delta label (above bar) */}
-                  <div className="text-[10px] font-semibold leading-tight text-center h-7 flex flex-col justify-end items-center mb-1">
+                <div key={b.giro} className="flex-1 max-w-[36px] flex flex-col items-center justify-end h-full">
+                  {/* Label sopra la barra:
+                      - G1 (rif): 'Rif.' + tempo reale (2 righe)
+                      - G2+: delta vs G1 */}
+                  <div className="text-[10px] leading-tight text-center h-10 flex flex-col justify-end items-center mb-1">
                     {b.isRif ? (
-                      <span className="text-content-secondary">Rif.</span>
+                      <>
+                        <span className="text-content-secondary font-semibold">Rif.</span>
+                        <span className="text-content-primary font-mono tabular-nums font-semibold mt-0.5">
+                          {fmtTempo(b.tempo)}
+                        </span>
+                      </>
                     ) : b.delta !== null ? (
-                      <span className={b.delta < 0 ? 'text-success-fg' : 'text-danger-fg'}>
+                      <span className={`font-semibold ${b.delta < 0 ? 'text-success-fg' : 'text-danger-fg'}`}>
                         {fmtDelta(b.delta)}
                       </span>
                     ) : (
                       <span className="text-content-tertiary">—</span>
                     )}
                   </div>
-                  {/* Bar */}
+                  {/* Barra: NO rounded-t (angolo retto in cima), rounded-b opzionale zero */}
                   <div
-                    className={`w-full rounded-t transition-all ${b.tempo ? colorCls : 'bg-surface-3'}`}
+                    className={`w-full transition-all ${b.tempo ? colorCls : 'bg-surface-3'}`}
                     style={{ height: `${h}%` }}
-                    title={b.tempo ? `G${b.giro}: ${Math.floor(b.tempo / 60)}:${(b.tempo % 60).toFixed(2).padStart(5, '0')}${b.delta !== null ? ` (${fmtDelta(b.delta)} vs G1)` : ' — riferimento'}` : `G${b.giro}: nessun dato`}
+                    title={b.tempo ? `G${b.giro}: ${fmtTempo(b.tempo)}${b.delta !== null ? ` (${fmtDelta(b.delta)} vs G1)` : ' — riferimento'}` : `G${b.giro}: nessun dato`}
                   />
                 </div>
               );
@@ -202,7 +229,7 @@ function PilotaProgressCard({ pilota, curvaData, isMe }) {
         {provePS.map(ps => (
           <div key={ps.nomeProva} className="flex-1 flex justify-center gap-1.5">
             {ps.barre.map(b => (
-              <div key={b.giro} className="flex-1 max-w-[32px] text-center text-[10px] font-semibold text-content-tertiary">
+              <div key={b.giro} className="flex-1 max-w-[36px] text-center text-[10px] font-semibold text-content-tertiary">
                 G{b.giro}
               </div>
             ))}
@@ -221,7 +248,7 @@ function PilotaProgressCard({ pilota, curvaData, isMe }) {
         ))}
       </div>
 
-      {/* Pilot name at bottom (as in sketch) */}
+      {/* Pilot name at bottom */}
       <div className="mt-3 pt-2 border-t border-border-subtle">
         <div className="inline-block w-full text-center px-2 py-1 rounded border border-border-subtle bg-surface-2">
           <span className={`text-xs font-semibold ${isMe ? 'text-brand-600 dark:text-brand-500' : 'text-content-primary'}`}>

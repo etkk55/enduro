@@ -788,7 +788,7 @@ export default function SetupGaraFicr() {
               <select 
                 value={anno} 
                 onChange={e => setAnno(parseInt(e.target.value))}
-                className="border-2 border-border rounded-lg px-4 py-3 text-lg font-semibold focus:border-indigo-500"
+                className="border-2 border-border rounded-lg px-4 py-3 text-lg font-semibold focus:border-indigo-500 bg-surface text-content-primary"
               >
                 {[2024, 2025, 2026, 2027].map(a => (
                   <option key={a} value={a}>{a}</option>
@@ -830,7 +830,7 @@ export default function SetupGaraFicr() {
                 placeholder="Filtra per nome o località..."
                 value={filtro}
                 onChange={(e) => setFiltro(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border-2 border-border rounded-lg focus:border-indigo-500"
+                className="w-full pl-10 pr-4 py-3 border-2 border-border rounded-lg bg-surface text-content-primary placeholder:text-content-tertiary focus:border-brand-500 focus:outline-none"
               />
             </div>
           </div>
@@ -888,12 +888,12 @@ export default function SetupGaraFicr() {
           ) : (
             <>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Nome Evento</label>
+                <label className="block text-sm font-medium text-content-secondary mb-2">Nome Evento</label>
                 <input
                   type="text"
                   value={nomeEvento}
                   onChange={(e) => setNomeEvento(e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-border rounded-lg"
+                  className="w-full px-4 py-2 border-2 border-border rounded-lg bg-surface text-content-primary placeholder:text-content-tertiary focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500"
                 />
               </div>
 
@@ -934,7 +934,7 @@ export default function SetupGaraFicr() {
                     placeholder="es. NAZEN032"
                     value={codiceFmi}
                     onChange={(e) => setCodiceFmi(e.target.value.toUpperCase())}
-                    className="w-full px-4 py-3 border-2 border-yellow-400 rounded-lg text-lg uppercase font-mono"
+                    className="w-full px-4 py-3 border-2 border-yellow-400 rounded-lg text-lg uppercase font-mono bg-surface text-content-primary focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
                   />
                   <p className="text-xs text-yellow-700 mt-1">
                     Questo codice verrà usato per tutte le {categorieSelezionate.length} categorie selezionate
@@ -1059,7 +1059,7 @@ export default function SetupGaraFicr() {
                       value={prova.nome}
                       onChange={(e) => updateProva(index, 'nome', e.target.value)}
                       placeholder="Nome prova (es. Cross Test Bosco)..."
-                      className="flex-1 px-4 py-3 border-2 border-border-subtle rounded-lg text-base focus:border-indigo-500 focus:outline-none"
+                      className="flex-1 px-4 py-3 border-2 border-border-subtle rounded-lg text-base bg-surface text-content-primary placeholder:text-content-tertiary focus:border-brand-500 focus:outline-none"
                     />
 
                     {/* Finale toggle */}
@@ -1306,14 +1306,14 @@ export default function SetupGaraFicr() {
                                 type="number" min="0" max="23" placeholder="h"
                                 value={tempoVal.h}
                                 onChange={(e) => updateTempoSettore(evento.codice_gara, co.tempo, hmToMin(e.target.value, tempoVal.m))}
-                                className="w-14 px-2 py-2 border-2 border-border rounded text-center text-lg font-mono"
+                                className="w-14 px-2 py-2 border-2 border-border rounded text-center text-lg font-mono bg-surface text-content-primary focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                               />
                               <span className="text-lg font-bold">:</span>
                               <input
                                 type="number" min="0" max="59" placeholder="m"
                                 value={tempoVal.m}
                                 onChange={(e) => updateTempoSettore(evento.codice_gara, co.tempo, hmToMin(tempoVal.h, e.target.value))}
-                                className="w-14 px-2 py-2 border-2 border-border rounded text-center text-lg font-mono"
+                                className="w-14 px-2 py-2 border-2 border-border rounded text-center text-lg font-mono bg-surface text-content-primary focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                               />
                             </div>
                           )}
@@ -1330,14 +1330,14 @@ export default function SetupGaraFicr() {
                         type="number" min="0" max="23" placeholder="h"
                         value={minToHM(config.tempo_ultimo_arr).h}
                         onChange={(e) => updateTempoSettore(evento.codice_gara, 'tempo_ultimo_arr', hmToMin(e.target.value, minToHM(config.tempo_ultimo_arr).m))}
-                        className="w-16 px-2 py-2 border-2 border-border rounded text-center text-lg font-mono"
+                        className="w-16 px-2 py-2 border-2 border-border rounded text-center text-lg font-mono bg-surface text-content-primary focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                       />
                       <span className="text-lg font-bold">:</span>
                       <input
                         type="number" min="0" max="59" placeholder="m"
                         value={minToHM(config.tempo_ultimo_arr).m}
                         onChange={(e) => updateTempoSettore(evento.codice_gara, 'tempo_ultimo_arr', hmToMin(minToHM(config.tempo_ultimo_arr).h, e.target.value))}
-                        className="w-16 px-2 py-2 border-2 border-border rounded text-center text-lg font-mono"
+                        className="w-16 px-2 py-2 border-2 border-border rounded text-center text-lg font-mono bg-surface text-content-primary focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                       />
                     </div>
                     <span className="text-sm text-content-secondary">dall'ultimo CO</span>
@@ -1397,7 +1397,7 @@ export default function SetupGaraFicr() {
                     value={paddock1Lat}
                     onChange={(e) => setPaddock1Lat(e.target.value)}
                     placeholder="46.1234"
-                    className="w-full px-3 py-2 border rounded-lg font-mono"
+                    className="w-full px-3 py-2 border border-border rounded-lg font-mono bg-surface text-content-primary focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                   />
                 </div>
                 <div>
@@ -1407,7 +1407,7 @@ export default function SetupGaraFicr() {
                     value={paddock1Lon}
                     onChange={(e) => setPaddock1Lon(e.target.value)}
                     placeholder="11.5678"
-                    className="w-full px-3 py-2 border rounded-lg font-mono"
+                    className="w-full px-3 py-2 border border-border rounded-lg font-mono bg-surface text-content-primary focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                   />
                 </div>
               </div>
@@ -1426,7 +1426,7 @@ export default function SetupGaraFicr() {
                     value={paddock2Lat}
                     onChange={(e) => setPaddock2Lat(e.target.value)}
                     placeholder="46.1234"
-                    className="w-full px-3 py-2 border rounded-lg font-mono"
+                    className="w-full px-3 py-2 border border-border rounded-lg font-mono bg-surface text-content-primary focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                   />
                 </div>
                 <div>
@@ -1436,7 +1436,7 @@ export default function SetupGaraFicr() {
                     value={paddock2Lon}
                     onChange={(e) => setPaddock2Lon(e.target.value)}
                     placeholder="11.5678"
-                    className="w-full px-3 py-2 border rounded-lg font-mono"
+                    className="w-full px-3 py-2 border border-border rounded-lg font-mono bg-surface text-content-primary focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                   />
                 </div>
               </div>
@@ -1452,7 +1452,7 @@ export default function SetupGaraFicr() {
                 type="number"
                 value={paddockRaggio}
                 onChange={(e) => setPaddockRaggio(parseInt(e.target.value) || 500)}
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-border rounded-lg bg-surface text-content-primary focus:outline-none focus:ring-2 focus:ring-brand-500/30"
               />
             </div>
             <div className="bg-white rounded-lg p-4 shadow">
@@ -1463,7 +1463,7 @@ export default function SetupGaraFicr() {
                 type="number"
                 value={gpsFrequenza}
                 onChange={(e) => setGpsFrequenza(parseInt(e.target.value) || 30)}
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-border rounded-lg bg-surface text-content-primary focus:outline-none focus:ring-2 focus:ring-brand-500/30"
               />
             </div>
             <div className="bg-white rounded-lg p-4 shadow">
@@ -1474,7 +1474,7 @@ export default function SetupGaraFicr() {
                 type="number"
                 value={allarmeFermoMinuti}
                 onChange={(e) => setAllarmeFermoMinuti(parseInt(e.target.value) || 10)}
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-border rounded-lg bg-surface text-content-primary focus:outline-none focus:ring-2 focus:ring-brand-500/30"
               />
             </div>
           </div>

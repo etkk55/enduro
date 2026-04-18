@@ -184,7 +184,7 @@ function PilotaProgressCard({ pilota, curvaData, isMe }) {
         : 'bg-surface border border-border-subtle'
     }`}>
       {/* Chart area */}
-      <div className="flex items-end justify-around gap-3" style={{ height: '180px' }}>
+      <div className="flex items-end justify-around gap-8" style={{ height: '180px' }}>
         {provePS.map(ps => (
           <div key={ps.nomeProva} className="flex-1 flex items-end justify-center gap-1.5 h-full">
             {ps.barre.map(b => {
@@ -225,7 +225,7 @@ function PilotaProgressCard({ pilota, curvaData, isMe }) {
       </div>
 
       {/* G labels under bars */}
-      <div className="flex justify-around gap-3 mt-1.5 px-0">
+      <div className="flex justify-around gap-8 mt-1.5 px-0">
         {provePS.map(ps => (
           <div key={ps.nomeProva} className="flex-1 flex justify-center gap-1.5">
             {ps.barre.map(b => (
@@ -238,7 +238,7 @@ function PilotaProgressCard({ pilota, curvaData, isMe }) {
       </div>
 
       {/* PS name labels (boxed) */}
-      <div className="flex justify-around gap-2 mt-2">
+      <div className="flex justify-around gap-8 mt-2">
         {provePS.map(ps => (
           <div key={ps.nomeProva} className="flex-1 text-center">
             <div className="inline-block max-w-full px-2 py-0.5 rounded border border-border-subtle text-[11px] font-semibold text-content-secondary truncate">
@@ -248,13 +248,18 @@ function PilotaProgressCard({ pilota, curvaData, isMe }) {
         ))}
       </div>
 
-      {/* Pilot name at bottom */}
+      {/* Pilot name at bottom - colored strip matching other charts */}
       <div className="mt-3 pt-2 border-t border-border-subtle">
-        <div className="inline-block w-full text-center px-2 py-1 rounded border border-border-subtle bg-surface-2">
-          <span className={`text-xs font-semibold ${isMe ? 'text-brand-600 dark:text-brand-500' : 'text-content-primary'}`}>
-            {isMe && <span className="mr-1">⭐</span>}
-            #{pilota.num} · {pilota.nome}
-          </span>
+        <div
+          className="inline-block w-full text-center px-2 py-1 rounded border-2 font-semibold text-xs"
+          style={{
+            borderColor: pilota.colore,
+            backgroundColor: `${pilota.colore}15`, // 15 = ~8% opacity in hex
+            color: pilota.colore,
+          }}
+        >
+          {isMe && <span className="mr-1">⭐</span>}
+          #{pilota.num} · {pilota.nome}
         </div>
       </div>
     </div>
@@ -337,6 +342,27 @@ export default function LaMiaGara() {
     const minutes = parseInt(parts[0]);
     const seconds = parseFloat(parts[1]);
     return minutes * 60 + seconds;
+  };
+
+  // Helper: label PS con nome tipologia se disponibile (es. "PS1 Enduro Test")
+  // Fonti in ordine: struttura PS (gruppo) -> nome_ps stripped del prefisso giro
+  const getPsLabel = (psIdx, options = {}) => {
+    const { onlyType = false, short = false } = options;
+    const psNum = psIdx + 1;
+    let tipo = '';
+    // 1. Struttura PS configurata
+    const strutturaEntry = curvaStrutturaPS?.psGenerate?.find(ps => ps.numero === psNum);
+    if (strutturaEntry?.gruppo) tipo = strutturaEntry.gruppo;
+    // 2. Fallback: nome PS da replayData.prove, stripped prefix giro
+    if (!tipo && replayData?.prove) {
+      const prova = replayData.prove.find(p => (p.numero === psNum || p.numero_ordine === psNum));
+      const raw = prova?.nome_ps || prova?.nome || '';
+      tipo = raw.replace(/^(G|Giro\s*)\d+[\s\-\.]+/i, '').trim();
+      if (/^(PS|Prova)\s*\d+$/i.test(tipo)) tipo = '';
+    }
+    if (onlyType) return tipo;
+    if (!tipo) return `PS${psNum}`;
+    return short ? `PS${psNum}` : `PS${psNum} ${tipo}`;
   };
 
   // Cerca pilota e calcola info
@@ -480,8 +506,8 @@ export default function LaMiaGara() {
     for (let psIdx = 0; psIdx < replayData.snapshots.length; psIdx++) {
       const snap = replayData.snapshots[psIdx];
       const classificaSnap = snap.classifica.filter(p => p.stato === 'attivo');
-      
-      const punto = { ps: `PS${psIdx + 1}` };
+
+      const punto = { ps: getPsLabel(psIdx) };
       pilotiDaTracciare.forEach(pt => {
         const pos = classificaSnap.findIndex(p => p.num === pt.num) + 1;
         punto[`p${pt.num}`] = pos > 0 ? pos : null;
@@ -538,7 +564,7 @@ export default function LaMiaGara() {
         mediana = sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
       }
       
-      const punto = { ps: `PS${psNum}` };
+      const punto = { ps: getPsLabel(psIdx) };
       pilotiDaTracciare.forEach(pt => {
         const pilotaSnap = snap.classifica.find(p => p.num === pt.num);
         if (pilotaSnap && pilotaSnap[`ps${psNum}_time`] && mediana) {
@@ -687,12 +713,17 @@ export default function LaMiaGara() {
       if (numGiri >= 2) {
         const curvaPerProva = {};
         for (let provaIdx = 0; provaIdx < numProvePerGiro; provaIdx++) {
-          // Deriva il nome reale della PS dal primo giro (rimuove prefissi tipo "G1 ")
-          const primoPsNumero = provaIdx + 1;
-          const primoPs = replayData.prove?.find(p => p.numero === primoPsNumero || p.numero_ordine === primoPsNumero);
-          const rawName = primoPs?.nome_ps || primoPs?.nome || `Prova ${provaIdx + 1}`;
-          // Pulisce prefissi giro tipo "G1 " o "G1-"
-          const nomeProva = rawName.replace(/^G\d+[\s\-\.]+/i, '').trim() || `Prova ${provaIdx + 1}`;
+          // Cerca un nome tipologia significativo tra TUTTE le PS di questo gruppo
+          // (provaIdx=0 sono PS 1,3,5... provaIdx=1 sono PS 2,4,6...)
+          const psInGroup = replayData.prove?.filter(p => {
+            const num = p.numero || p.numero_ordine;
+            return num && ((num - 1) % numProvePerGiro) === provaIdx;
+          }) || [];
+          // Estrai nomi tipologia strippando prefissi giro/PS
+          const tipiCandidati = psInGroup
+            .map(p => (p.nome_ps || p.nome || '').replace(/^(G|Giro\s*|PS)\s*\d+[\s\-\.]+/i, '').trim())
+            .filter(t => t && !/^(PS|Prova)\s*\d+$/i.test(t));
+          const nomeProva = tipiCandidati[0] || `Prova ${provaIdx + 1}`;
           const datiGiri = [];
 
           for (let giro = 1; giro <= numGiri; giro++) {
@@ -1187,12 +1218,10 @@ export default function LaMiaGara() {
               return points;
             };
             
-            // Colori piloti
-            const RADAR_COLORI = ['#22c55e', '#14b8a6', '#8b5cf6', '#1d4ed8', '#ef4444', '#f97316', '#eab308'];
+            // Colori piloti: usa p.colore da legendaData (coerente con gli altri grafici)
             const getColore = (pilota) => {
-              if (pilota.num === pilotaInfo.num) return '#1d4ed8';
-              const idx = piloti.findIndex(p => p.num === pilota.num);
-              return RADAR_COLORI[idx % RADAR_COLORI.length];
+              const legenda = legendaData.find(l => l.num === pilota.num);
+              return legenda?.colore || '#94a3b8';
             };
             
             // Determina quali piloti sono "attivi"
@@ -1271,14 +1300,20 @@ export default function LaMiaGara() {
                       const angle = (i * 2 * Math.PI / numPS) - Math.PI / 2;
                       const x2 = centerX + maxRadius * Math.cos(angle);
                       const y2 = centerY + maxRadius * Math.sin(angle);
-                      const labelX = centerX + (maxRadius + 25) * Math.cos(angle);
-                      const labelY = centerY + (maxRadius + 25) * Math.sin(angle);
+                      const labelX = centerX + (maxRadius + 30) * Math.cos(angle);
+                      const labelY = centerY + (maxRadius + 30) * Math.sin(angle);
+                      const tipo = getPsLabel(i, { onlyType: true });
                       return (
                         <g key={i}>
-                          <line x1={centerX} y1={centerY} x2={x2} y2={y2} stroke="#4b5563" strokeWidth="1" />
-                          <text x={labelX} y={labelY} textAnchor="middle" fill="#374151" fontSize="12" fontWeight="bold">
+                          <line x1={centerX} y1={centerY} x2={x2} y2={y2} stroke="rgb(var(--border))" strokeWidth="1" />
+                          <text x={labelX} y={labelY} textAnchor="middle" fill="rgb(var(--text-primary))" fontSize="11" fontWeight="700">
                             PS{i + 1}
                           </text>
+                          {tipo && (
+                            <text x={labelX} y={labelY + 13} textAnchor="middle" fill="rgb(var(--text-secondary))" fontSize="9" fontWeight="500">
+                              {tipo}
+                            </text>
+                          )}
                         </g>
                       );
                     })}
@@ -1392,12 +1427,12 @@ export default function LaMiaGara() {
             </div>
           )}
 
-          {/* === PROGRESSIONE PER PILOTA (small multiples) === */}
+          {/* === DATI DI APPRENDIMENTO (small multiples) === */}
           {Object.keys(curvaData).length > 0 && legendaData.length > 0 && (
             <div className="bg-surface border border-border-subtle rounded-lg p-5 shadow-sm">
               <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
                 <div>
-                  <h3 className="text-heading-2">Progressione per pilota</h3>
+                  <h3 className="text-heading-2">Dati di apprendimento</h3>
                   <p className="text-xs text-content-tertiary mt-1">
                     Una mini-classifica personale per ogni pilota a confronto. Le barre mostrano i tempi di ciascun giro sulle prove ripetute, con il primo giro (G1) come riferimento.
                   </p>

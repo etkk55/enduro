@@ -10,6 +10,9 @@ const EQUIPE_LOOKUP = {
 };
 
 import { API_BASE, SIMULATOR_URL as SIMULATORE_URL } from '../services/api';
+import PodiumBadge from '../components/ui/PodiumBadge';
+import RaceTime from '../components/ui/RaceTime';
+import LiveDot from '../components/ui/LiveDot';
 
 // p35: Larghezze default colonne
 const DEFAULT_COLUMN_WIDTHS = {
@@ -1410,8 +1413,8 @@ export default function LiveTiming() {
               {liveMode && lastSync && (
                 <>
                   <span className="text-content-tertiary">·</span>
-                  <span className="flex items-center gap-1 text-success-fg">
-                    <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                  <span className="flex items-center gap-1.5 text-success-fg">
+                    <LiveDot tone="success" size="sm" />
                     Sync {lastSync.toLocaleTimeString('it-IT')}
                   </span>
                 </>
@@ -1458,7 +1461,7 @@ export default function LiveTiming() {
                 : 'text-content-secondary hover:text-content-primary'
             }`}
           >
-            <span className={`w-1.5 h-1.5 rounded-full ${liveMode ? 'bg-white animate-pulse' : 'bg-danger-fg'}`} />
+            {liveMode ? <LiveDot tone="warning" size="sm" className="text-white" /> : <span className="w-1.5 h-1.5 rounded-full bg-danger-fg" />}
             Live
           </button>
         </div>
@@ -1810,51 +1813,46 @@ export default function LiveTiming() {
                 return (
                   <tr
                     key={pilota.num}
-                    className={`${gridMode ? 'border-b-2 border-gray-400' : 'border-b'} hover:bg-blue-50 transition-colors ${
-                      isPodio ? (
-                        idx === 0 ? 'bg-yellow-50' :
-                        idx === 1 ? 'bg-gray-100' :
-                        'bg-orange-50'
-                      ) : ''
+                    className={`${gridMode ? 'border-b border-border' : 'border-b border-border-subtle'} hover:bg-brand-50/40 dark:hover:bg-brand-100/20 transition-colors ${
+                      idx === 0 ? 'bg-amber-50/60 dark:bg-amber-900/10' :
+                      idx === 1 ? 'bg-slate-50/60 dark:bg-slate-800/20' :
+                      idx === 2 ? 'bg-orange-50/60 dark:bg-orange-900/10' :
+                      ''
                     }`}
                   >
-                    <td className={`px-3 py-2 ${gridMode ? 'border border-gray-300' : ''}`}>
-                      <div className="flex items-center gap-2">
-                        {isPodio && (
-                          <Trophy className={`w-5 h-5 ${
-                            idx === 0 ? 'text-yellow-500' :
-                            idx === 1 ? 'text-gray-400' :
-                            'text-orange-400'
-                          }`} />
-                        )}
-                        <span className="font-bold text-gray-900 text-2xl">{idx + 1}°</span>
-                      </div>
+                    <td className={`px-3 py-2 ${gridMode ? 'border border-border-subtle' : ''}`}>
+                      <PodiumBadge position={idx + 1} size="lg" />
                     </td>
 
-                    <td className={`px-2 py-2 text-center ${gridMode ? 'border border-gray-300' : ''}`}>
+                    <td className={`px-2 py-2 text-center ${gridMode ? 'border border-border-subtle' : ''}`}>
                       {renderVariazione(varPosizione, currentSnapshot.prova_corrente)}
                     </td>
 
-                    <td className={`px-3 py-2 ${gridMode ? 'border border-gray-300' : ''}`}>
-                      <div className="inline-block bg-red-600 text-white font-bold px-3 py-1 rounded text-xl">
+                    <td className={`px-3 py-2 ${gridMode ? 'border border-border-subtle' : ''}`}>
+                      <span className="inline-flex items-center justify-center min-w-[2.5rem] h-8 px-2.5 rounded-md bg-brand-50 dark:bg-brand-100 text-brand-700 dark:text-brand-500 font-mono text-base font-bold tabular-nums">
                         {pilota.num}
+                      </span>
+                    </td>
+
+                    <td className={`px-4 py-2 ${gridMode ? 'border border-border-subtle' : ''}`} style={{ width: columnWidths.pilota }}>
+                      <div className="font-semibold text-content-primary text-lg leading-tight">
+                        <span className="uppercase">{pilota.cognome}</span>
+                        <span className="font-medium text-content-secondary ml-1.5">{pilota.nome}</span>
                       </div>
                     </td>
 
-                    <td className={`px-4 py-2 ${gridMode ? 'border border-gray-300' : ''}`} style={{ width: columnWidths.pilota }}>
-                      <div className="font-semibold text-gray-900 text-2xl">{pilota.cognome} {pilota.nome}</div>
-                    </td>
-
-                    <td className={`px-2 py-2 text-left ${gridMode ? 'border border-gray-300' : ''}`} style={{ width: columnWidths.moto }}>
+                    <td className={`px-2 py-2 text-left ${gridMode ? 'border border-border-subtle' : ''}`} style={{ width: columnWidths.moto }}>
                       {pilota.moto && (
-                        <span className="text-lg text-gray-600">{pilota.moto}</span>
+                        <span className="text-sm text-content-secondary">{pilota.moto}</span>
                       )}
                     </td>
 
-                    <td className={`px-2 py-2 text-center ${gridMode ? 'border border-gray-300' : ''}`}>
-                      <span className="text-lg font-bold text-purple-700 bg-purple-100 px-1 py-0.5 rounded">
-                        {pilota.classe}
-                      </span>
+                    <td className={`px-2 py-2 text-center ${gridMode ? 'border border-border-subtle' : ''}`}>
+                      {pilota.classe && (
+                        <span className="inline-flex items-center h-6 px-2 rounded-md bg-surface-2 text-content-secondary font-mono text-xs font-semibold border border-border-subtle">
+                          {pilota.classe}
+                        </span>
+                      )}
                     </td>
 
                     {replayData.prove.map((prova, idx) => (
@@ -1866,10 +1864,8 @@ export default function LiveTiming() {
                       </Fragment>
                     ))}
 
-                    <td className={`px-3 py-2 text-right min-w-[120px] ${gridMode ? 'border border-gray-300' : ''}`}>
-                      <span className="font-mono font-bold text-blue-900 text-2xl">
-                        {displayTotale}
-                      </span>
+                    <td className={`px-3 py-2 text-right min-w-[120px] ${gridMode ? 'border border-border-subtle' : ''}`}>
+                      <RaceTime time={displayTotale} size="lg" />
                     </td>
                   </tr>
                 );

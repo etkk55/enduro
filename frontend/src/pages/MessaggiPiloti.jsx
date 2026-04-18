@@ -1,457 +1,389 @@
 import { useState, useEffect, useRef } from 'react';
-import { AlertTriangle, MessageSquare, MapPin, Check, CheckCheck, Filter, Volume2, VolumeX, RefreshCw, ExternalLink, Clock } from 'lucide-react';
-
+import { AlertTriangle, MessageSquare, MapPin, Check, CheckCheck, Volume2, VolumeX, RefreshCw, ExternalLink, Clock, Radio, SignalZero } from 'lucide-react';
 import { API_BASE } from '../services/api';
+import { Card } from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Badge from '../components/ui/Badge';
+import { Select, Label } from '../components/ui/Input';
+import EmptyState from '../components/ui/EmptyState';
+import LiveDot from '../components/ui/LiveDot';
+import AnimatedNumber from '../components/ui/AnimatedNumber';
+import { cn } from '../components/ui/utils';
+
+const TIPO_META = {
+  sos:        { label: 'Emergenza SOS', variant: 'danger',  icon: AlertTriangle },
+  pericolo:   { label: 'Pericolo',       variant: 'warning', icon: AlertTriangle },
+  assistenza: { label: 'Assistenza',     variant: 'info',    icon: MessageSquare },
+  info:       { label: 'Info',           variant: 'info',    icon: MessageSquare },
+  altro:      { label: 'Messaggio',      variant: 'neutral', icon: MessageSquare },
+};
 
 export default function MessaggiPiloti() {
   const [eventi, setEventi] = useState([]);
   const [selectedEvento, setSelectedEvento] = useState('');
   const [codiceGara, setCodiceGara] = useState('');
   const [messaggi, setMessaggi] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [filtro, setFiltro] = useState('tutti'); // tutti, sos, non_letti
+  const [filtro, setFiltro] = useState('tutti');
   const [stats, setStats] = useState({ non_letti: 0, sos_attivi: 0 });
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [lastSosCount, setLastSosCount] = useState(0);
+  const [lastSync, setLastSync] = useState(null);
   const audioRef = useRef(null);
   const pollingRef = useRef(null);
-  
-  // NUOVO Chat 21: Piloti fermi
+
   const [pilotiFermi, setPilotiFermi] = useState([]);
   const [pilotiSegnalePerso, setPilotiSegnalePerso] = useState([]);
   const [piloti, setPiloti] = useState([]);
 
-  // Carica eventi
   useEffect(() => {
     fetch(`${API_BASE}/api/eventi`)
-      .then(res => res.json())
-      .then(data => setEventi(data))
-      .catch(err => console.error('Errore caricamento eventi:', err));
+      .then(r => r.json())
+      .then(setEventi)
+      .catch(err => console.error('[MessaggiPiloti]', err));
   }, []);
 
-  // Quando cambia evento selezionato
   useEffect(() => {
     if (selectedEvento) {
-      const evento = eventi.find(e => e.id === selectedEvento);
-      if (evento) {
-        setCodiceGara(evento.codice_gara);
-      }
+      const ev = eventi.find(e => e.id === selectedEvento);
+      if (ev) setCodiceGara(ev.codice_gara);
     }
   }, [selectedEvento, eventi]);
 
-  // Polling messaggi
   useEffect(() => {
     if (codiceGara) {
       loadMessaggi();
-      // Polling ogni 10 secondi
       pollingRef.current = setInterval(loadMessaggi, 10000);
       return () => clearInterval(pollingRef.current);
     }
   }, [codiceGara]);
 
-  // NUOVO Chat 21: Carica piloti e piloti fermi
   useEffect(() => {
     if (selectedEvento) {
       loadPilotiEvento();
       loadPilotiFermi();
-      const interval = setInterval(loadPilotiFermi, 30000); // ogni 30 sec
-      return () => clearInterval(interval);
+      const i = setInterval(loadPilotiFermi, 30000);
+      return () => clearInterval(i);
     } else {
-      setPilotiFermi([]);
-      setPilotiSegnalePerso([]);
-      setPiloti([]);
+      setPilotiFermi([]); setPilotiSegnalePerso([]); setPiloti([]);
     }
   }, [selectedEvento]);
 
-  const loadPilotiEvento = async () => {
-    if (!selectedEvento) return;
+  async function loadPilotiEvento() {
     try {
       const res = await fetch(`${API_BASE}/api/eventi/${selectedEvento}/piloti`);
       const data = await res.json();
       setPiloti(data || []);
-    } catch (err) {
-      console.error('Errore caricamento piloti:', err);
-    }
-  };
+    } catch (err) { console.error('[MessaggiPiloti]', err); }
+  }
 
-  const loadPilotiFermi = async () => {
-    if (!selectedEvento) return;
+  async function loadPilotiFermi() {
     try {
       const res = await fetch(`${API_BASE}/api/eventi/${selectedEvento}/piloti-fermi`);
       const data = await res.json();
       if (data.success) {
         setPilotiFermi(data.piloti_fermi || []);
         setPilotiSegnalePerso(data.piloti_segnale_perso || []);
-        // Suona allarme se ci sono piloti fermi o segnale perso
         if ((data.piloti_fermi?.length > 0 || data.piloti_segnale_perso?.length > 0) && audioEnabled) {
           playAlarm();
         }
       }
-    } catch (err) {
-      console.error('Errore caricamento piloti fermi:', err);
-    }
-  };
+    } catch (err) { console.error('[MessaggiPiloti]', err); }
+  }
 
   const getPilotaInfo = (numero) => {
     const p = piloti.find(p => p.numero_gara === numero);
     return p ? `${p.cognome} ${p.nome}` : `Pilota #${numero}`;
   };
 
-  const loadMessaggi = async () => {
+  async function loadMessaggi() {
     if (!codiceGara) return;
-    
     try {
-      const response = await fetch(`${API_BASE}/api/messaggi-piloti/${codiceGara}`);
-      const data = await response.json();
-      
+      const res = await fetch(`${API_BASE}/api/messaggi-piloti/${codiceGara}`);
+      const data = await res.json();
       if (data.success) {
         setMessaggi(data.messaggi);
         setStats({ non_letti: data.non_letti, sos_attivi: data.sos_attivi });
-        
-        // Alert sonoro per nuovi SOS
-        if (data.sos_attivi > lastSosCount && audioEnabled && lastSosCount > 0) {
-          playAlarm();
-        }
+        if (data.sos_attivi > lastSosCount && audioEnabled && lastSosCount > 0) playAlarm();
         setLastSosCount(data.sos_attivi);
+        setLastSync(new Date());
       }
-    } catch (err) {
-      console.error('Errore caricamento messaggi:', err);
-    }
-  };
+    } catch (err) { console.error('[MessaggiPiloti]', err); }
+  }
 
-  const playAlarm = () => {
-    if (audioRef.current) {
-      audioRef.current.play().catch(() => {});
-    }
-  };
+  function playAlarm() {
+    audioRef.current?.play().catch(() => {});
+  }
 
-  const segnaLetto = async (id) => {
+  async function segnaLetto(id) {
     try {
-      await fetch(`${API_BASE}/api/messaggi-piloti/${id}/letto`, { method: 'PUT' });
+      await fetch(`${API_BASE}/api/messaggi-piloti/${id}/letto`, { method: 'PATCH' });
       loadMessaggi();
-    } catch (err) {
-      console.error('Errore:', err);
-    }
-  };
+    } catch (err) { console.error(err); }
+  }
 
-  const segnaTuttiLetti = async () => {
-    if (!codiceGara) return;
+  async function segnaTuttiLetti() {
     try {
-      await fetch(`${API_BASE}/api/messaggi-piloti/${codiceGara}/letti-tutti`, { method: 'PUT' });
+      await fetch(`${API_BASE}/api/messaggi-piloti/${codiceGara}/letti-tutti`, { method: 'PATCH' });
       loadMessaggi();
-    } catch (err) {
-      console.error('Errore:', err);
-    }
-  };
+    } catch (err) { console.error(err); }
+  }
 
-  const apriMappa = (lat, lon) => {
-    window.open(`https://www.google.com/maps?q=${lat},${lon}`, '_blank');
-  };
+  const messaggiFiltrati = messaggi.filter(m =>
+    filtro === 'sos' ? m.tipo === 'sos' :
+    filtro === 'non_letti' ? !m.letto :
+    true
+  );
 
-  // Filtra messaggi
-  const messaggiFiltrati = messaggi.filter(m => {
-    if (filtro === 'sos') return m.tipo === 'sos';
-    if (filtro === 'non_letti') return !m.letto;
-    return true;
-  });
-
-  const getTipoIcon = (tipo) => {
-    switch (tipo) {
-      case 'sos': return '🆘';
-      case 'assistenza': return '🔧';
-      case 'pericolo': return '⚠️';
-      case 'info': return 'ℹ️';
-      default: return '💬';
-    }
-  };
-
-  const getTipoLabel = (tipo) => {
-    switch (tipo) {
-      case 'sos': return 'EMERGENZA SOS';
-      case 'assistenza': return 'Richiesta Assistenza';
-      case 'pericolo': return 'Segnalazione Pericolo';
-      case 'info': return 'Richiesta Info';
-      default: return 'Altro';
-    }
-  };
-
-  const formatTime = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  };
-
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString('it-IT');
-  };
+  const formatTime = (ts) => new Date(ts).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const formatDate = (ts) => new Date(ts).toLocaleDateString('it-IT');
 
   return (
-    <div className="space-y-6">
-      {/* Audio Alarm */}
+    <div className="p-4 lg:p-8 max-w-7xl mx-auto animate-fade-in space-y-4">
       <audio ref={audioRef} preload="auto">
         <source src="data:audio/wav;base64,UklGRl9vT19teleGm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2Onp+al4yFgX59foKHj5GQi4eCfXx8fYGFiImIhYJ/fX19foGEhoeGhIKAfn5+f4GDhYWFg4KAf39/gIGChYWFhIOBgIB/gIGCg4SEhIOCgYCAf4GBgoODg4ODgoGBgICAgYGCgoKCgoKBgYGAgIGBgoKCgoKCgYGBgIGBgYKCgoKCgYGBgYCBgYGCgoKCgoGBgYGAgYGBgoKCgoKBgYGBgIGBgYKCgoKCgYGBgYCBgYGCgoKCgoGBgYGAgYGBgoKCgoKBgYGBgA==" type="audio/wav" />
       </audio>
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex items-start justify-between gap-4 mb-2">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <MessageSquare className="w-8 h-8 text-blue-600" />
-            Messaggi Piloti
-          </h1>
-          <p className="text-gray-600 mt-1">Comunicazioni ricevute dai piloti durante la gara</p>
+          <h1 className="text-heading-1">Messaggi Piloti</h1>
+          <p className="text-content-secondary text-sm mt-1 flex items-center gap-2">
+            {codiceGara ? (
+              <>
+                <LiveDot tone="success" size="sm" />
+                Aggiornamento ogni 10s{lastSync && ` · ${lastSync.toLocaleTimeString('it-IT')}`}
+              </>
+            ) : (
+              'Seleziona un evento per iniziare'
+            )}
+          </p>
         </div>
 
-        {/* Alert SOS attivi */}
+        {/* SOS alert pill */}
         {stats.sos_attivi > 0 && (
-          <div className="bg-red-100 border-2 border-red-500 rounded-lg px-4 py-3 flex items-center gap-3 animate-pulse">
-            <AlertTriangle className="w-6 h-6 text-red-600" />
+          <div className="bg-danger-bg text-danger-fg border border-danger-border rounded-lg px-4 py-2.5 flex items-center gap-3">
+            <LiveDot tone="danger" size="md" />
             <div>
-              <p className="font-bold text-red-700">{stats.sos_attivi} SOS ATTIVI!</p>
-              <p className="text-sm text-red-600">Richieste emergenza in attesa</p>
+              <div className="font-bold text-sm"><AnimatedNumber value={stats.sos_attivi} /> SOS attivi</div>
+              <div className="text-xs opacity-80">Richieste emergenza in attesa</div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Selezione Evento */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex flex-wrap gap-4 items-end">
-          <div className="flex-1 min-w-[250px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Seleziona Evento</label>
-            <select
-              value={selectedEvento}
-              onChange={(e) => setSelectedEvento(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">-- Seleziona --</option>
-              {eventi.map(e => (
-                <option key={e.id} value={e.id}>
-                  {e.nome_evento} ({e.codice_gara})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Filtri */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFiltro('tutti')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filtro === 'tutti' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Tutti ({messaggi.length})
-            </button>
-            <button
-              onClick={() => setFiltro('sos')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filtro === 'sos' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              🆘 SOS ({messaggi.filter(m => m.tipo === 'sos').length})
-            </button>
-            <button
-              onClick={() => setFiltro('non_letti')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filtro === 'non_letti' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Non letti ({stats.non_letti})
-            </button>
-          </div>
-
-          {/* Audio Toggle */}
-          <button
-            onClick={() => setAudioEnabled(!audioEnabled)}
-            className={`p-2 rounded-lg ${audioEnabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}
-            title={audioEnabled ? 'Audio attivo' : 'Audio disattivato'}
-          >
-            {audioEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-          </button>
-
-          {/* Refresh */}
-          <button
-            onClick={loadMessaggi}
-            className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
-            title="Aggiorna"
-          >
-            <RefreshCw className="w-5 h-5" />
-          </button>
-
-          {/* Segna tutti letti */}
-          {stats.non_letti > 0 && (
-            <button
-              onClick={segnaTuttiLetti}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
-            >
-              <CheckCheck className="w-4 h-4" />
-              Segna tutti letti
-            </button>
-          )}
-        </div>
+      {/* Stats cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <Card><div className="p-4"><div className="text-overline mb-1">Totale</div><div className="text-2xl font-bold font-mono tabular-nums"><AnimatedNumber value={messaggi.length} /></div></div></Card>
+        <Card><div className="p-4"><div className="text-overline mb-1">Non letti</div><div className={cn("text-2xl font-bold font-mono tabular-nums", stats.non_letti > 0 && "text-warning-fg")}><AnimatedNumber value={stats.non_letti} /></div></div></Card>
+        <Card><div className="p-4"><div className="text-overline mb-1">SOS attivi</div><div className={cn("text-2xl font-bold font-mono tabular-nums", stats.sos_attivi > 0 && "text-danger-fg")}><AnimatedNumber value={stats.sos_attivi} /></div></div></Card>
+        <Card><div className="p-4"><div className="text-overline mb-1">Piloti fermi</div><div className={cn("text-2xl font-bold font-mono tabular-nums", (pilotiFermi.length + pilotiSegnalePerso.length) > 0 && "text-warning-fg")}><AnimatedNumber value={pilotiFermi.length + pilotiSegnalePerso.length} /></div></div></Card>
       </div>
 
-      {/* CRITICO: Segnale GPS Perso (telefono rotto/spento) */}
-      {pilotiSegnalePerso.length > 0 && (
-        <div className="bg-red-50 border-2 border-red-500 rounded-lg p-4 animate-pulse">
-          <div className="flex items-center gap-3 mb-3">
-            <AlertTriangle className="w-6 h-6 text-red-600" />
-            <h3 className="font-bold text-red-800 text-lg">
-              📵 {pilotiSegnalePerso.length} SEGNALE GPS PERSO!
-            </h3>
+      {/* Filters & controls */}
+      <Card>
+        <div className="p-4 flex flex-col lg:flex-row gap-3 lg:items-end">
+          <div className="flex-1 min-w-0">
+            <Label>Evento</Label>
+            <Select value={selectedEvento} onChange={(e) => setSelectedEvento(e.target.value)}>
+              <option value="">— Seleziona —</option>
+              {eventi.map(ev => (
+                <option key={ev.id} value={ev.id}>{ev.nome_evento} ({ev.codice_gara})</option>
+              ))}
+            </Select>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {pilotiSegnalePerso.map((ps, idx) => (
-              <div key={idx} className="bg-white rounded-lg p-3 border-2 border-red-400 shadow-sm">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-bold text-red-700">#{ps.numero_pilota} {getPilotaInfo(ps.numero_pilota)}</p>
-                    <p className="text-red-600 font-medium">
-                      Nessun segnale da {ps.minuti_senza_segnale} min!
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => window.open(`https://www.google.com/maps?q=${ps.lat},${ps.lon}`, '_blank')}
-                    className="px-2 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200"
-                  >
-                    📍 Ultima pos.
-                  </button>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Ultima: {parseFloat(ps.lat).toFixed(5)}, {parseFloat(ps.lon).toFixed(5)}
-                </p>
-              </div>
+
+          <div className="inline-flex bg-surface-2 rounded-md p-0.5 shrink-0">
+            {[
+              { key: 'tutti', label: `Tutti · ${messaggi.length}` },
+              { key: 'sos', label: `SOS · ${messaggi.filter(m => m.tipo === 'sos').length}` },
+              { key: 'non_letti', label: `Non letti · ${stats.non_letti}` }
+            ].map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFiltro(f.key)}
+                className={cn(
+                  'h-8 px-3 rounded-sm text-xs font-semibold transition-colors',
+                  filtro === f.key ? 'bg-surface text-content-primary shadow-sm' : 'text-content-secondary hover:text-content-primary'
+                )}
+              >
+                {f.label}
+              </button>
             ))}
           </div>
-        </div>
-      )}
 
-      {/* NUOVO Chat 21: Allarmi Piloti Fermi */}
-      {pilotiFermi.length > 0 && (
-        <div className="bg-orange-50 border-2 border-orange-400 rounded-lg p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <Clock className="w-6 h-6 text-orange-600 animate-pulse" />
-            <h3 className="font-bold text-orange-800 text-lg">
-              ⚠️ {pilotiFermi.length} PILOTI FERMI FUORI PADDOCK
-            </h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {pilotiFermi.map((pf, idx) => (
-              <div key={idx} className="bg-white rounded-lg p-3 border border-orange-300 shadow-sm">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-bold text-gray-900">#{pf.numero_pilota} {getPilotaInfo(pf.numero_pilota)}</p>
-                    <p className="text-orange-700 font-medium">
-                      Fermo da {pf.minuti_fermo} minuti
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => window.open(`https://www.google.com/maps?q=${pf.lat},${pf.lon}`, '_blank')}
-                    className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200"
-                  >
-                    📍 Mappa
-                  </button>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {parseFloat(pf.lat).toFixed(5)}, {parseFloat(pf.lon).toFixed(5)}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Lista Messaggi */}
-      {!codiceGara ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-          <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
-          <p>Seleziona un evento per vedere i messaggi dei piloti</p>
-        </div>
-      ) : messaggiFiltrati.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-          <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
-          <p>Nessun messaggio {filtro !== 'tutti' ? 'con questo filtro' : 'ricevuto'}</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {messaggiFiltrati.map(msg => (
-            <div
-              key={msg.id}
-              className={`bg-white rounded-lg shadow overflow-hidden ${
-                msg.tipo === 'sos' ? 'border-l-4 border-red-500' :
-                msg.tipo === 'pericolo' ? 'border-l-4 border-orange-500' :
-                'border-l-4 border-blue-500'
-              } ${!msg.letto ? 'ring-2 ring-blue-300' : ''}`}
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant={audioEnabled ? 'secondary' : 'ghost'}
+              size="icon"
+              onClick={() => setAudioEnabled(v => !v)}
+              aria-label={audioEnabled ? 'Disattiva audio' : 'Attiva audio'}
+              title={audioEnabled ? 'Audio attivo' : 'Audio disattivato'}
             >
-              <div className={`px-4 py-3 ${
-                msg.tipo === 'sos' ? 'bg-red-50' :
-                msg.tipo === 'pericolo' ? 'bg-orange-50' :
-                'bg-gray-50'
-              }`}>
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{getTipoIcon(msg.tipo)}</span>
-                    <div>
-                      <p className={`font-bold ${msg.tipo === 'sos' ? 'text-red-700' : 'text-gray-900'}`}>
-                        {getTipoLabel(msg.tipo)}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        #{msg.numero_pilota} {msg.cognome} {msg.nome} • {msg.classe}
-                      </p>
+              {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            </Button>
+            <Button variant="ghost" size="icon" onClick={loadMessaggi} aria-label="Aggiorna">
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+            {stats.non_letti > 0 && (
+              <Button size="md" onClick={segnaTuttiLetti} leftIcon={<CheckCheck className="w-4 h-4" />}>
+                Segna tutti letti
+              </Button>
+            )}
+          </div>
+        </div>
+      </Card>
+
+      {/* GPS signal lost alerts */}
+      {pilotiSegnalePerso.length > 0 && (
+        <Card className="border-danger-border bg-danger-bg/30">
+          <div className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <SignalZero className="w-5 h-5 text-danger-fg" />
+              <h3 className="font-semibold text-danger-fg">Segnale GPS perso · {pilotiSegnalePerso.length}</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              {pilotiSegnalePerso.map((ps, i) => (
+                <div key={i} className="bg-surface rounded-md p-3 border border-danger-border/50">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="min-w-0">
+                      <div className="font-semibold text-content-primary text-sm">
+                        <span className="font-mono text-danger-fg">#{ps.numero_pilota}</span> {getPilotaInfo(ps.numero_pilota)}
+                      </div>
+                      <div className="text-xs text-danger-fg mt-0.5">Nessun segnale da {ps.minuti_senza_segnale} min</div>
+                    </div>
+                    <Button variant="ghost" size="icon-sm" onClick={() => window.open(`https://www.google.com/maps?q=${ps.lat},${ps.lon}`, '_blank')} aria-label="Ultima posizione">
+                      <MapPin className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Piloti fermi */}
+      {pilotiFermi.length > 0 && (
+        <Card className="border-warning-border bg-warning-bg/30">
+          <div className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Clock className="w-5 h-5 text-warning-fg" />
+              <h3 className="font-semibold text-warning-fg">Piloti fermi fuori paddock · {pilotiFermi.length}</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              {pilotiFermi.map((pf, i) => (
+                <div key={i} className="bg-surface rounded-md p-3 border border-warning-border/50">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="min-w-0">
+                      <div className="font-semibold text-content-primary text-sm">
+                        <span className="font-mono text-warning-fg">#{pf.numero_pilota}</span> {getPilotaInfo(pf.numero_pilota)}
+                      </div>
+                      <div className="text-xs text-warning-fg mt-0.5">Fermo da {pf.minuti_fermo} min</div>
+                    </div>
+                    <Button variant="ghost" size="icon-sm" onClick={() => window.open(`https://www.google.com/maps?q=${pf.lat},${pf.lon}`, '_blank')} aria-label="Mappa">
+                      <MapPin className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Messages list */}
+      {!codiceGara ? (
+        <Card>
+          <EmptyState
+            icon={Radio}
+            title="Seleziona un evento"
+            description="Scegli l'evento in alto per vedere i messaggi dei piloti in diretta."
+          />
+        </Card>
+      ) : messaggiFiltrati.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={MessageSquare}
+            title={filtro !== 'tutti' ? 'Nessun messaggio con questo filtro' : 'Nessun messaggio ricevuto'}
+            description={filtro !== 'tutti' ? 'Prova a rimuovere il filtro per vedere tutti.' : 'I messaggi dei piloti appariranno qui in tempo reale.'}
+          />
+        </Card>
+      ) : (
+        <div className="space-y-2">
+          {messaggiFiltrati.map(msg => {
+            const meta = TIPO_META[msg.tipo] || TIPO_META.altro;
+            const Icon = meta.icon;
+            return (
+              <Card
+                key={msg.id}
+                className={cn(
+                  'overflow-hidden transition-all',
+                  msg.tipo === 'sos' && 'border-l-4 border-l-danger-fg',
+                  msg.tipo === 'pericolo' && 'border-l-4 border-l-warning-fg',
+                  !msg.letto && 'ring-1 ring-brand-500/30'
+                )}
+              >
+                <div className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className={cn(
+                      'w-9 h-9 rounded-md flex items-center justify-center shrink-0',
+                      msg.tipo === 'sos' && 'bg-danger-bg text-danger-fg',
+                      msg.tipo === 'pericolo' && 'bg-warning-bg text-warning-fg',
+                      (msg.tipo === 'assistenza' || msg.tipo === 'info') && 'bg-info-bg text-info-fg',
+                      msg.tipo === 'altro' && 'bg-surface-2 text-content-secondary'
+                    )}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge variant={meta.variant} size="sm">{meta.label}</Badge>
+                          <span className="text-xs text-content-tertiary">
+                            <span className="font-mono text-content-secondary">#{msg.numero_pilota}</span>
+                            {' '}{msg.cognome} {msg.nome}
+                            {msg.classe && <span className="ml-1 text-content-tertiary">· {msg.classe}</span>}
+                          </span>
+                        </div>
+                        <span className="text-xs text-content-tertiary font-mono tabular-nums">
+                          {formatTime(msg.created_at)} · {formatDate(msg.created_at)}
+                        </span>
+                      </div>
+
+                      <p className="text-sm text-content-primary mt-2">{msg.testo}</p>
+
+                      <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-border-subtle flex-wrap">
+                        {msg.gps_lat && msg.gps_lon ? (
+                          <a
+                            href={`https://www.google.com/maps?q=${msg.gps_lat},${msg.gps_lon}`}
+                            target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs text-brand-600 dark:text-brand-500 hover:underline font-mono"
+                          >
+                            <MapPin className="w-3 h-3" />
+                            {parseFloat(msg.gps_lat).toFixed(5)}, {parseFloat(msg.gps_lon).toFixed(5)}
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        ) : (
+                          <span className="text-xs text-content-tertiary">GPS non disponibile</span>
+                        )}
+
+                        {!msg.letto ? (
+                          <Button size="sm" variant="secondary" onClick={() => segnaLetto(msg.id)} leftIcon={<Check className="w-3.5 h-3.5" />}>
+                            Segna letto
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-success-fg flex items-center gap-1">
+                            <CheckCheck className="w-3.5 h-3.5" /> Letto
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-700">{formatTime(msg.created_at)}</p>
-                    <p className="text-xs text-gray-500">{formatDate(msg.created_at)}</p>
-                  </div>
                 </div>
-              </div>
-
-              <div className="px-4 py-3">
-                <p className="text-gray-800">{msg.testo}</p>
-
-                {/* GPS e Azioni */}
-                <div className="flex justify-between items-center mt-3 pt-3 border-t">
-                  {msg.gps_lat && msg.gps_lon ? (
-                    <button
-                      onClick={() => apriMappa(msg.gps_lat, msg.gps_lon)}
-                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm"
-                    >
-                      <MapPin className="w-4 h-4" />
-                      {parseFloat(msg.gps_lat).toFixed(5)}, {parseFloat(msg.gps_lon).toFixed(5)}
-                      <ExternalLink className="w-3 h-3" />
-                    </button>
-                  ) : (
-                    <span className="text-sm text-gray-400">📍 GPS non disponibile</span>
-                  )}
-
-                  {!msg.letto ? (
-                    <button
-                      onClick={() => segnaLetto(msg.id)}
-                      className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 text-sm"
-                    >
-                      <Check className="w-4 h-4" />
-                      Segna letto
-                    </button>
-                  ) : (
-                    <span className="text-sm text-green-600 flex items-center gap-1">
-                      <CheckCheck className="w-4 h-4" />
-                      Letto
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
+              </Card>
+            );
+          })}
         </div>
-      )}
-
-      {/* Info Polling */}
-      {codiceGara && (
-        <p className="text-center text-sm text-gray-500">
-          Aggiornamento automatico ogni 10 secondi • Ultimo controllo: {new Date().toLocaleTimeString('it-IT')}
-        </p>
       )}
     </div>
   );

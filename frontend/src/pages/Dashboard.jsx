@@ -8,8 +8,10 @@ import { Card, CardBody } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import { Skeleton } from '../components/ui/Skeleton';
+import LiveDot from '../components/ui/LiveDot';
+import AnimatedNumber from '../components/ui/AnimatedNumber';
 
-function StatCard({ label, value, icon: Icon, trend, tone = 'brand', loading }) {
+function StatCard({ label, value, icon: Icon, trend, tone = 'brand', loading, animated }) {
   const toneMap = {
     brand: 'text-brand-600 dark:text-brand-500 bg-brand-50 dark:bg-brand-100',
     success: 'text-success-fg bg-success-bg',
@@ -17,14 +19,16 @@ function StatCard({ label, value, icon: Icon, trend, tone = 'brand', loading }) 
     neutral: 'text-content-secondary bg-surface-2',
   };
   return (
-    <Card>
+    <Card className="transition-shadow hover:shadow-md">
       <CardBody className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="text-overline mb-2">{label}</div>
           {loading ? (
             <Skeleton className="h-8 w-20" />
           ) : (
-            <div className="text-display font-mono tabular-nums">{value}</div>
+            <div className="text-display font-mono tabular-nums">
+              {animated && typeof value === 'number' ? <AnimatedNumber value={value} /> : value}
+            </div>
           )}
           {trend && (
             <div className="mt-2 text-caption flex items-center gap-1">
@@ -154,13 +158,15 @@ export default function Dashboard() {
           icon={Calendar}
           tone="brand"
           loading={stats.loading}
+          animated
         />
         <StatCard
           label="Piloti registrati"
-          value={stats.loading ? '—' : stats.piloti.toLocaleString('it-IT')}
+          value={stats.loading ? '—' : stats.piloti}
           icon={Users}
           tone="neutral"
           loading={stats.loading}
+          animated
         />
         <StatCard
           label="Eventi in corso"
@@ -168,13 +174,15 @@ export default function Dashboard() {
           icon={Activity}
           tone={eventiAttivi > 0 ? 'success' : 'neutral'}
           loading={stats.loading}
+          animated
+          trend={eventiAttivi > 0 ? <span className="flex items-center gap-1 text-success-fg"><LiveDot tone="success" size="sm" /> In diretta</span> : null}
         />
         <StatCard
           label="Stato sistema"
           value="Online"
           icon={Radio}
           tone="success"
-          trend={<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-success-fg animate-pulse" /> Operativo</span>}
+          trend={<span className="flex items-center gap-1.5"><LiveDot tone="success" size="sm" /> Operativo</span>}
         />
       </div>
 

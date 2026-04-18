@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import {
   LayoutDashboard, Calendar, Users, Settings, Radio, Activity, User,
   MessageSquare, Bell, Download, LifeBuoy, Flag, Clock, Trophy, X
@@ -7,23 +7,41 @@ import {
 import ErrorBoundary from './components/ErrorBoundary';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
+import CommandPalette from './components/CommandPalette';
 import { cn } from './components/ui/utils';
 
+// Eager - small and likely first page
 import Dashboard from './pages/Dashboard';
-import Eventi from './pages/Eventi';
-import Piloti from './pages/Piloti';
-import Tempi from './pages/Tempi';
-import Classifiche from './pages/Classifiche';
-import ImportFicr from './pages/ImportFicr';
-import LiveTiming from './pages/LiveTiming';
-import Comunicati from './pages/Comunicati';
-import ControlloGara from './pages/ControlloGara';
-import LaMiaGara from './pages/LaMiaGara';
-import HelpLive from './pages/HelpLive';
-import HelpMiaGara from './pages/HelpMiaGara';
-import Help from './pages/Help';
-import MessaggiPiloti from './pages/MessaggiPiloti';
-import SetupGaraFicr from './pages/SetupGaraFicr';
+
+// Lazy - load only when visited
+const Eventi = lazy(() => import('./pages/Eventi'));
+const Piloti = lazy(() => import('./pages/Piloti'));
+const Tempi = lazy(() => import('./pages/Tempi'));
+const Classifiche = lazy(() => import('./pages/Classifiche'));
+const ImportFicr = lazy(() => import('./pages/ImportFicr'));
+const LiveTiming = lazy(() => import('./pages/LiveTiming'));
+const Comunicati = lazy(() => import('./pages/Comunicati'));
+const ControlloGara = lazy(() => import('./pages/ControlloGara'));
+const LaMiaGara = lazy(() => import('./pages/LaMiaGara'));
+const HelpLive = lazy(() => import('./pages/HelpLive'));
+const HelpMiaGara = lazy(() => import('./pages/HelpMiaGara'));
+const Help = lazy(() => import('./pages/Help'));
+const MessaggiPiloti = lazy(() => import('./pages/MessaggiPiloti'));
+const SetupGaraFicr = lazy(() => import('./pages/SetupGaraFicr'));
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="inline-flex items-center gap-3 text-content-secondary">
+        <svg className="animate-spin w-5 h-5 text-brand-500" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
+          <path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z" className="opacity-75" />
+        </svg>
+        <span className="text-sm">Caricamento…</span>
+      </div>
+    </div>
+  );
+}
 
 const NAV_GROUPS = [
   {
@@ -144,7 +162,7 @@ function MobileDrawer({ open, onClose }) {
   );
 }
 
-function AppLayout({ children }) {
+function AppLayout({ children, onOpenPalette }) {
   const [darkMode, toggleDarkMode] = useDarkMode();
   const [collapsed, toggleCollapsed] = useSidebarState();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -167,6 +185,7 @@ function AppLayout({ children }) {
           darkMode={darkMode}
           onToggleDarkMode={toggleDarkMode}
           onOpenMobileMenu={() => setMobileOpen(true)}
+          onOpenPalette={onOpenPalette}
         />
         <main className="flex-1">
           {children}
@@ -189,30 +208,47 @@ function NotFound() {
 }
 
 export default function App() {
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setPaletteOpen(true);
+      }
+      if (e.key === 'Escape') setPaletteOpen(false);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
   return (
     <Router>
-      <AppLayout>
+      <AppLayout onOpenPalette={() => setPaletteOpen(true)}>
         <ErrorBoundary>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/eventi" element={<Eventi />} />
-            <Route path="/piloti" element={<Piloti />} />
-            <Route path="/controllo-gara" element={<ControlloGara />} />
-            <Route path="/live" element={<LiveTiming />} />
-            <Route path="/la-mia-gara" element={<LaMiaGara />} />
-            <Route path="/help-live" element={<HelpLive />} />
-            <Route path="/help-mia-gara" element={<HelpMiaGara />} />
-            <Route path="/help" element={<Help />} />
-            <Route path="/tempi" element={<Tempi />} />
-            <Route path="/classifiche" element={<Classifiche />} />
-            <Route path="/comunicati" element={<Comunicati />} />
-            <Route path="/messaggi-piloti" element={<MessaggiPiloti />} />
-            <Route path="/setup-gara" element={<SetupGaraFicr />} />
-            <Route path="/import-ficr" element={<ImportFicr />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/eventi" element={<Eventi />} />
+              <Route path="/piloti" element={<Piloti />} />
+              <Route path="/controllo-gara" element={<ControlloGara />} />
+              <Route path="/live" element={<LiveTiming />} />
+              <Route path="/la-mia-gara" element={<LaMiaGara />} />
+              <Route path="/help-live" element={<HelpLive />} />
+              <Route path="/help-mia-gara" element={<HelpMiaGara />} />
+              <Route path="/help" element={<Help />} />
+              <Route path="/tempi" element={<Tempi />} />
+              <Route path="/classifiche" element={<Classifiche />} />
+              <Route path="/comunicati" element={<Comunicati />} />
+              <Route path="/messaggi-piloti" element={<MessaggiPiloti />} />
+              <Route path="/setup-gara" element={<SetupGaraFicr />} />
+              <Route path="/import-ficr" element={<ImportFicr />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </ErrorBoundary>
       </AppLayout>
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} groups={NAV_GROUPS} />
     </Router>
   );
 }

@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { Moon, Sun, PanelLeftClose, PanelLeft, Menu } from 'lucide-react';
+import { Moon, Sun, PanelLeftClose, PanelLeft, Menu, Search, Command } from 'lucide-react';
 import Button from './ui/Button';
 import { cn } from './ui/utils';
 
@@ -21,31 +21,24 @@ const PAGE_TITLES = {
   '/help-mia-gara': { title: 'Help La Mia Gara', description: 'Guida pilota' },
 };
 
-export default function TopBar({ onToggleSidebar, sidebarCollapsed, darkMode, onToggleDarkMode, onOpenMobileMenu }) {
+export default function TopBar({ onToggleSidebar, sidebarCollapsed, darkMode, onToggleDarkMode, onOpenMobileMenu, onOpenPalette }) {
   const location = useLocation();
   const pageInfo = PAGE_TITLES[location.pathname] || { title: 'Enduro FMI', description: '' };
+  const isMac = typeof navigator !== 'undefined' && /Mac/.test(navigator.platform);
 
   return (
     <header
       className={cn(
         'sticky top-0 z-20 h-14',
         'bg-surface/80 backdrop-blur-md border-b border-border-subtle',
-        'flex items-center justify-between px-4 lg:px-6'
+        'flex items-center justify-between px-4 lg:px-6 gap-3'
       )}
     >
       <div className="flex items-center gap-3 min-w-0">
-        {/* Mobile menu */}
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="lg:hidden"
-          onClick={onOpenMobileMenu}
-          aria-label="Apri menu"
-        >
+        <Button variant="ghost" size="icon-sm" className="lg:hidden" onClick={onOpenMobileMenu} aria-label="Apri menu">
           <Menu className="w-5 h-5" />
         </Button>
 
-        {/* Desktop collapse */}
         <Button
           variant="ghost"
           size="icon-sm"
@@ -65,9 +58,28 @@ export default function TopBar({ onToggleSidebar, sidebarCollapsed, darkMode, on
       </div>
 
       <div className="flex items-center gap-1.5">
-        <span className="hidden md:inline-flex text-2xs font-mono text-content-tertiary px-2 py-1 rounded bg-surface-2">
-          FE 3.1.0 · BE 3.1.0
-        </span>
+        {/* Command palette trigger */}
+        <button
+          onClick={onOpenPalette}
+          className={cn(
+            'hidden md:inline-flex items-center gap-2 h-9 pl-3 pr-2 rounded-md border border-border bg-surface',
+            'text-xs text-content-tertiary hover:text-content-primary hover:border-border-strong transition-colors'
+          )}
+          aria-label="Apri command palette"
+        >
+          <Search className="w-3.5 h-3.5" />
+          <span>Cerca…</span>
+          <kbd className="inline-flex items-center gap-0.5 px-1.5 h-5 text-2xs font-mono border border-border rounded bg-surface-2">
+            {isMac ? <Command className="w-2.5 h-2.5" /> : 'Ctrl'}
+            K
+          </kbd>
+        </button>
+
+        {/* Mobile: search icon only */}
+        <Button variant="ghost" size="icon-sm" className="md:hidden" onClick={onOpenPalette} aria-label="Cerca">
+          <Search className="w-[18px] h-[18px]" />
+        </Button>
+
         <Button variant="ghost" size="icon-sm" onClick={onToggleDarkMode} aria-label={darkMode ? 'Tema chiaro' : 'Tema scuro'}>
           {darkMode ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
         </Button>

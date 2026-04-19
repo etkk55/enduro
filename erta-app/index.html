@@ -2046,6 +2046,46 @@
       transform: translateX(20px);
     }
 
+    /* Tour grid (step 4) */
+    .tour-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 0 0 8px;
+    }
+    .tour-card {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+    }
+    .tour-card .emo {
+      flex: 0 0 40px;
+      height: 40px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, var(--brand-50), var(--bg-surface));
+      border: 1px solid var(--brand-500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .tour-card .txt { flex: 1; min-width: 0; }
+    .tour-card .title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .tour-card .sub {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.4;
+    }
+
     .onb-progress {
       display: flex;
       gap: 6px;
@@ -3824,6 +3864,7 @@
         <div class="step active" id="onbStepDot1"></div>
         <div class="step" id="onbStepDot2"></div>
         <div class="step" id="onbStepDot3"></div>
+        <div class="step" id="onbStepDot4"></div>
       </div>
 
       <!-- Step 1: Welcome -->
@@ -3907,7 +3948,61 @@
         </div>
         <div class="onb-actions">
           <button class="onb-btn ghost" onclick="onbPrev()">Indietro</button>
-          <button class="onb-btn primary" id="onbInstallBtn" onclick="triggerInstall()">Ho capito</button>
+          <button class="onb-btn primary" id="onbInstallBtn" onclick="afterInstall()">Continua</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Tour delle tab -->
+      <div class="onb-step" id="onbStep4">
+        <h3>Come funziona ERTA</h3>
+        <p class="lead">Una panoramica rapida: ecco cosa trovi in ogni schermata.</p>
+        <div class="tour-grid">
+          <div class="tour-card">
+            <div class="emo">⏱️</div>
+            <div class="txt">
+              <div class="title">Tempi</div>
+              <div class="sub">La tua home: posizione, gap, tempo totale e ultima PS. Tocca una PS per vedere il dettaglio con Assoluta, Classe e Amici.</div>
+            </div>
+          </div>
+          <div class="tour-card">
+            <div class="emo">🏆</div>
+            <div class="txt">
+              <div class="title">Classifica</div>
+              <div class="sub">Generale, per classe, per MotoClub, per squadra o solo tra i tuoi amici.</div>
+            </div>
+          </div>
+          <div class="tour-card">
+            <div class="emo">📢</div>
+            <div class="txt">
+              <div class="title">Comunicati</div>
+              <div class="sub">Messaggi ufficiali della Direzione Gara, informazioni generali e del paddock.</div>
+            </div>
+          </div>
+          <div class="tour-card">
+            <div class="emo">☰</div>
+            <div class="txt">
+              <div class="title">Altro</div>
+              <div class="sub">Orari teorici, confronto piloti, la tua squadra, segnalazioni e questa guida.</div>
+            </div>
+          </div>
+          <div class="tour-card">
+            <div class="emo">🆘</div>
+            <div class="txt">
+              <div class="title">Pulsante SOS</div>
+              <div class="sub">In basso a destra. <strong>Tieni premuto 3 secondi</strong> per allertare la DdG e inviare la tua posizione.</div>
+            </div>
+          </div>
+          <div class="tour-card">
+            <div class="emo">📲</div>
+            <div class="txt">
+              <div class="title">Tira per aggiornare</div>
+              <div class="sub">In ogni schermata, swipe-down dall'alto per ricaricare i dati al volo.</div>
+            </div>
+          </div>
+        </div>
+        <div class="onb-actions">
+          <button class="onb-btn ghost" id="onbTourBack" onclick="onbPrev()">Indietro</button>
+          <button class="onb-btn primary" onclick="hideOnboarding()">Inizia la gara</button>
         </div>
       </div>
     </div>
@@ -4424,6 +4519,13 @@
             <div>
               <div class="altro-title">Segnala / SOS</div>
               <div class="altro-sub">Emergenze, messaggi</div>
+            </div>
+          </button>
+          <button onclick="toggleAltroSheet(); showTabTour()" class="altro-item">
+            <span class="altro-icon">📖</span>
+            <div>
+              <div class="altro-title">Guida rapida</div>
+              <div class="altro-sub">Come funziona ogni tab</div>
             </div>
           </button>
         </div>
@@ -10762,6 +10864,8 @@ ${mapsLink}`;
       _onbStep = 1;
       setOnbStep(1);
       document.getElementById('onbOverlay').classList.add('show');
+      const backBtn = document.getElementById('onbTourBack');
+      if (backBtn) backBtn.style.display = '';
 
       // Setup istruzioni install per iOS/Android
       const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -10790,8 +10894,9 @@ ${mapsLink}`;
     }
     function setOnbStep(n) {
       _onbStep = n;
-      [1, 2, 3].forEach(i => {
-        document.getElementById('onbStep' + i).classList.toggle('active', i === n);
+      [1, 2, 3, 4].forEach(i => {
+        const pane = document.getElementById('onbStep' + i);
+        if (pane) pane.classList.toggle('active', i === n);
         const dot = document.getElementById('onbStepDot' + i);
         if (dot) {
           dot.classList.toggle('active', i === n);
@@ -10799,7 +10904,7 @@ ${mapsLink}`;
         }
       });
     }
-    function onbNext() { if (_onbStep < 3) setOnbStep(_onbStep + 1); else hideOnboarding(); }
+    function onbNext() { if (_onbStep < 4) setOnbStep(_onbStep + 1); else hideOnboarding(); }
     function onbPrev() { if (_onbStep > 1) setOnbStep(_onbStep - 1); }
     function skipOnboarding() { hideOnboarding(); }
     window.skipOnboarding = skipOnboarding;
@@ -10832,9 +10937,32 @@ ${mapsLink}`;
         try { await _deferredInstallPrompt.userChoice; } catch (e) {}
         _deferredInstallPrompt = null;
       }
-      hideOnboarding();
+      setOnbStep(4);
     }
     window.triggerInstall = triggerInstall;
+
+    async function afterInstall() {
+      // Se disponibile prompt install Android, lo lancia; poi avanza al tour
+      if (_deferredInstallPrompt) {
+        try {
+          _deferredInstallPrompt.prompt();
+          await _deferredInstallPrompt.userChoice;
+        } catch (e) {}
+        _deferredInstallPrompt = null;
+      }
+      setOnbStep(4);
+    }
+    window.afterInstall = afterInstall;
+
+    // Standalone: riapri solo il tour (dal menu Altro → Guida rapida)
+    function showTabTour() {
+      document.getElementById('onbOverlay').classList.add('show');
+      setOnbStep(4);
+      // Nascondi "Indietro" dato che siamo entrati diretti
+      const backBtn = document.getElementById('onbTourBack');
+      if (backBtn) backBtn.style.display = 'none';
+    }
+    window.showTabTour = showTabTour;
 
     function maybeShowOnboarding() {
       if (localStorage.getItem('erta_onboarded') === '1') return;

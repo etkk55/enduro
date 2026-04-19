@@ -570,9 +570,8 @@ export default function SetupGaraFicr() {
         setCodiceAccessoPubblico(primo.codice_accesso_pubblico || '');
       }
       
-      // Salta direttamente allo step Import (7). Le impostazioni avanzate
-      // (struttura, tempi CO, GPS) sono accessibili da link nello step 7.
-      setStepCorrente(7);
+      // Flusso: Configura -> Paddock & ERTA (step 6) -> Tempi CO (5) -> Import (7)
+      setStepCorrente(6);
 
     } catch (err) {
       setErrore('Errore: ' + err.message);
@@ -807,7 +806,8 @@ export default function SetupGaraFicr() {
           })
         });
       }
-      setStepCorrente(7);
+      // Flusso nuovo: Paddock & ERTA (6) -> Tempi CO (5) -> Import (7)
+      setStepCorrente(5);
     } catch (err) {
       setErrore('Errore salvataggio GPS: ' + err.message);
     } finally {
@@ -915,16 +915,15 @@ export default function SetupGaraFicr() {
     setImportandoFicr(prev => ({ ...prev, tempi: false }));
   };
 
-  // Importa TUTTO in sequenza: program -> entrylist -> startlist -> tempi
-  // Nota: handleImportFicr e handleImportTempi aggiornano gia' importResult per singola modalita'.
+  // Importa TUTTO in sequenza: entrylist -> startlist -> tempi
+  // Nota: il vecchio 'program' era un doppione di 'entrylist' (stessa URL).
   const handleImportTutto = async () => {
     if (eventiCreati.length === 0) return;
 
-    setImportandoFicr({ program: false, entrylist: false, startlist: false, tempi: false, tutto: true });
+    setImportandoFicr({ entrylist: false, startlist: false, tempi: false, tutto: true });
     setImportResult({});
 
     // Sequenza deliberata: serve che piloti esistano prima di scaricare tempi.
-    await handleImportFicr('program', 'Programma');
     await handleImportFicr('entrylist', 'Numeri');
     await handleImportFicr('startlist', 'Ordine');
     await handleImportTempi();
@@ -985,26 +984,37 @@ export default function SetupGaraFicr() {
 
       {/* Progress Steps */}
       {/*
-        ProgressSteps SEMPLIFICATO a 3 step logici: Gara | Configura | Importa.
-        Internamente stepCorrente va da 1 a 7 (step 4-6 sono le Avanzate).
-        Mapping stepCorrente -> visuale:
-          1, 2   -> visuale 0 (Gara)
-          3      -> visuale 1 (Configura)
-          4-7    -> visuale 2 (Importa, con Avanzate dentro)
+        ProgressSteps a 5 step logici, tutti mandatory per integrazione ERTA:
+          Gara -> Configura -> Paddock & ERTA -> Tempi CO -> Import
+        Mapping stepCorrente interno -> visuale:
+          1, 2 -> 0 (Gara)
+          3    -> 1 (Configura)
+          6    -> 2 (Paddock & ERTA - config GPS/paddock + codici accesso ERTA)
+          5    -> 3 (Tempi CO)
+          4, 7 -> 4 (Import, con Struttura Gara opzionale)
       */}
       <div className="bg-surface border border-border-subtle rounded-lg p-5 mb-4">
         <ProgressSteps
-          steps={['Gara', 'Configura', 'Importa']}
-          currentStep={stepCorrente <= 2 ? 0 : stepCorrente === 3 ? 1 : 2}
+          steps={['Gara', 'Configura', 'Paddock & ERTA', 'Tempi CO', 'Import']}
+          currentStep={
+            stepCorrente <= 2 ? 0 :
+            stepCorrente === 3 ? 1 :
+            stepCorrente === 6 ? 2 :
+            stepCorrente === 5 ? 3 :
+            4 // step 4 (Struttura opzionale) o 7 (Import) -> visuale Import
+          }
           canNavigateTo={(visualIdx) => {
             if (visualIdx === 0) return true;
             if (visualIdx === 1) return garaEsistente || stepCorrente >= 3;
-            // visualIdx === 2 (Importa): serve aver creato almeno un evento
-            return (garaEsistente && eventiCreati.length > 0) || stepCorrente >= 3 || eventiCreati.length > 0;
+            // Step 2-4 richiedono che almeno un evento sia stato creato
+            const eventiReady = eventiCreati.length > 0 || garaEsistente;
+            return eventiReady;
           }}
           onStepClick={(visualIdx) => {
             if (visualIdx === 0) setStepCorrente(stepCorrente > 2 ? 2 : stepCorrente);
             else if (visualIdx === 1) setStepCorrente(3);
+            else if (visualIdx === 2) setStepCorrente(6);
+            else if (visualIdx === 3) setStepCorrente(5);
             else setStepCorrente(7);
           }}
         />
@@ -1609,10 +1619,10 @@ export default function SetupGaraFicr() {
           
           <div className="flex justify-between mt-6">
             <button
-              onClick={() => setStepCorrente(7)}
+              onClick={() => setStepCorrente(6)}
               className="px-4 py-2 text-content-secondary hover:text-content-primary"
             >
-              ← Torna all'Import
+              ← Paddock &amp; ERTA
             </button>
             <button
               onClick={salvaTempiSettore}
@@ -1635,13 +1645,16 @@ export default function SetupGaraFicr() {
         </div>
       )}
 
-      {/* STEP 6: GPS & Sicurezza (era Step 5) */}
+      {/* STEP 6: Paddock & ERTA (GPS + coordinate paddock + codici accesso ERTA) */}
       {stepCorrente === 6 && eventiCreati.length > 0 && (
-        <div className="bg-orange-50 rounded-xl shadow-lg p-6 border-4 border-orange-400">
-          <h2 className="text-xl font-bold text-orange-800 mb-4 flex items-center gap-2">
-            <MapPin className="w-6 h-6 text-orange-600" />
-            6️⃣ Parametri GPS e Sicurezza
+        <div className="bg-surface border border-border-subtle border-l-4 border-l-warning-fg rounded-lg p-5 shadow-sm">
+          <h2 className="text-heading-2 flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-warning-fg" />
+            Paddock &amp; ERTA
           </h2>
+          <p className="text-xs text-content-tertiary mt-1 mb-4">
+            Coordinate paddock, tracking GPS, allarmi e credenziali per l'app ERTA (piloti e DdG).
+          </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             {/* Paddock 1 */}
@@ -1775,10 +1788,10 @@ export default function SetupGaraFicr() {
           
           <div className="flex justify-between">
             <button
-              onClick={() => setStepCorrente(7)}
+              onClick={() => setStepCorrente(3)}
               className="px-4 py-2 text-content-secondary hover:text-content-primary"
             >
-              ← Torna all'Import
+              ← Configura
             </button>
             <button
               onClick={salvaParametriGPS}
@@ -1821,46 +1834,21 @@ export default function SetupGaraFicr() {
                 Importa Tutto
               </h3>
               <p className="text-xs text-content-secondary mt-0.5">
-                Esegue in sequenza: Programma → Numeri → Ordine → Tempi. Ideale post-gara per popolare tutto in un colpo solo.
+                Esegue in sequenza: Numeri → Ordine → Tempi. Ideale post-gara per popolare tutto in un colpo solo.
               </p>
             </div>
             <button
               onClick={handleImportTutto}
-              disabled={importandoFicr['tutto'] || importandoFicr['program'] || importandoFicr['entrylist'] || importandoFicr['startlist'] || importandoFicr['tempi']}
+              disabled={importandoFicr['tutto'] || importandoFicr['entrylist'] || importandoFicr['startlist'] || importandoFicr['tempi']}
               className="px-6 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 font-bold shadow-sm transition-colors whitespace-nowrap"
             >
               {importandoFicr['tutto'] ? '⏳ Importando tutto...' : '🚀 Importa Tutto'}
             </button>
           </div>
 
-          {/* 4 Bottoni Import: Programma / Numeri / Ordine / Tempi */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-            {/* T-5: Programma */}
-            <div className="bg-white rounded-lg p-4 shadow border-l-4 border-yellow-500">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-3xl">📋</span>
-                <div>
-                  <h3 className="font-bold text-content-primary">T-5 Programma</h3>
-                  <p className="text-xs text-content-tertiary">5 giorni prima</p>
-                </div>
-              </div>
-              <button
-                onClick={() => handleImportFicr('program', 'Programma')}
-                disabled={importandoFicr['program'] || importandoFicr['tutto']}
-                className="w-full px-4 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:opacity-50 font-semibold"
-              >
-                {importandoFicr['program'] ? '⏳ Importando...' : '📋 Import Programma'}
-              </button>
-              {importResult['program'] && (
-                <div className={`text-sm mt-2 ${importResult['program'].success ? 'text-green-600' : 'text-red-600'}`}>
-                  <p>{importResult['program'].message}</p>
-                  {importResult['program'].dettagli && (
-                    <p className="text-xs text-content-tertiary mt-1">{importResult['program'].dettagli}</p>
-                  )}
-                </div>
-              )}
-            </div>
-            
+          {/* 3 Bottoni Import: Numeri / Ordine / Tempi
+              (T-5 Programma rimosso: era un doppione di T-2 entrylist) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             {/* T-2: Numeri */}
             <div className="bg-white rounded-lg p-4 shadow border-l-4 border-blue-500">
               <div className="flex items-center gap-2 mb-2">
@@ -1948,60 +1936,34 @@ export default function SetupGaraFicr() {
             <XmlImportPanel eventiCreati={eventiCreati} />
           </div>
 
-          {/* Impostazioni avanzate - link agli step 4, 5, 6 (opzionali) */}
+          {/* Struttura Gara - opzionale, migliora UX grafici (tipologie prove) */}
           <div className="mb-6 bg-surface-2 border border-border-subtle rounded-lg p-4">
-            <div className="flex items-start gap-2 mb-3">
-              <Settings className="w-4 h-4 text-content-secondary mt-0.5" />
-              <div>
-                <h3 className="text-sm font-semibold text-content-primary">Impostazioni avanzate (opzionali)</h3>
-                <p className="text-xs text-content-tertiary mt-0.5">
-                  Non obbligatorie per far funzionare la gara. Configurale solo se usi le relative funzionalita'.
-                </p>
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div className="flex items-start gap-2 flex-1 min-w-0">
+                <Settings className="w-4 h-4 text-content-secondary mt-0.5 shrink-0" />
+                <div>
+                  <h3 className="text-sm font-semibold text-content-primary">Struttura gara (opzionale)</h3>
+                  <p className="text-xs text-content-tertiary mt-0.5">
+                    Configura giri e tipologie prove (es. "Enduro Test", "Cross Test"). Non e' obbligatoria: il sistema crea le prove automaticamente da FICR. Serve solo se vuoi nomi tipologia nei grafici di "La Mia Gara".
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setStepCorrente(4)}
-                className="flex items-center justify-between p-3 rounded-md border border-border bg-surface hover:bg-surface-3 transition-colors text-left"
+                className="h-9 px-3 rounded-md border border-border bg-surface text-xs font-medium hover:bg-surface-3 transition-colors whitespace-nowrap"
               >
-                <div className="min-w-0">
-                  <div className="text-xs font-semibold text-content-primary">Struttura gara</div>
-                  <div className="text-2xs text-content-tertiary mt-0.5">Giri e tipologie prove</div>
-                </div>
-                <span className="text-content-tertiary shrink-0">→</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setStepCorrente(5)}
-                className="flex items-center justify-between p-3 rounded-md border border-border bg-surface hover:bg-surface-3 transition-colors text-left"
-              >
-                <div className="min-w-0">
-                  <div className="text-xs font-semibold text-content-primary">Tempi settore CO</div>
-                  <div className="text-2xs text-content-tertiary mt-0.5">Orari teorici LiveTiming</div>
-                </div>
-                <span className="text-content-tertiary shrink-0">→</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setStepCorrente(6)}
-                className="flex items-center justify-between p-3 rounded-md border border-border bg-surface hover:bg-surface-3 transition-colors text-left"
-              >
-                <div className="min-w-0">
-                  <div className="text-xs font-semibold text-content-primary">GPS &amp; paddock</div>
-                  <div className="text-2xs text-content-tertiary mt-0.5">Tracking piloti, codice DdG</div>
-                </div>
-                <span className="text-content-tertiary shrink-0">→</span>
+                Configura &rarr;
               </button>
             </div>
           </div>
 
           <div className="flex justify-between mt-6">
             <button
-              onClick={() => setStepCorrente(3)}
+              onClick={() => setStepCorrente(5)}
               className="px-4 py-2 text-content-secondary hover:text-content-primary"
             >
-              ← Indietro
+              ← Tempi CO
             </button>
             <button
               onClick={() => window.location.href = '/eventi'}

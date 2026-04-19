@@ -1824,6 +1824,335 @@
     }
     .ps-chip.none { color: var(--text-disabled); font-weight: 500; }
 
+    /* ==================== MOMENTUM CHIP ==================== */
+    .momentum-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: var(--r-pill);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .momentum-chip.hot {
+      background: linear-gradient(135deg, rgba(251,146,60,0.22), rgba(239,68,68,0.18));
+      color: #fb923c;
+      border-color: rgba(251,146,60,0.4);
+    }
+    .momentum-chip.up {
+      background: var(--success-bg);
+      color: var(--success);
+      border-color: var(--success-border);
+    }
+    .momentum-chip.stable {
+      background: var(--bg-surface-2);
+      color: var(--text-tertiary);
+      border-color: var(--border-subtle);
+    }
+    .momentum-chip.down {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border-color: var(--danger-border);
+    }
+
+    /* ==================== HEAD-TO-HEAD 1-a-1 ==================== */
+    .h2h-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .h2h-panel > h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .h2h-panel > .subtitle {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+    }
+    .h2h-selector {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -14px 14px;
+      padding: 0 14px 6px;
+    }
+    .h2h-selector::-webkit-scrollbar { height: 4px; }
+    .h2h-chip {
+      flex: 0 0 auto;
+      padding: 8px 14px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-pill);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 150ms, border-color 150ms, color 150ms;
+      min-height: 36px;
+    }
+    .h2h-chip .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-right: 4px;
+    }
+    .h2h-chip.selected {
+      background: var(--brand-500);
+      color: #fff;
+      border-color: var(--brand-500);
+      box-shadow: var(--shadow-sm);
+    }
+    .h2h-chip.selected .num { color: rgba(255,255,255,0.85); }
+
+    .h2h-vs {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 0;
+      margin-bottom: 4px;
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .h2h-side { text-align: center; min-width: 0; }
+    .h2h-side .label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+    .h2h-side .name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .h2h-side.me .name { color: var(--brand-500); }
+    .h2h-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      min-width: 90px;
+      text-align: center;
+    }
+    .h2h-score .win { color: var(--success); }
+    .h2h-score .sep { color: var(--text-tertiary); margin: 0 6px; font-weight: 600; font-size: 28px; }
+    .h2h-score .lose { color: var(--danger); }
+
+    .h2h-total {
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      padding: 10px 12px;
+      border-radius: var(--r-md);
+      margin: 10px 0;
+    }
+    .h2h-total.lead {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+    }
+    .h2h-total.trail {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+    .h2h-total.even {
+      background: var(--bg-surface-2);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+    .h2h-total .big {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .h2h-ps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 10px;
+    }
+    .h2h-ps-row {
+      display: grid;
+      grid-template-columns: 44px 1fr auto 1fr 28px;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--bg-surface-2);
+      border-radius: var(--r-sm);
+      font-size: 12px;
+    }
+    .h2h-ps-row.win { border-left: 3px solid var(--success); }
+    .h2h-ps-row.lose { border-left: 3px solid var(--danger); }
+    .h2h-ps-row.tie { border-left: 3px solid var(--border-default); }
+    .h2h-ps-row .ps-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--text-tertiary);
+      font-size: 11px;
+    }
+    .h2h-ps-row .me-time,
+    .h2h-ps-row .opp-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 13px;
+      text-align: center;
+    }
+    .h2h-ps-row .delta {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: var(--r-sm);
+      min-width: 48px;
+      text-align: center;
+    }
+    .h2h-ps-row.win .delta { background: var(--success-bg); color: var(--success); }
+    .h2h-ps-row.lose .delta { background: var(--danger-bg); color: var(--danger); }
+    .h2h-ps-row.tie .delta { background: var(--bg-surface-3); color: var(--text-tertiary); }
+    .h2h-ps-row .emoji { text-align: center; font-size: 14px; }
+
+    /* ==================== HEATMAP PS × PILOTA ==================== */
+    .heatmap-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .heatmap-head {
+      padding: 14px 14px 10px;
+      background: var(--bg-surface-2);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .heatmap-head h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .heatmap-head .subtitle {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+    .heatmap-legend {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .heatmap-legend .scale {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #10b981 0%, #fbbf24 50%, #ef4444 100%);
+    }
+    .heatmap-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .heatmap-scroll::-webkit-scrollbar { height: 6px; }
+    .heatmap-row {
+      display: flex;
+      align-items: stretch;
+      border-bottom: 1px solid var(--border-subtle);
+      min-width: min-content;
+      background: var(--bg-surface);
+    }
+    .heatmap-row:last-child { border-bottom: none; }
+    .heatmap-row.me { background: var(--brand-50); }
+
+    .heatmap-pilot {
+      flex: 0 0 120px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      border-right: 1px solid var(--border-subtle);
+      position: sticky;
+      left: 0;
+      background: inherit;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .heatmap-pilot .cognome {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .heatmap-pilot .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+    }
+    .heatmap-row.header {
+      background: var(--bg-surface-2);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+    }
+    .heatmap-row.header .heatmap-pilot {
+      text-transform: uppercase;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-tertiary);
+    }
+    .heatmap-cell {
+      flex: 0 0 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      border-right: 1px solid rgba(0,0,0,0.18);
+      padding: 10px 4px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+    .heatmap-cell:last-child { border-right: none; }
+    .heatmap-cell.empty {
+      background: var(--bg-surface-2);
+      color: var(--text-disabled);
+      text-shadow: none;
+    }
+    .heatmap-cell.header {
+      background: var(--bg-surface-2);
+      color: var(--text-tertiary);
+      text-shadow: none;
+      font-size: 11px;
+    }
+
     /* ==================== GRAFICI ==================== */
     .grafico-container {
       background: var(--bg-surface);
@@ -7337,6 +7666,55 @@
       }
     }
     
+    // ============ HELPERS SQUADRA (H2H, Momentum, Heatmap) ============
+    // Posizione nel team in una specifica PS (1 = più veloce)
+    function getPosInPS(classifica, prove, psNum, numero) {
+      const tempi = classifica
+        .filter(m => {
+          const p = m.tempi_ps?.[psNum];
+          return p && p.tempo_raw != null && p.tempo_raw > 0;
+        })
+        .map(m => ({ num: m.numero_gara, tempo: parseFloat(m.tempi_ps[psNum].tempo_raw) }))
+        .sort((a, b) => a.tempo - b.tempo);
+      const idx = tempi.findIndex(t => t.num === numero);
+      return { pos: idx >= 0 ? idx + 1 : null, total: tempi.length };
+    }
+
+    // Calcola momentum di un pilota: confronta avg posizione prime N/2 PS vs ultime N/2
+    function computeMomentum(classifica, prove, numero) {
+      const positions = prove
+        .map(ps => getPosInPS(classifica, prove, ps.numero, numero).pos)
+        .filter(p => p != null);
+      if (positions.length < 2) return { kind: 'stable', icon: '➖', label: 'Inizio' };
+      const half = Math.max(1, Math.floor(positions.length / 2));
+      const avgFirst = positions.slice(0, half).reduce((a, b) => a + b, 0) / half;
+      const lastSlice = positions.slice(-half);
+      const avgLast = lastSlice.reduce((a, b) => a + b, 0) / lastSlice.length;
+      const delta = avgFirst - avgLast; // positivo = migliorato
+      if (delta >= 1.5) return { kind: 'hot', icon: '🔥', label: 'In forma' };
+      if (delta >= 0.5) return { kind: 'up', icon: '📈', label: 'In recupero' };
+      if (delta <= -0.5) return { kind: 'down', icon: '📉', label: 'In calo' };
+      return { kind: 'stable', icon: '➖', label: 'Stabile' };
+    }
+
+    // Colore heatmap: pos 1 = verde, pos N = rosso (gradient HSL)
+    function heatmapColor(pos, total) {
+      if (!pos || !total || total < 2) return 'var(--bg-surface-3)';
+      const t = (pos - 1) / (total - 1); // 0..1
+      const hue = 140 - (t * 140); // 140 (verde) → 0 (rosso)
+      const light = 38 + (t * 4);
+      return `hsl(${Math.round(hue)}, 62%, ${light}%)`;
+    }
+
+    // Stato H2H
+    let h2hSelectedNum = null;
+    let h2hCachedData = null;
+
+    function selectH2H(numero) {
+      h2hSelectedNum = numero;
+      if (h2hCachedData) renderH2HPanel(h2hCachedData);
+    }
+
     function renderClassificaSquadra(data) {
       const container = document.getElementById('squadraClassifica');
       const classifica = data.classifica || [];
@@ -7349,7 +7727,7 @@
 
       const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-      // === SEZIONE 1: LEADERBOARD SQUADRA ===
+      // === SEZIONE 1: LEADERBOARD SQUADRA (con momentum chip) ===
       let html = '<div class="squadra-sec-title"><span>🏆 Classifica Squadra</span></div>';
 
       html += classifica.map(m => {
@@ -7360,6 +7738,9 @@
         if (isMe) rowCls.push('me');
         if (m.ritirato) rowCls.push('ritirato');
         const gapIsLeader = pos === 1;
+
+        const mom = m.ritirato ? null : computeMomentum(classifica, prove, m.numero_gara);
+        const momHtml = mom ? `<span class="momentum-chip ${mom.kind}">${mom.icon} ${mom.label}</span>` : '';
 
         return `
           <div class="${rowCls.join(' ')}">
@@ -7372,7 +7753,7 @@
                 <span>${esc(m.classe || '—')}</span>
                 <span>•</span>
                 <span class="abs-pos">${m.posizione_assoluta}° ass.</span>
-                ${m.ritirato ? `<span class="rit-badge">RIT (${m.prove_completate}/${m.prove_totali})</span>` : ''}
+                ${m.ritirato ? `<span class="rit-badge">RIT (${m.prove_completate}/${m.prove_totali})</span>` : momHtml}
               </div>
             </div>
             <div class="sq-right">
@@ -7381,6 +7762,52 @@
             </div>
           </div>`;
       }).join('');
+
+      // === NEW: HEAD-TO-HEAD 1-a-1 ===
+      h2hCachedData = data;
+      if (currentUser?.numero && classifica.some(m => m.numero_gara != currentUser.numero)) {
+        html += '<div class="squadra-sec-title"><span>⚔️ Tu vs Amico</span></div>';
+        html += `<div class="h2h-panel" id="h2hPanel"></div>`;
+      }
+
+      // === NEW: HEATMAP PS × PILOTA ===
+      if (prove.length > 0 && classifica.length > 1) {
+        html += '<div class="squadra-sec-title"><span>🌡️ Chi domina quale PS</span></div>';
+        html += '<div class="heatmap-card">';
+        html += '<div class="heatmap-head">';
+        html += '<h4>Heatmap posizioni nella squadra</h4>';
+        html += '<p class="subtitle">Ogni cella = posizione nella tua squadra in quella PS</p>';
+        html += '<div class="heatmap-legend"><span>🥇 1°</span><div class="scale"></div><span>Ultimo</span></div>';
+        html += '</div>';
+        html += '<div class="heatmap-scroll">';
+        // Header
+        html += '<div class="heatmap-row header">';
+        html += '<div class="heatmap-pilot">Pilota</div>';
+        prove.forEach(ps => {
+          html += `<div class="heatmap-cell header">PS${ps.numero}</div>`;
+        });
+        html += '</div>';
+        // Rows
+        classifica.forEach(m => {
+          const isMe = m.numero_gara == currentUser.numero;
+          html += `<div class="heatmap-row ${isMe ? 'me' : ''}">`;
+          html += `<div class="heatmap-pilot">
+            <div class="cognome">${esc(m.cognome)}</div>
+            <div class="num">#${esc(m.numero_gara)}</div>
+          </div>`;
+          prove.forEach(ps => {
+            const pInfo = getPosInPS(classifica, prove, ps.numero, m.numero_gara);
+            if (pInfo.pos == null) {
+              html += `<div class="heatmap-cell empty">—</div>`;
+            } else {
+              const bg = heatmapColor(pInfo.pos, pInfo.total);
+              html += `<div class="heatmap-cell" style="background:${bg};">${pInfo.pos}°</div>`;
+            }
+          });
+          html += '</div>';
+        });
+        html += '</div></div>';
+      }
 
       // === SEZIONE 2: HEAD-TO-HEAD (distacchi dal leader) ===
       // Usa gap numerico se disponibile, altrimenti parse da tempo_formattato
@@ -7513,12 +7940,143 @@
 
       container.innerHTML = html;
 
+      // Popola H2H panel se presente
+      if (document.getElementById('h2hPanel')) {
+        renderH2HPanel(data);
+      }
+
       // Renderizza grafici Chart.js esistenti
       if (prove.length > 0 && classifica.length > 1) {
         renderGraficiSquadra(data);
       }
     }
-    
+
+    // ============ RENDER HEAD-TO-HEAD PANEL ============
+    function renderH2HPanel(data) {
+      const panel = document.getElementById('h2hPanel');
+      if (!panel) return;
+      const classifica = data.classifica || [];
+      const prove = data.prove || [];
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+      const mioPilota = classifica.find(m => m.numero_gara == currentUser.numero);
+      const amici = classifica.filter(m => m.numero_gara != currentUser.numero);
+
+      if (!mioPilota || amici.length === 0) {
+        panel.innerHTML = '<div class="pub-empty">Servono almeno 2 membri in squadra</div>';
+        return;
+      }
+
+      // Default: il primo amico se nessuno selezionato o se non più in lista
+      if (!h2hSelectedNum || !amici.find(a => a.numero_gara == h2hSelectedNum)) {
+        h2hSelectedNum = amici[0].numero_gara;
+      }
+
+      const avversario = amici.find(a => a.numero_gara == h2hSelectedNum);
+
+      // Selector chip
+      let selHtml = '<div class="h2h-selector">';
+      amici.forEach(a => {
+        const isSel = a.numero_gara == h2hSelectedNum;
+        selHtml += `<button class="h2h-chip ${isSel ? 'selected' : ''}" onclick="selectH2H(${a.numero_gara})">
+          <span class="num">#${esc(a.numero_gara)}</span>${esc(a.cognome)}
+        </button>`;
+      });
+      selHtml += '</div>';
+
+      // Conteggio vittorie + delta totale
+      let myWins = 0, oppWins = 0, ties = 0;
+      let totalDelta = 0; // positivo = io più veloce totale
+      const psRows = [];
+
+      prove.forEach(ps => {
+        const myT = mioPilota.tempi_ps?.[ps.numero];
+        const oppT = avversario.tempi_ps?.[ps.numero];
+        const myRaw = myT && myT.tempo_raw ? parseFloat(myT.tempo_raw) : null;
+        const oppRaw = oppT && oppT.tempo_raw ? parseFloat(oppT.tempo_raw) : null;
+
+        if (myRaw == null || oppRaw == null) {
+          psRows.push({ ps: ps.numero, kind: 'missing', myT: myT?.tempo, oppT: oppT?.tempo });
+          return;
+        }
+        const delta = oppRaw - myRaw; // positivo = io più veloce in questa PS
+        totalDelta += delta;
+        if (Math.abs(delta) < 0.05) {
+          ties += 1;
+          psRows.push({ ps: ps.numero, kind: 'tie', myT: myT.tempo, oppT: oppT.tempo, delta: 0 });
+        } else if (delta > 0) {
+          myWins += 1;
+          psRows.push({ ps: ps.numero, kind: 'win', myT: myT.tempo, oppT: oppT.tempo, delta });
+        } else {
+          oppWins += 1;
+          psRows.push({ ps: ps.numero, kind: 'lose', myT: myT.tempo, oppT: oppT.tempo, delta });
+        }
+      });
+
+      // VS + score
+      let vsHtml = `
+        <div class="h2h-vs">
+          <div class="h2h-side me">
+            <div class="label">Tu</div>
+            <div class="name">${esc(mioPilota.cognome)}</div>
+          </div>
+          <div class="h2h-score">
+            <span class="${myWins > oppWins ? 'win' : myWins < oppWins ? 'lose' : ''}">${myWins}</span><span class="sep">–</span><span class="${oppWins > myWins ? 'win' : oppWins < myWins ? 'lose' : ''}">${oppWins}</span>
+          </div>
+          <div class="h2h-side">
+            <div class="label">Avversario</div>
+            <div class="name">${esc(avversario.cognome)}</div>
+          </div>
+        </div>`;
+
+      // Totale delta
+      let totalHtml = '';
+      const completed = psRows.filter(r => r.kind !== 'missing').length;
+      if (completed === 0) {
+        totalHtml = `<div class="h2h-total even">Nessuna PS in comune ancora</div>`;
+      } else if (Math.abs(totalDelta) < 0.1) {
+        totalHtml = `<div class="h2h-total even">Praticamente pari · <span class="big">0.0s</span></div>`;
+      } else if (totalDelta > 0) {
+        totalHtml = `<div class="h2h-total lead">Sei avanti di <span class="big">${totalDelta.toFixed(1)}s</span> totali</div>`;
+      } else {
+        totalHtml = `<div class="h2h-total trail">Sei dietro di <span class="big">${Math.abs(totalDelta).toFixed(1)}s</span> totali</div>`;
+      }
+
+      // PS rows
+      let listHtml = '<div class="h2h-ps-list">';
+      psRows.forEach(r => {
+        if (r.kind === 'missing') {
+          listHtml += `<div class="h2h-ps-row tie">
+            <span class="ps-num">PS${r.ps}</span>
+            <span class="me-time" style="color:var(--text-disabled);">${r.myT || '—'}</span>
+            <span class="delta">—</span>
+            <span class="opp-time" style="color:var(--text-disabled);">${r.oppT || '—'}</span>
+            <span class="emoji">⏳</span>
+          </div>`;
+          return;
+        }
+        const emoji = r.kind === 'win' ? '✅' : r.kind === 'lose' ? '❌' : '➖';
+        const deltaStr = r.kind === 'tie' ? '=' : (r.kind === 'win' ? '+' : '') + r.delta.toFixed(2) + 's';
+        listHtml += `<div class="h2h-ps-row ${r.kind}">
+          <span class="ps-num">PS${r.ps}</span>
+          <span class="me-time">${r.myT}</span>
+          <span class="delta">${deltaStr}</span>
+          <span class="opp-time">${r.oppT}</span>
+          <span class="emoji">${emoji}</span>
+        </div>`;
+      });
+      listHtml += '</div>';
+
+      panel.innerHTML = `
+        <h4>Confronto diretto PS per PS</h4>
+        <p class="subtitle">Scegli un amico per vedere chi ha fatto meglio in ogni prova.</p>
+        ${selHtml}
+        ${vsHtml}
+        ${totalHtml}
+        ${listHtml}
+      `;
+    }
+
     // Dati squadra per slider radar
     let radarSquadraData = { classifica: [], prove: [] };
     

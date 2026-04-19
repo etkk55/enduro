@@ -685,8 +685,11 @@ export default function SetupGaraFicr() {
     setImportandoFicr(prev => ({ ...prev, [modalita]: false }));
   };
 
-  // Import TEMPI (clasps) per tutte le gare fratelle.
-  // Chiama import-tempi-archiviati per ogni evento creato.
+  // Import TEMPI per tutte le gare fratelle in UNA sola chiamata.
+  // Usa poll-ficr-live che:
+  //   1. Itera internamente sulle gare fratelle (same ficr_anno/equipe/manif)
+  //   2. Auto-crea le prove_speciali da FICR listps se non esistono
+  //   3. Scarica i tempi (clasps) e li salva nel DB
   const handleImportTempi = async () => {
     if (eventiCreati.length === 0) return;
 
@@ -694,40 +697,35 @@ export default function SetupGaraFicr() {
     setImportResult(prev => ({ ...prev, tempi: null }));
 
     try {
-      let tempiTotali = 0;
-      const dettagliPerGara = [];
-      let erroriGara = 0;
+      // Basta chiamare poll-ficr-live per il primo evento: il backend itera su tutte le fratelle
+      const eventoId = eventiCreati[0].id;
+      const res = await fetch(`${API_BASE}/api/eventi/${eventoId}/poll-ficr-live`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
 
-      for (const evento of eventiCreati) {
-        try {
-          const res = await fetch(`${API_BASE}/api/eventi/${evento.id}/import-tempi-archiviati`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-          });
-          const data = await res.json();
-          if (res.ok && data.success) {
-            tempiTotali += data.tempiTotali || 0;
-            dettagliPerGara.push(`${evento.codice_gara || evento.nome_evento}: ${data.tempiTotali || 0} tempi`);
-          } else {
-            erroriGara++;
-            dettagliPerGara.push(`${evento.codice_gara}: ${data.error || 'errore'}`);
+      if (res.ok && data.success) {
+        const tempiTotali = data.totaleTempi || 0;
+        const dettagli = Object.entries(data.risultati || {})
+          .map(([codice, r]) => `${codice}: ${r.tempi || 0}${r.status === 'no_prove' ? ' (no PS)' : ''}`)
+          .join(' | ');
+        setImportResult(prev => ({
+          ...prev,
+          tempi: {
+            success: tempiTotali > 0,
+            message: tempiTotali > 0
+              ? `Importati ${tempiTotali} tempi totali su ${Object.keys(data.risultati || {}).length} gare`
+              : `Nessun tempo importato. Verifica che la FICR abbia i tempi disponibili.`,
+            dettagli
           }
-        } catch (err) {
-          erroriGara++;
-          dettagliPerGara.push(`${evento.codice_gara}: ${err.message}`);
-        }
+        }));
+      } else {
+        setImportResult(prev => ({
+          ...prev,
+          tempi: { success: false, message: `Errore: ${data.error || 'richiesta fallita'}` }
+        }));
       }
-
-      setImportResult(prev => ({
-        ...prev,
-        tempi: {
-          success: erroriGara === 0,
-          message: erroriGara === 0
-            ? `Importati ${tempiTotali} tempi totali su ${eventiCreati.length} gare`
-            : `Importati ${tempiTotali} tempi (${erroriGara} gare con errori)`,
-          dettagli: dettagliPerGara.join(' | ')
-        }
-      }));
     } catch (err) {
       setImportResult(prev => ({
         ...prev,

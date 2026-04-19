@@ -1041,22 +1041,40 @@
       position: relative;
     }
 
-    .sos-container .sos-progress {
+    /* SVG ring countdown (GPU-accelerated) */
+    .sos-ring {
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(239,68,68,0.2);
+      transform: translate(-50%, -50%) rotate(-90deg);
+      width: 220px;
+      height: 220px;
       pointer-events: none;
-      transition: width 3s linear, height 3s linear;
+      opacity: 0;
+      transition: opacity 150ms ease-out;
     }
-
-    .sos-container .sos-progress.active {
-      width: 240px;
-      height: 240px;
+    .sos-ring .track {
+      fill: none;
+      stroke: rgba(239,68,68,0.18);
+      stroke-width: 8;
+    }
+    .sos-ring .fill {
+      fill: none;
+      stroke: var(--danger);
+      stroke-width: 8;
+      stroke-linecap: round;
+      /* circonferenza: 2π·100 = 628.32 */
+      stroke-dasharray: 628.32;
+      stroke-dashoffset: 628.32;
+      filter: drop-shadow(0 0 6px rgba(239,68,68,0.5));
+    }
+    .sos-container.holding .sos-ring { opacity: 1; }
+    .sos-container.holding .sos-ring .fill {
+      animation: sosRingFill 3s linear forwards;
+    }
+    @keyframes sosRingFill {
+      from { stroke-dashoffset: 628.32; }
+      to { stroke-dashoffset: 0; }
     }
 
     .sos-btn {
@@ -1070,53 +1088,34 @@
       border: none;
       font-size: 60px;
       cursor: pointer;
-      box-shadow: 0 0 0 6px rgba(239,68,68,0.2), var(--shadow-lg);
-      transition: transform 150ms, box-shadow 150ms;
+      box-shadow: 0 0 0 6px rgba(239,68,68,0.22), var(--shadow-lg);
+      transition: box-shadow 200ms ease-out, transform 120ms ease-out;
       user-select: none;
       -webkit-user-select: none;
+      will-change: transform;
     }
     .sos-btn:active {
       transform: scale(0.95);
     }
     .sos-btn.pressing {
-      animation: sosHoldPulse 600ms ease-in-out infinite;
-      box-shadow: 0 0 0 12px rgba(239,68,68,0.35), 0 0 40px rgba(239,68,68,0.6), var(--shadow-lg);
+      animation: sosHoldPulse 1.2s ease-in-out infinite;
+      box-shadow: 0 0 0 14px rgba(239,68,68,0.35), 0 0 48px rgba(239,68,68,0.6), var(--shadow-lg);
     }
     @keyframes sosHoldPulse {
-      0%, 100% { transform: scale(0.96); }
-      50% { transform: scale(1.04); }
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
     }
 
-    /* Ring of countdown during hold */
-    .sos-container .sos-progress {
-      background: radial-gradient(circle, transparent 65%, rgba(239,68,68,0.55) 65%);
-    }
-    .sos-container .sos-progress.active {
-      animation: sosCountdown 3s linear forwards;
-    }
-    @keyframes sosCountdown {
-      0% {
-        width: 160px; height: 160px;
-        background: conic-gradient(var(--danger) 0deg, rgba(239,68,68,0.15) 0deg);
-        opacity: 0.85;
-      }
-      100% {
-        width: 260px; height: 260px;
-        background: conic-gradient(var(--danger) 360deg, rgba(239,68,68,0.15) 360deg);
-        opacity: 1;
-      }
-    }
-
-    /* Text label while pressing */
+    /* Label pulse coerente col ritmo bottone */
     .sos-container.holding .sos-label {
       color: var(--danger);
       font-weight: 800;
       letter-spacing: 0.06em;
-      animation: sosLabelPulse 0.5s ease-in-out infinite alternate;
+      animation: sosLabelPulse 1.2s ease-in-out infinite;
     }
     @keyframes sosLabelPulse {
-      from { opacity: 0.7; }
-      to { opacity: 1; }
+      0%, 100% { opacity: 0.75; }
+      50% { opacity: 1; }
     }
 
     .sos-label {
@@ -3536,12 +3535,14 @@
     <div class="tab-content" id="tabSegnala">
       <!-- Tasto SOS -->
       <div class="sos-container">
-        <div class="sos-progress" id="sosProgress"></div>
+        <svg class="sos-ring" id="sosRing" viewBox="0 0 220 220" aria-hidden="true">
+          <circle class="track" cx="110" cy="110" r="100"></circle>
+          <circle class="fill" cx="110" cy="110" r="100"></circle>
+        </svg>
         <p class="sos-label">TIENI PREMUTO 3 SEC PER SOS</p>
-        <button class="sos-btn" id="sosBtn" 
-                onmousedown="startSOS()" onmouseup="cancelSOS()" 
-                ontouchstart="startSOS()" ontouchend="cancelSOS()"
-                style="width: 150px; height: 150px; font-size: 60px;">
+        <button class="sos-btn" id="sosBtn"
+                onmousedown="startSOS()" onmouseup="cancelSOS()" onmouseleave="cancelSOS()"
+                ontouchstart="startSOS()" ontouchend="cancelSOS()" ontouchcancel="cancelSOS()">
           🆘
         </button>
       </div>
@@ -6850,14 +6851,18 @@
     function startSOS() {
       sosStartTime = Date.now();
       const btn = document.getElementById('sosBtn');
-      const progress = document.getElementById('sosProgress');
       const container = btn.closest('.sos-container');
       const label = container ? container.querySelector('.sos-label') : null;
       const originalLabel = label ? label.textContent : '';
 
+      // Reset animazione SVG: rimuovi e riaggiungi la classe per fare "restart"
+      if (container) {
+        container.classList.remove('holding');
+        // Force reflow per restartare l'animazione CSS
+        void container.offsetWidth;
+        container.classList.add('holding');
+      }
       btn.classList.add('pressing');
-      progress.classList.add('active');
-      if (container) container.classList.add('holding');
 
       // Vibrazione iniziale marcata
       if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
@@ -6901,12 +6906,10 @@
       }
 
       const btn = document.getElementById('sosBtn');
-      const progress = document.getElementById('sosProgress');
       const container = btn.closest('.sos-container');
       const label = container ? container.querySelector('.sos-label') : null;
 
       btn.classList.remove('pressing');
-      progress.classList.remove('active');
       if (container) container.classList.remove('holding');
       if (label && btn.dataset.originalLabel) {
         label.textContent = btn.dataset.originalLabel;

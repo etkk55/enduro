@@ -1,8 +1,185 @@
 import { useState, useEffect } from 'react';
-import { Search, Download, CheckCircle, AlertCircle, Loader2, Calendar, MapPin, Clock, Save, Settings, Trash2 } from 'lucide-react';
+import { Search, Download, CheckCircle, AlertCircle, Loader2, Calendar, MapPin, Clock, Save, Settings, Trash2, Upload, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 
 import { API_BASE } from '../services/api';
 import ProgressSteps from '../components/ui/ProgressSteps';
+
+// ============================================================================
+// XmlImportPanel
+// Upload file XML FMI iscritti e importa i piloti in uno degli eventi gia'
+// creati nel wizard. Parse client-side, POST a /api/eventi/:id/import-xml.
+// ============================================================================
+function XmlImportPanel({ eventiCreati }) {
+  const [xmlFile, setXmlFile] = useState(null);
+  const [xmlData, setXmlData] = useState(null);
+  const [eventoTarget, setEventoTarget] = useState('');
+  const [stato, setStato] = useState('idle'); // idle | loading | success | error
+  const [msg, setMsg] = useState('');
+  const [expanded, setExpanded] = useState(false);
+
+  // Preseleziona primo evento creato
+  useEffect(() => {
+    if (eventiCreati.length > 0 && !eventoTarget) {
+      setEventoTarget(eventiCreati[0].id);
+    }
+  }, [eventiCreati, eventoTarget]);
+
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setXmlFile(file);
+    setStato('idle');
+    setMsg('');
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(ev.target.result, 'text/xml');
+        const get = (tag) => doc.querySelector(tag)?.textContent?.trim() || '';
+        const gara = {
+          codice: get('codice_gara'),
+          descrizione: get('descrizione'),
+          luogo: get('luogo_evento'),
+          data: get('data_evento'),
+        };
+        const piloti = [...doc.querySelectorAll('conduttore')].map(c => ({
+          licenza: c.querySelector('licenza')?.textContent?.trim() || '',
+          nome: c.querySelector('nome')?.textContent?.trim() || '',
+          cognome: c.querySelector('cognome')?.textContent?.trim() || '',
+          classe: c.querySelector('classe')?.textContent?.trim() || '',
+          categoria: c.querySelector('categoria')?.textContent?.trim() || '',
+          ngara: c.querySelector('ngara')?.textContent?.trim() || '',
+          motoclub: c.querySelector('motoclub')?.textContent?.trim() || '',
+          motociclo: c.querySelector('motociclo')?.textContent?.trim() || '',
+          nazionalita: c.querySelector('nazionalita')?.textContent?.trim() || '',
+          anno_nascita: c.querySelector('anno_nascita')?.textContent?.trim() || '',
+          sesso: c.querySelector('sesso')?.textContent?.trim() || '',
+        }));
+        setXmlData({ gara, piloti });
+
+        // Se il codice XML matcha uno degli eventi creati, preselezionalo
+        if (gara.codice) {
+          const match = eventiCreati.find(e => (e.codice_gara || '').includes(gara.codice) || gara.codice.includes(e.codice_gara || ''));
+          if (match) setEventoTarget(match.id);
+        }
+      } catch (err) {
+        setStato('error');
+        setMsg('Errore parsing XML: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleImport = async () => {
+    if (!eventoTarget) { setStato('error'); setMsg('Seleziona un evento di destinazione'); return; }
+    if (!xmlData) { setStato('error'); setMsg('Carica prima un file XML'); return; }
+
+    setStato('loading');
+    setMsg('Importazione in corso...');
+    try {
+      const res = await fetch(`${API_BASE}/api/eventi/${eventoTarget}/import-xml`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ piloti: xmlData.piloti })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Errore server');
+      setStato('success');
+      setMsg(`${data.importati} inseriti, ${data.aggiornati} aggiornati — Totale ${data.totale} piloti`);
+    } catch (err) {
+      setStato('error');
+      setMsg(err.message);
+    }
+  };
+
+  return (
+    <div className="bg-surface border border-border-subtle rounded-lg overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setExpanded(v => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-surface-2 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <FileText className="w-4 h-4 text-content-secondary" />
+          <div className="text-left">
+            <div className="text-sm font-semibold text-content-primary">Alternativa: Import da file XML FMI</div>
+            <div className="text-xs text-content-tertiary">
+              Usa questa opzione se hai un XML iscritti locale invece dei dati FICR API
+            </div>
+          </div>
+        </div>
+        {expanded ? <ChevronUp className="w-4 h-4 text-content-tertiary" /> : <ChevronDown className="w-4 h-4 text-content-tertiary" />}
+      </button>
+
+      {expanded && (
+        <div className="border-t border-border-subtle p-4 space-y-4">
+          {/* Upload */}
+          <div>
+            <label className="block text-xs font-medium text-content-secondary mb-1.5">File XML iscritti</label>
+            <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-border rounded-md cursor-pointer hover:border-brand-500 hover:bg-surface-2 transition-colors">
+              <Upload className="w-5 h-5 text-content-tertiary mb-1" />
+              <p className="text-xs font-medium text-content-secondary">
+                {xmlFile ? xmlFile.name : 'Seleziona file .xml'}
+              </p>
+              <input type="file" accept=".xml" onChange={handleFile} className="hidden" />
+            </label>
+          </div>
+
+          {/* Anteprima */}
+          {xmlData && (
+            <div className="bg-success-bg border border-success-border rounded-md p-3 text-xs text-success-fg">
+              <div className="font-semibold">{xmlData.gara.codice} — {xmlData.gara.descrizione}</div>
+              <div className="mt-0.5 opacity-80">
+                {xmlData.gara.luogo} · {xmlData.gara.data}
+              </div>
+              <div className="mt-1 font-medium">
+                {xmlData.piloti.length} piloti trovati
+              </div>
+            </div>
+          )}
+
+          {/* Target event (se piu' di uno) */}
+          {eventiCreati.length > 1 && (
+            <div>
+              <label className="block text-xs font-medium text-content-secondary mb-1.5">Evento di destinazione</label>
+              <select
+                value={eventoTarget}
+                onChange={(e) => setEventoTarget(e.target.value)}
+                className="w-full h-9 px-3 pr-8 rounded-md border border-border bg-surface text-sm font-medium text-content-primary cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 20 20%22%3E%3Cpath stroke=%22%2394A3B8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.5%22 d=%22m6 8 4 4 4-4%22/%3E%3C/svg%3E')] bg-no-repeat bg-[length:1.25rem] bg-[right_0.5rem_center] focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500"
+              >
+                {eventiCreati.map(ev => (
+                  <option key={ev.id} value={ev.id}>
+                    {ev.codice_gara} — {ev.nome_evento}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={handleImport}
+            disabled={!xmlData || !eventoTarget || stato === 'loading'}
+            className="w-full h-9 rounded-md bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {stato === 'loading' ? 'Importazione…' : 'Importa Piloti da XML'}
+          </button>
+
+          {msg && (
+            <div className={`text-xs rounded-md px-3 py-2 ${
+              stato === 'success' ? 'bg-success-bg text-success-fg border border-success-border'
+              : stato === 'error' ? 'bg-danger-bg text-danger-fg border border-danger-border'
+              : 'bg-surface-2 text-content-secondary'
+            }`}>
+              {msg}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function SetupGaraFicr() {
   // === STEP 1-3: Selezione FICR e creazione eventi ===
@@ -1749,6 +1926,11 @@ export default function SetupGaraFicr() {
                 Scarica i tempi archiviati dalla FICR. Necessario per "La Mia Gara" e le classifiche.
               </p>
             </div>
+          </div>
+
+          {/* Import XML FMI - alternativa pre-gara quando la API FICR non basta */}
+          <div className="mb-6">
+            <XmlImportPanel eventiCreati={eventiCreati} />
           </div>
 
           <div className="flex justify-between mt-6">

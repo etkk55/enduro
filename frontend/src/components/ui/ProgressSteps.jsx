@@ -7,14 +7,17 @@ import { cn } from './utils';
  * - done: filled with checkmark
  * - future: outlined, muted
  */
-export default function ProgressSteps({ steps, currentStep, onStepClick, className }) {
+export default function ProgressSteps({ steps, currentStep, onStepClick, canNavigateTo, className }) {
   return (
     <div className={cn('w-full', className)}>
       <div className="flex items-center justify-between gap-1">
         {steps.map((step, idx) => {
           const isDone = idx < currentStep;
           const isCurrent = idx === currentStep;
-          const isClickable = onStepClick && (isDone || idx === currentStep);
+          // Se canNavigateTo e' fornito lo usa; altrimenti fallback a done/current
+          const isClickable = onStepClick && (
+            canNavigateTo ? canNavigateTo(idx) : (isDone || idx === currentStep)
+          );
 
           return (
             <div key={idx} className="flex-1 flex items-center last:flex-initial">

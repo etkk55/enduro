@@ -986,6 +986,16 @@ export default function SetupGaraFicr() {
         <ProgressSteps
           steps={['Anno', 'Gara', 'Eventi', 'Struttura', 'Tempi CO', 'GPS', 'Import']}
           currentStep={stepCorrente - 1}
+          canNavigateTo={(idx) => {
+            const targetStep = idx + 1;
+            // Step gia' completati sempre navigabili
+            if (stepCorrente > targetStep) return true;
+            // Step corrente ovviamente
+            if (stepCorrente === targetStep) return true;
+            // Se gara gia' configurata e abbiamo eventi creati, libero accesso agli step 4-7
+            if (garaEsistente && targetStep >= 3 && eventiCreati.length > 0) return true;
+            return false;
+          }}
           onStepClick={(idx) => {
             const targetStep = idx + 1;
             if (stepCorrente > targetStep || (garaEsistente && targetStep >= 3 && eventiCreati.length > 0)) {

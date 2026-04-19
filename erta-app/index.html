@@ -1038,72 +1038,179 @@
       color: var(--text-secondary);
     }
 
-    /* ==================== SQUADRA ==================== */
-    .squadra-header,
-    .squadra-info {
+    /* ==================== SQUADRA (La Mia Squadra) ==================== */
+    /* Empty state (no team) */
+    .squadra-empty {
       text-align: center;
-      margin-bottom: 20px;
+      padding: 24px 8px 16px;
     }
-
-    .squadra-header h3,
-    .squadra-info h3 {
-      font-size: 20px;
+    .squadra-empty .icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand-50), var(--bg-surface));
+      border: 1px solid var(--brand-500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+    .squadra-empty h3 {
+      font-size: 22px;
       font-weight: 700;
       color: var(--text-primary);
       margin-bottom: 6px;
+      letter-spacing: -0.01em;
     }
-
-    .squadra-header p,
-    .squadra-info p {
-      font-size: 13px;
-      color: var(--text-secondary);
+    .squadra-empty p {
+      font-size: 14px;
+      color: var(--text-tertiary);
+      max-width: 320px;
+      margin: 0 auto 20px;
+      line-height: 1.4;
     }
 
     .crea-squadra-form {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--r-lg);
-      padding: 16px;
+      border-radius: var(--r-xl);
+      padding: 18px;
     }
-
     .crea-squadra-btn {
       width: 100%;
-      height: 48px;
+      height: 52px;
       background: var(--brand-500);
-      color: white;
+      color: #fff;
       border: none;
       border-radius: var(--r-md);
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
       cursor: pointer;
-      margin-top: 4px;
+      margin-top: 6px;
+      transition: background 150ms, transform 150ms;
+    }
+    .crea-squadra-btn:active { background: var(--brand-600); transform: scale(0.98); }
+
+    /* Team hero card */
+    .team-hero {
+      background: linear-gradient(150deg, var(--brand-50) 0%, var(--bg-surface) 75%);
+      border: 1px solid var(--brand-500);
+      border-radius: var(--r-xl);
+      padding: 18px 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-md);
+    }
+    .team-hero-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .team-hero-title {
+      flex: 1;
+      min-width: 0;
+    }
+    .team-hero-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--brand-500);
+      margin-bottom: 4px;
+    }
+    .team-hero-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+    .team-hero-chip {
+      background: var(--bg-surface-2);
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: var(--r-pill);
+      border: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+    .team-hero-members {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .team-member-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-pill);
+      padding: 6px 10px 6px 6px;
+      font-size: 13px;
+      color: var(--text-primary);
+      max-width: 100%;
+    }
+    .team-member-chip .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--bg-surface-3);
+      color: var(--text-secondary);
+      padding: 3px 6px;
+      border-radius: var(--r-sm);
+    }
+    .team-member-chip.me {
+      background: var(--brand-500);
+      border-color: var(--brand-500);
+      color: #fff;
+    }
+    .team-member-chip.me .num { background: rgba(0,0,0,0.25); color: #fff; }
+    .team-member-chip.creator::after { content: '👑'; font-size: 11px; }
+    .team-member-chip .remove {
+      background: transparent;
+      border: none;
+      color: var(--danger);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0 2px;
+      line-height: 1;
     }
 
-    .crea-squadra-btn:active { background: var(--brand-600); }
-
+    /* Segmented actions */
     .squadra-actions {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 6px;
-      margin-top: 12px;
+      gap: 8px;
+      margin: 16px 0 20px;
     }
-
-    .add-membro-btn,
-    .refresh-btn,
-    .elimina-squadra-btn {
-      padding: 10px 8px;
+    .squadra-action {
+      padding: 12px 8px;
       border: 1px solid var(--border-default);
       border-radius: var(--r-md);
       background: var(--bg-surface);
       color: var(--text-primary);
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      min-height: 52px;
       transition: background 150ms;
     }
-
-    .elimina-squadra-btn { color: var(--danger); border-color: var(--danger-border); }
-    .add-membro-btn:active, .refresh-btn:active, .elimina-squadra-btn:active { background: var(--bg-surface-2); }
+    .squadra-action .ico { font-size: 20px; line-height: 1; }
+    .squadra-action.danger { color: var(--danger); border-color: var(--danger-border); }
+    .squadra-action:active { background: var(--bg-surface-2); transform: scale(0.98); }
 
     .add-membro-form {
       display: grid;
@@ -1114,31 +1221,355 @@
       background: var(--bg-surface-2);
       border-radius: var(--r-md);
     }
-
     .add-membro-form input {
-      padding: 10px;
+      padding: 12px;
       background: var(--bg-surface);
       border: 1px solid var(--border-default);
       border-radius: var(--r-md);
       color: var(--text-primary);
-      font-size: 14px;
+      font-size: 16px;
     }
-
+    .add-membro-form input:focus { outline: none; border-color: var(--brand-500); }
     .add-membro-form button {
-      padding: 10px 12px;
+      padding: 12px 14px;
       background: var(--brand-500);
-      color: white;
+      color: #fff;
       border: none;
       border-radius: var(--r-md);
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
       cursor: pointer;
+      min-height: 44px;
     }
-
     .add-membro-form button:last-child {
       background: var(--bg-surface-3);
       color: var(--text-secondary);
     }
+
+    /* Section title (sub-headers inside squadra tab) */
+    .squadra-sec-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin: 20px 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .squadra-sec-title:first-of-type { margin-top: 0; }
+
+    /* Leaderboard rows (classifica squadra) */
+    .sq-row {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      padding: 12px;
+      margin-bottom: 6px;
+      transition: background 150ms;
+    }
+    .sq-row.me {
+      background: linear-gradient(135deg, var(--brand-50), var(--bg-surface));
+      border-color: var(--brand-500);
+      box-shadow: var(--shadow-sm);
+    }
+    .sq-row.ritirato { opacity: 0.55; }
+
+    .sq-rank {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 800;
+      text-align: center;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .sq-rank.podio-1 { color: #fbbf24; }
+    .sq-rank.podio-2 { color: #cbd5e1; }
+    .sq-rank.podio-3 { color: #cd7f32; }
+
+    .sq-main { min-width: 0; }
+    .sq-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sq-name .you {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--brand-500);
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: var(--r-sm);
+      margin-left: 6px;
+      letter-spacing: 0.08em;
+    }
+    .sq-meta {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .sq-meta .abs-pos {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+    .sq-meta .rit-badge {
+      color: var(--danger);
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+    }
+    .sq-right {
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .sq-tempo {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .sq-row.ritirato .sq-tempo { text-decoration: line-through; }
+    .sq-gap {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+    .sq-gap.leader { color: var(--success); font-weight: 700; }
+
+    /* Head-to-head bar chart (vs leader) */
+    .h2h-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .h2h-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .h2h-card .subtitle {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 14px;
+    }
+    .h2h-row {
+      display: grid;
+      grid-template-columns: 1fr 2.2fr auto;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .h2h-row:last-child { margin-bottom: 0; }
+    .h2h-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .h2h-row.me .h2h-name { color: var(--brand-500); }
+    .h2h-bar-track {
+      position: relative;
+      height: 18px;
+      background: var(--bg-surface-2);
+      border-radius: var(--r-sm);
+      overflow: hidden;
+    }
+    .h2h-bar-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, var(--brand-500), var(--brand-700));
+      border-radius: var(--r-sm);
+      transition: width 400ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .h2h-row.leader .h2h-bar-fill {
+      background: linear-gradient(90deg, var(--success), #047857);
+    }
+    .h2h-gap {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+    .h2h-row.leader .h2h-gap {
+      color: var(--success);
+    }
+
+    /* PS winners row */
+    .ps-winners-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .ps-winners-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .ps-winners-card .subtitle {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 14px;
+    }
+    .ps-winners-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+      margin: 0 -14px;
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+    .ps-winners-scroll::-webkit-scrollbar { height: 4px; }
+    .ps-winner-cell {
+      flex: 0 0 110px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      padding: 10px;
+      text-align: center;
+      scroll-snap-align: start;
+    }
+    .ps-winner-cell.me { border-color: var(--brand-500); background: var(--brand-50); }
+    .ps-winner-cell .ps-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-tertiary);
+      letter-spacing: 0.08em;
+    }
+    .ps-winner-cell .ps-medal { font-size: 20px; line-height: 1.2; }
+    .ps-winner-cell .ps-who {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+    .ps-winner-cell .ps-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* Compact PS confrontation (substitutes old table) */
+    .ps-matrix {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+    }
+    .ps-matrix-head {
+      padding: 12px 14px;
+      background: var(--bg-surface-2);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .ps-matrix-head .hint {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+    .ps-matrix-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .ps-matrix-row:last-child { border-bottom: none; }
+    .ps-matrix-row.me { background: var(--brand-50); }
+    .ps-matrix-row.ritirato { opacity: 0.55; }
+    .ps-matrix-pilot {
+      flex: 0 0 100px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ps-matrix-pilot .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+      display: block;
+    }
+    .ps-matrix-chips {
+      flex: 1;
+      display: flex;
+      gap: 5px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 2px;
+    }
+    .ps-matrix-chips::-webkit-scrollbar { height: 3px; }
+    .ps-chip {
+      flex: 0 0 auto;
+      min-width: 58px;
+      padding: 6px 8px;
+      border-radius: var(--r-sm);
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-align: center;
+      scroll-snap-align: start;
+      line-height: 1.2;
+    }
+    .ps-chip .ps-num {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-tertiary);
+      display: block;
+    }
+    .ps-chip.best {
+      background: linear-gradient(135deg, rgba(251,191,36,0.24), rgba(251,191,36,0.08));
+      border-color: #fbbf24;
+      color: #fbbf24;
+    }
+    .ps-chip.fast { border-color: var(--success); color: var(--success); }
+    .ps-chip.slow { border-color: var(--danger); color: var(--danger); opacity: 0.88; }
+    .ps-chip.none { color: var(--text-disabled); }
 
     /* ==================== GRAFICI ==================== */
     .grafico-container {
@@ -2598,9 +3029,10 @@
     <div class="tab-content" id="tabSquadra">
       <!-- Se non ha squadra -->
       <div id="noSquadra">
-        <div class="squadra-header">
-          <h3>👥 La Mia Squadra</h3>
-          <p>Crea una squadra per confrontare i tempi con i tuoi compagni!</p>
+        <div class="squadra-empty">
+          <div class="icon">👥</div>
+          <h3>Crea la tua squadra</h3>
+          <p>Confronta i tuoi tempi con i compagni in tempo reale durante la gara.</p>
         </div>
 
         <div class="crea-squadra-form">
@@ -2608,42 +3040,38 @@
             <label>Nome Squadra</label>
             <input type="text" id="nomeSquadra" placeholder="es. Team Racing" maxlength="50">
           </div>
-
           <div class="form-group">
-            <label>Aggiungi Piloti (numeri separati da virgola)</label>
+            <label>Numeri dei piloti da aggiungere</label>
             <input type="text" id="membriSquadra" placeholder="es. 42, 73, 88">
           </div>
-
-          <button class="crea-squadra-btn" onclick="creaSquadra()">
-            🏁 CREA SQUADRA
-          </button>
+          <button class="crea-squadra-btn" onclick="creaSquadra()">🏁 Crea Squadra</button>
         </div>
       </div>
 
       <!-- Se ha squadra -->
       <div id="haSquadra" style="display:none;">
-        <div class="squadra-info">
-          <h3 id="nomeSquadraDisplay">--</h3>
-          <p id="membriCountDisplay">-- membri</p>
-        </div>
-        
-        <!-- Lista membri con possibilità rimozione -->
-        <div id="listaMembriSquadra" style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-        </div>
+        <!-- Hero card: nome squadra + roster chips -->
+        <section class="team-hero" aria-label="La mia squadra">
+          <div class="team-hero-top">
+            <div class="team-hero-title">
+              <div class="team-hero-label">La mia squadra</div>
+              <div class="team-hero-name" id="nomeSquadraDisplay">--</div>
+            </div>
+            <div class="team-hero-chip" id="membriCountDisplay">-- membri</div>
+          </div>
+          <div class="team-hero-members" id="listaMembriSquadra"></div>
+        </section>
 
-        <div class="squadra-classifica" id="squadraClassifica">
-          <div class="loading"><div class="spinner"></div></div>
-        </div>
-
+        <!-- Action bar -->
         <div class="squadra-actions">
-          <button class="add-membro-btn" onclick="mostraAggiungiMembro()">
-            ➕ Aggiungi Pilota
+          <button class="squadra-action" onclick="mostraAggiungiMembro()">
+            <span class="ico">➕</span>Aggiungi
           </button>
-          <button class="refresh-btn" onclick="caricaClassificaSquadra()">
-            🔄 Aggiorna
+          <button class="squadra-action" onclick="caricaClassificaSquadra()">
+            <span class="ico">🔄</span>Aggiorna
           </button>
-          <button class="elimina-squadra-btn" onclick="eliminaSquadra()">
-            🗑️ Elimina Squadra
+          <button class="squadra-action danger" onclick="eliminaSquadra()">
+            <span class="ico">🗑️</span>Elimina
           </button>
         </div>
 
@@ -2652,6 +3080,11 @@
           <input type="number" id="nuovoMembro" placeholder="Numero pilota">
           <button onclick="aggiungiMembro()">Aggiungi</button>
           <button onclick="nascondiAggiungiMembro()">Annulla</button>
+        </div>
+
+        <!-- Classifica squadra + grafici istantanei -->
+        <div class="squadra-classifica" id="squadraClassifica">
+          <div class="loading"><div class="spinner"></div></div>
         </div>
 
         <!-- Grafici Squadra -->
@@ -6099,33 +6532,34 @@
     function mostraSquadra() {
       document.getElementById('noSquadra').style.display = 'none';
       document.getElementById('haSquadra').style.display = 'block';
-      
-      if (currentSquadra) {
-        document.getElementById('nomeSquadraDisplay').textContent = 'Classifica del Gruppo "' + currentSquadra.nome_squadra + '"';
-        document.getElementById('membriCountDisplay').textContent = currentSquadra.membri.length + ' membri';
-        
-        // Mostra lista membri con bottone rimuovi (solo se sei il creatore)
-        const isCreatore = currentSquadra.creatore_numero == currentUser.numero;
-        const listaMembri = document.getElementById('listaMembriSquadra');
-        
-        if (currentSquadra.piloti && currentSquadra.piloti.length > 0) {
-          listaMembri.innerHTML = currentSquadra.piloti.map(p => {
-            const isMe = p.numero_gara == currentUser.numero;
-            const isCreatorePilota = p.numero_gara == currentSquadra.creatore_numero;
-            const canRemove = isCreatore && !isCreatorePilota;
-            
-            return `
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <span style="color: ${isMe ? '#4ade80' : '#fff'};">
-                  #${p.numero_gara} ${p.cognome} ${p.nome} ${isMe ? '(TU)' : ''} ${isCreatorePilota ? '👑' : ''}
-                </span>
-                ${canRemove ? `<button onclick="rimuoviMembro(${p.numero_gara})" style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">✕</button>` : ''}
-              </div>
-            `;
-          }).join('');
-        } else {
-          listaMembri.innerHTML = '<p style="color: #888; text-align: center;">Caricamento membri...</p>';
-        }
+
+      if (!currentSquadra) return;
+
+      document.getElementById('nomeSquadraDisplay').textContent = currentSquadra.nome_squadra || '—';
+      const n = (currentSquadra.membri || []).length;
+      document.getElementById('membriCountDisplay').textContent = `${n} MEMBR${n === 1 ? 'O' : 'I'}`;
+
+      const isCreatore = currentSquadra.creatore_numero == currentUser.numero;
+      const listaMembri = document.getElementById('listaMembriSquadra');
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+      if (currentSquadra.piloti && currentSquadra.piloti.length > 0) {
+        listaMembri.innerHTML = currentSquadra.piloti.map(p => {
+          const isMe = p.numero_gara == currentUser.numero;
+          const isCreatorePilota = p.numero_gara == currentSquadra.creatore_numero;
+          const canRemove = isCreatore && !isCreatorePilota;
+          const classes = ['team-member-chip'];
+          if (isMe) classes.push('me');
+          if (isCreatorePilota) classes.push('creator');
+          return `
+            <span class="${classes.join(' ')}">
+              <span class="num">#${esc(p.numero_gara)}</span>
+              <span>${esc(p.cognome)}${p.nome ? ' ' + esc(p.nome.charAt(0)) + '.' : ''}</span>
+              ${canRemove ? `<button class="remove" onclick="rimuoviMembro(${p.numero_gara})" aria-label="Rimuovi">×</button>` : ''}
+            </span>`;
+        }).join('');
+      } else {
+        listaMembri.innerHTML = '<span class="team-member-chip">Caricamento…</span>';
       }
     }
     
@@ -6234,83 +6668,168 @@
     
     function renderClassificaSquadra(data) {
       const container = document.getElementById('squadraClassifica');
-      const classifica = data.classifica;
+      const classifica = data.classifica || [];
       const prove = data.prove || [];
-      
-      if (!classifica || classifica.length === 0) {
-        container.innerHTML = '<p style="text-align:center;color:#a0a0a0;padding:20px;">Nessun tempo registrato</p>';
+
+      if (classifica.length === 0) {
+        container.innerHTML = '<div class="pub-empty">Nessun tempo registrato dalla tua squadra</div>';
         return;
       }
-      
-      // Sezione 1: Classifica generale
-      let html = '<div class="classifica-header">🏆 CLASSIFICA SQUADRA</div>';
-      
+
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+      // === SEZIONE 1: LEADERBOARD SQUADRA ===
+      let html = '<div class="squadra-sec-title"><span>🏆 Classifica Squadra</span></div>';
+
       html += classifica.map(m => {
-        const posClass = m.posizione_squadra === 1 ? 'gold' : m.posizione_squadra === 2 ? 'silver' : m.posizione_squadra === 3 ? 'bronze' : '';
+        const pos = m.posizione_squadra;
+        const podioCls = pos <= 3 ? `podio-${pos}` : '';
         const isMe = m.numero_gara == currentUser.numero;
-        const ritiratoClass = m.ritirato ? 'ritirato' : '';
-        
+        const rowCls = ['sq-row'];
+        if (isMe) rowCls.push('me');
+        if (m.ritirato) rowCls.push('ritirato');
+        const gapIsLeader = pos === 1;
+
         return `
-          <div class="membro-row ${isMe ? 'me' : ''} ${ritiratoClass}">
-            <div class="membro-posizione ${posClass}">${m.posizione_squadra}°</div>
-            <div class="membro-info">
-              <div class="nome">${m.cognome} ${m.nome} ${isMe ? '(TU)' : ''}</div>
-              <div class="numero-classe">#${m.numero_gara} • ${m.classe}</div>
-              ${m.ritirato ? `<div class="ritirato-badge">RIT (${m.prove_completate}/${m.prove_totali} PS)</div>` : ''}
+          <div class="${rowCls.join(' ')}">
+            <div class="sq-rank ${podioCls}">${pos}°</div>
+            <div class="sq-main">
+              <div class="sq-name">${esc(m.cognome)} ${esc(m.nome)}${isMe ? '<span class="you">TU</span>' : ''}</div>
+              <div class="sq-meta">
+                <span>#${esc(m.numero_gara)}</span>
+                <span>•</span>
+                <span>${esc(m.classe || '—')}</span>
+                <span>•</span>
+                <span class="abs-pos">${m.posizione_assoluta}° ass.</span>
+                ${m.ritirato ? `<span class="rit-badge">RIT (${m.prove_completate}/${m.prove_totali})</span>` : ''}
+              </div>
             </div>
-            <div class="membro-tempo">
-              <div class="tempo ${m.ritirato ? 'ritirato-tempo' : ''}">${m.tempo_formattato}</div>
-              <div class="gap">${m.gap}</div>
-              <div class="pos-assoluta">${m.posizione_assoluta}° assoluto</div>
+            <div class="sq-right">
+              <div class="sq-tempo">${esc(m.tempo_formattato)}</div>
+              <div class="sq-gap ${gapIsLeader ? 'leader' : ''}">${gapIsLeader ? 'LEADER' : esc(m.gap)}</div>
             </div>
-          </div>
-        `;
+          </div>`;
       }).join('');
-      
-      // Sezione 2: Confronto PS
+
+      // === SEZIONE 2: HEAD-TO-HEAD (distacchi dal leader) ===
+      // Usa gap numerico se disponibile, altrimenti parse da tempo_formattato
+      const parseSecs = (t) => {
+        if (!t || t === '--') return null;
+        const str = String(t).replace(/[+s]/g, '').trim();
+        const parts = str.split(':');
+        if (parts.length === 2) return parseInt(parts[0]) * 60 + parseFloat(parts[1]);
+        return parseFloat(str);
+      };
+      const leaderSec = parseSecs(classifica[0]?.tempo_formattato);
+      const gapsInSec = classifica.map(m => {
+        if (m.ritirato) return { ...m, gapSec: null };
+        const s = parseSecs(m.tempo_formattato);
+        return { ...m, gapSec: (s != null && leaderSec != null) ? (s - leaderSec) : null };
+      });
+      const maxGap = Math.max(...gapsInSec.map(g => g.gapSec ?? 0), 1);
+
+      if (classifica.length >= 2) {
+        html += '<div class="h2h-card">';
+        html += '<h4>📏 Distacchi dal leader</h4>';
+        html += '<p class="subtitle">Chi è più vicino al primo della squadra</p>';
+        html += gapsInSec.map((m, i) => {
+          const isLeader = i === 0;
+          const isMe = m.numero_gara == currentUser.numero;
+          const cls = ['h2h-row'];
+          if (isLeader) cls.push('leader');
+          if (isMe) cls.push('me');
+          const width = isLeader ? 8 : (m.gapSec != null ? Math.max(10, (m.gapSec / maxGap) * 100) : 0);
+          const gapStr = isLeader ? '0.0' : (m.gapSec != null ? '+' + m.gapSec.toFixed(1) : '—');
+          return `
+            <div class="${cls.join(' ')}">
+              <div class="h2h-name">${esc(m.cognome)}${isMe ? ' <span class="you" style="background:var(--brand-500);color:#fff;font-size:9px;padding:2px 5px;border-radius:4px;">TU</span>' : ''}</div>
+              <div class="h2h-bar-track"><div class="h2h-bar-fill" style="width:${width}%"></div></div>
+              <div class="h2h-gap">${isLeader ? '—' : gapStr + 's'}</div>
+            </div>`;
+        }).join('');
+        html += '</div>';
+      }
+
+      // === SEZIONE 3: WINNER PER OGNI PS ===
       if (prove.length > 0) {
-        html += '<div class="classifica-header" style="margin-top:20px;">⏱️ CONFRONTO PROVE SPECIALI</div>';
-        html += '<div class="ps-table-container"><table class="ps-table">';
-        
-        // Header
-        html += '<thead><tr><th>Pilota</th>';
-        prove.forEach(ps => {
-          const nomeBreve = ps.nome.length > 8 ? ps.nome.substring(0, 8) + '…' : ps.nome;
-          html += `<th title="${ps.nome}">PS${ps.numero}<br><small>${nomeBreve}</small></th>`;
+        const medals = { 0: '🥇', 1: '🥈', 2: '🥉' };
+        let cellsHtml = '';
+        prove.forEach((ps, idx) => {
+          // Raccogli tempi per questa PS
+          const tempi = classifica
+            .filter(m => {
+              const p = m.tempi_ps?.[ps.numero];
+              return p && p.tempo_raw != null && p.tempo_raw > 0;
+            })
+            .map(m => {
+              const p = m.tempi_ps[ps.numero];
+              return { num: m.numero_gara, cognome: m.cognome, tempo: parseFloat(p.tempo_raw), tempoFmt: p.tempo };
+            })
+            .sort((a, b) => a.tempo - b.tempo);
+
+          if (tempi.length === 0) {
+            cellsHtml += `
+              <div class="ps-winner-cell">
+                <div class="ps-label">PS${ps.numero}</div>
+                <div class="ps-medal" style="font-size:14px;color:var(--text-disabled);">—</div>
+                <div class="ps-who" style="color:var(--text-disabled);font-weight:500;">In attesa</div>
+              </div>`;
+            return;
+          }
+          const winner = tempi[0];
+          const isMe = winner.num == currentUser.numero;
+          cellsHtml += `
+            <div class="ps-winner-cell ${isMe ? 'me' : ''}">
+              <div class="ps-label">PS${ps.numero}</div>
+              <div class="ps-medal">🥇</div>
+              <div class="ps-who">${esc(winner.cognome)}${isMe ? ' (TU)' : ''}</div>
+              <div class="ps-time">${esc(winner.tempoFmt)}</div>
+            </div>`;
         });
-        html += '</tr></thead>';
-        
-        // Body
-        html += '<tbody>';
+
+        html += '<div class="ps-winners-card">';
+        html += '<h4>🏅 Re delle prove speciali</h4>';
+        html += '<p class="subtitle">Chi ha fatto il miglior tempo in ogni PS</p>';
+        html += `<div class="ps-winners-scroll">${cellsHtml}</div>`;
+        html += '</div>';
+      }
+
+      // === SEZIONE 4: MATRICE PS COMPATTA ===
+      if (prove.length > 0) {
+        html += '<div class="squadra-sec-title"><span>⏱️ Tutte le prove speciali</span></div>';
+        html += '<div class="ps-matrix">';
+        html += `<div class="ps-matrix-head">Tempi PS per pilota<span class="hint">🥇 = miglior tempo della squadra • scorri →</span></div>`;
+
         classifica.forEach(m => {
           const isMe = m.numero_gara == currentUser.numero;
-          html += `<tr class="${isMe ? 'me-row' : ''} ${m.ritirato ? 'ritirato-row' : ''}">`;
-          html += `<td class="pilota-cell">#${m.numero_gara} ${m.cognome.substring(0,8)}</td>`;
-          
+          const cls = ['ps-matrix-row'];
+          if (isMe) cls.push('me');
+          if (m.ritirato) cls.push('ritirato');
+
+          let chips = '';
           prove.forEach(ps => {
-            const psData = m.tempi_ps[ps.numero];
-            if (psData && psData.tempo !== '--') {
-              const miglClass = psData.migliore ? 'miglior-tempo' : '';
-              html += `<td class="${miglClass}">${psData.tempo}</td>`;
-            } else {
-              html += `<td class="no-tempo">--</td>`;
+            const p = m.tempi_ps?.[ps.numero];
+            if (!p || p.tempo === '--' || p.tempo == null) {
+              chips += `<div class="ps-chip none"><span class="ps-num">PS${ps.numero}</span>—</div>`;
+              return;
             }
+            const chipCls = ['ps-chip'];
+            if (p.migliore) chipCls.push('best');
+            chips += `<div class="${chipCls.join(' ')}"><span class="ps-num">PS${ps.numero}</span>${esc(p.tempo)}</div>`;
           });
-          
-          html += '</tr>';
+
+          html += `
+            <div class="${cls.join(' ')}">
+              <div class="ps-matrix-pilot">${esc(m.cognome)}<span class="num">#${esc(m.numero_gara)} · ${esc(m.classe || '')}</span></div>
+              <div class="ps-matrix-chips">${chips}</div>
+            </div>`;
         });
-        html += '</tbody></table></div>';
-        
-        // Legenda
-        html += `<div class="ps-legenda">
-          <span class="leg-item"><span class="dot gold"></span> Miglior tempo PS</span>
-          <span class="leg-item"><span class="dot red"></span> Ritirato</span>
-        </div>`;
+        html += '</div>';
       }
-      
+
       container.innerHTML = html;
-      
-      // Renderizza grafici
+
+      // Renderizza grafici Chart.js esistenti
       if (prove.length > 0 && classifica.length > 1) {
         renderGraficiSquadra(data);
       }

@@ -4072,9 +4072,7 @@
         </div>
         <button class="guide-close" onclick="hideGuida()" aria-label="Chiudi">✕</button>
       </div>
-      <div class="guide-body" id="guideBody">
-        <!-- popolato dal JS -->
-      </div>
+      <div class="guide-body" id="guideBody"></div>
     </div>
   </div>
 
@@ -11428,7 +11426,7 @@ ${mapsLink}`;
     window.toggleGuideSection = toggleGuideSection;
 
     function showGuidaRapida() {
-      if (!document.getElementById('guideBody').innerHTML) renderGuide();
+      renderGuide();
       document.getElementById('guideOverlay').classList.add('show');
       if (typeof haptic === 'function') haptic(10);
     }

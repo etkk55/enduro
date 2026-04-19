@@ -685,6 +685,76 @@ export default function SetupGaraFicr() {
     setImportandoFicr(prev => ({ ...prev, [modalita]: false }));
   };
 
+  // Import TEMPI (clasps) per tutte le gare fratelle.
+  // Chiama import-tempi-archiviati per ogni evento creato.
+  const handleImportTempi = async () => {
+    if (eventiCreati.length === 0) return;
+
+    setImportandoFicr(prev => ({ ...prev, tempi: true }));
+    setImportResult(prev => ({ ...prev, tempi: null }));
+
+    try {
+      let tempiTotali = 0;
+      const dettagliPerGara = [];
+      let erroriGara = 0;
+
+      for (const evento of eventiCreati) {
+        try {
+          const res = await fetch(`${API_BASE}/api/eventi/${evento.id}/import-tempi-archiviati`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            tempiTotali += data.tempiTotali || 0;
+            dettagliPerGara.push(`${evento.codice_gara || evento.nome_evento}: ${data.tempiTotali || 0} tempi`);
+          } else {
+            erroriGara++;
+            dettagliPerGara.push(`${evento.codice_gara}: ${data.error || 'errore'}`);
+          }
+        } catch (err) {
+          erroriGara++;
+          dettagliPerGara.push(`${evento.codice_gara}: ${err.message}`);
+        }
+      }
+
+      setImportResult(prev => ({
+        ...prev,
+        tempi: {
+          success: erroriGara === 0,
+          message: erroriGara === 0
+            ? `Importati ${tempiTotali} tempi totali su ${eventiCreati.length} gare`
+            : `Importati ${tempiTotali} tempi (${erroriGara} gare con errori)`,
+          dettagli: dettagliPerGara.join(' | ')
+        }
+      }));
+    } catch (err) {
+      setImportResult(prev => ({
+        ...prev,
+        tempi: { success: false, message: `Errore: ${err.message}` }
+      }));
+    }
+
+    setImportandoFicr(prev => ({ ...prev, tempi: false }));
+  };
+
+  // Importa TUTTO in sequenza: program -> entrylist -> startlist -> tempi
+  // Nota: handleImportFicr e handleImportTempi aggiornano gia' importResult per singola modalita'.
+  const handleImportTutto = async () => {
+    if (eventiCreati.length === 0) return;
+
+    setImportandoFicr({ program: false, entrylist: false, startlist: false, tempi: false, tutto: true });
+    setImportResult({});
+
+    // Sequenza deliberata: serve che piloti esistano prima di scaricare tempi.
+    await handleImportFicr('program', 'Programma');
+    await handleImportFicr('entrylist', 'Numeri');
+    await handleImportFicr('startlist', 'Ordine');
+    await handleImportTempi();
+
+    setImportandoFicr(prev => ({ ...prev, tutto: false }));
+  };
+
   const handleCancellaTutti = async () => {
     if (eventiCreati.length === 0) return;
     
@@ -1543,17 +1613,38 @@ export default function SetupGaraFicr() {
 
       {/* STEP 7: Import Pre-Gara (era Step 6) */}
       {stepCorrente === 7 && (
-        <div className="bg-blue-50 rounded-xl shadow-lg p-6 border-4 border-blue-400">
-          <h2 className="text-xl font-bold text-blue-800 mb-2 flex items-center gap-2">
-            <Download className="w-6 h-6 text-brand-600 dark:text-brand-500" />
-            7️⃣ Import Dati Pre-Gara
+        <div className="bg-surface border border-border-subtle border-l-4 border-l-brand-500 rounded-lg p-5 shadow-sm">
+          <h2 className="text-heading-2 flex items-center gap-2">
+            <Download className="w-4 h-4 text-brand-600 dark:text-brand-500" />
+            Import Dati da FICR
           </h2>
-          <p className="text-sm text-brand-600 dark:text-brand-500 mb-4">
-            Importa piloti da FICR per: <strong>{eventiCreati.map(e => e.codice_gara).join(', ')}</strong>
+          <p className="text-xs text-content-tertiary mt-1 mb-4">
+            Importa dalla FICR per <span className="font-mono">{eventiCreati.map(e => e.codice_gara).join(', ')}</span>.
+            I primi 3 bottoni coprono il pre-gara. Il 4° (Tempi) va usato durante o dopo la gara.
           </p>
-          
-          {/* 3 Bottoni Import */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+          {/* Bottone IMPORTA TUTTO - shortcut che esegue i 4 import in sequenza */}
+          <div className="bg-brand-50 dark:bg-brand-100/20 border-2 border-brand-500 rounded-lg p-4 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex-1">
+              <h3 className="font-bold text-content-primary flex items-center gap-2">
+                <span className="text-xl">🚀</span>
+                Importa Tutto
+              </h3>
+              <p className="text-xs text-content-secondary mt-0.5">
+                Esegue in sequenza: Programma → Numeri → Ordine → Tempi. Ideale post-gara per popolare tutto in un colpo solo.
+              </p>
+            </div>
+            <button
+              onClick={handleImportTutto}
+              disabled={importandoFicr['tutto'] || importandoFicr['program'] || importandoFicr['entrylist'] || importandoFicr['startlist'] || importandoFicr['tempi']}
+              className="px-6 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 font-bold shadow-sm transition-colors whitespace-nowrap"
+            >
+              {importandoFicr['tutto'] ? '⏳ Importando tutto...' : '🚀 Importa Tutto'}
+            </button>
+          </div>
+
+          {/* 4 Bottoni Import: Programma / Numeri / Ordine / Tempi */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
             {/* T-5: Programma */}
             <div className="bg-white rounded-lg p-4 shadow border-l-4 border-yellow-500">
               <div className="flex items-center gap-2 mb-2">
@@ -1565,7 +1656,7 @@ export default function SetupGaraFicr() {
               </div>
               <button
                 onClick={() => handleImportFicr('program', 'Programma')}
-                disabled={importandoFicr['program']}
+                disabled={importandoFicr['program'] || importandoFicr['tutto']}
                 className="w-full px-4 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:opacity-50 font-semibold"
               >
                 {importandoFicr['program'] ? '⏳ Importando...' : '📋 Import Programma'}
@@ -1591,7 +1682,7 @@ export default function SetupGaraFicr() {
               </div>
               <button
                 onClick={() => handleImportFicr('entrylist', 'Numeri')}
-                disabled={importandoFicr['entrylist']}
+                disabled={importandoFicr['entrylist'] || importandoFicr['tutto']}
                 className="w-full px-4 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 font-semibold"
               >
                 {importandoFicr['entrylist'] ? '⏳ Importando...' : '🔢 Import Numeri'}
@@ -1617,7 +1708,7 @@ export default function SetupGaraFicr() {
               </div>
               <button
                 onClick={() => handleImportFicr('startlist', 'Ordine')}
-                disabled={importandoFicr['startlist']}
+                disabled={importandoFicr['startlist'] || importandoFicr['tutto']}
                 className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-semibold"
               >
                 {importandoFicr['startlist'] ? '⏳ Importando...' : '🏁 Import Ordine'}
@@ -1631,8 +1722,37 @@ export default function SetupGaraFicr() {
                 </div>
               )}
             </div>
+
+            {/* T-0: Tempi (clasps) - post-gara */}
+            <div className="bg-surface border border-border-subtle rounded-lg p-4 border-l-4 border-l-rose-500">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-3xl">⏱️</span>
+                <div>
+                  <h3 className="font-bold text-content-primary">T-0 Tempi</h3>
+                  <p className="text-xs text-content-tertiary">Durante / dopo la gara</p>
+                </div>
+              </div>
+              <button
+                onClick={handleImportTempi}
+                disabled={importandoFicr['tempi'] || importandoFicr['tutto']}
+                className="w-full px-4 py-3 bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 font-semibold transition-colors"
+              >
+                {importandoFicr['tempi'] ? '⏳ Importando...' : '⏱️ Import Tempi'}
+              </button>
+              {importResult['tempi'] && (
+                <div className={`text-sm mt-2 ${importResult['tempi'].success ? 'text-success-fg' : 'text-danger-fg'}`}>
+                  <p>{importResult['tempi'].message}</p>
+                  {importResult['tempi'].dettagli && (
+                    <p className="text-xs text-content-tertiary mt-1 break-words">{importResult['tempi'].dettagli}</p>
+                  )}
+                </div>
+              )}
+              <p className="text-2xs text-content-tertiary mt-2 italic">
+                Scarica i tempi archiviati dalla FICR. Necessario per "La Mia Gara" e le classifiche.
+              </p>
+            </div>
           </div>
-          
+
           <div className="flex justify-between mt-6">
             <button
               onClick={() => setStepCorrente(6)}

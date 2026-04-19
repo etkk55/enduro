@@ -242,26 +242,52 @@
       min-height: 100vh;
       min-height: 100dvh;
       padding: calc(var(--safe-top) + 24px) 20px calc(var(--safe-bottom) + 24px);
-      background: var(--bg-base);
+      background: radial-gradient(ellipse at top, #1a1f35 0%, var(--bg-base) 55%);
+      flex-direction: column;
+      align-items: stretch;
+      animation: loginFadeIn 200ms ease-out both;
+    }
+    @keyframes loginFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .login-header {
       text-align: center;
-      margin-bottom: 24px;
-      padding-top: 16px;
+      margin-bottom: 20px;
+      padding-top: 8px;
     }
-
     .login-header h1 {
       font-size: 28px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text-primary);
       margin-bottom: 6px;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.02em;
     }
-
     .login-header p {
       font-size: 15px;
       color: var(--text-tertiary);
+    }
+    .login-brand {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .login-brand .dot {
+      display: inline-block;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+      box-shadow: 0 0 0 6px rgba(239,71,111,0.18), var(--shadow-md);
+    }
+    .login-version {
+      text-align: center;
+      color: var(--text-tertiary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+      opacity: 0.7;
     }
 
     .login-form {
@@ -3092,14 +3118,6 @@
       background: var(--bg-surface-2);
     }
 
-    /* DdG / Public pub-tab-content */
-    .pub-tab-content {
-      display: none;
-      padding: 16px;
-      padding-bottom: calc(80px + var(--safe-bottom));
-    }
-
-    .pub-tab-content.active { display: block; }
 
     .doc-content { display: none; }
     .doc-content.active { display: block; }
@@ -3222,7 +3240,8 @@
 
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
-    <div style="text-align: center; color: #fff; font-size: 12px; margin-bottom: 10px;">v1.0.5-p36</div>
+    <div class="login-brand"><span class="dot"></span></div>
+    <div class="login-version">ERTA · v1.0.5-p36</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -3269,7 +3288,7 @@
         </div>
         
         <!-- FORM COMPLETO (fallback/test) -->
-        <div id="formCompleto">
+        <div id="formCompleto" style="display: none;">
           <div class="form-group">
             <label>Codice Gara</label>
             <input type="text" id="codiceGara" placeholder="es. VENEN015" maxlength="20" autocomplete="off" style="text-transform: uppercase;">
@@ -4693,19 +4712,13 @@
 
     // ==================== NAVIGATION ====================
     function showLogin() {
-      document.getElementById('splash').style.display = 'none';
-      document.getElementById('login').style.display = 'flex';
-      
-      // NUOVO: Controlla se c'è TOKEN salvato
+      // Decidi form PRIMA di rendere visibile il login, così niente flicker
       const deviceToken = localStorage.getItem('erta_device_token');
       const userType = localStorage.getItem('erta_user_type');
-      
+
       if (deviceToken) {
-        // Mostra form one-touch
         document.getElementById('formOneTouch').style.display = 'block';
         document.getElementById('formCompleto').style.display = 'none';
-        
-        // Mostra info utente
         if (userType === 'ddg') {
           const codiceDdg = localStorage.getItem('erta_codice_ddg');
           document.getElementById('oneTouchInfo').textContent = `DdG: ${codiceDdg}`;
@@ -4713,21 +4726,20 @@
           const licenza = localStorage.getItem('erta_licenza_fmi');
           document.getElementById('oneTouchInfo').textContent = `Licenza: ${licenza}`;
         }
-        
-        document.getElementById('codiceGaraOneTouch').focus();
       } else {
-        // Mostra form completo
         document.getElementById('formOneTouch').style.display = 'none';
         document.getElementById('formCompleto').style.display = 'block';
-        document.getElementById('codiceGara').focus();
       }
+
+      // Swap visivo atomico
+      document.getElementById('splash').style.display = 'none';
+      document.getElementById('login').style.display = 'flex';
+      // Niente autofocus: evita keyboard popup e layout shift su mobile
     }
-    
-    // NUOVO: Mostra form completo (per test o altro account)
+
     function mostraFormCompleto() {
       document.getElementById('formOneTouch').style.display = 'none';
       document.getElementById('formCompleto').style.display = 'block';
-      document.getElementById('codiceGara').focus();
     }
     
     // NUOVO: Login one-touch con TOKEN

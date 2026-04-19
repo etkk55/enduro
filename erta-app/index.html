@@ -1925,6 +1925,287 @@
     }
     .popup-close-btn:active { background: var(--brand-600); transform: scale(0.98); }
 
+    /* Popup PS v2: 3 tabs layout */
+    .popup-tabs {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .popup-tab {
+      padding: 14px 6px;
+      background: transparent;
+      border: none;
+      color: var(--text-tertiary);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      position: relative;
+      min-height: 48px;
+      transition: color 150ms;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .popup-tab .tab-ico { font-size: 16px; line-height: 1; }
+    .popup-tab.active {
+      color: var(--brand-500);
+    }
+    .popup-tab.active::after {
+      content: '';
+      position: absolute;
+      left: 20%;
+      right: 20%;
+      bottom: 0;
+      height: 3px;
+      background: var(--brand-500);
+      border-radius: 3px 3px 0 0;
+    }
+    .popup-tab-pane { display: none; padding: 16px; }
+    .popup-tab-pane.active { display: block; }
+
+    /* Pane header: posizione + variazione */
+    .pane-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .pane-pos {
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      padding: 10px 14px;
+      flex: 1;
+    }
+    .pane-pos .label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .pane-pos .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+    .pane-pos .sub {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+    }
+    .var-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: var(--r-md);
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+    .var-chip.neutra {
+      background: var(--bg-surface-2);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+    .var-chip.positiva {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+    }
+    .var-chip.negativa {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+
+    /* My pilot hero card (inside pane) */
+    .me-card {
+      background: linear-gradient(135deg, var(--brand-50), var(--bg-surface-2));
+      border: 1px solid var(--brand-500);
+      border-radius: var(--r-lg);
+      padding: 14px;
+      margin-bottom: 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .me-card .me-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .me-card .me-ps {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+    .me-card .me-ps .ps-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--brand-500);
+    }
+    .me-card .me-tempo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    /* Gap hero: davanti/dietro */
+    .gap-hero {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      padding: 14px;
+      margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+    .gap-hero.ahead { border-left: 4px solid var(--danger); }
+    .gap-hero.behind { border-left: 4px solid var(--success); }
+    .gap-hero.none { border-left: 4px solid var(--border-default); opacity: 0.7; }
+
+    .gap-big {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      min-width: 90px;
+      text-align: center;
+    }
+    .gap-hero.ahead .gap-big { color: var(--danger); }
+    .gap-hero.behind .gap-big { color: var(--success); }
+    .gap-hero.none .gap-big { color: var(--text-disabled); font-size: 22px; }
+
+    .gap-info { min-width: 0; }
+    .gap-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .gap-hero.ahead .gap-label { color: var(--danger); }
+    .gap-hero.behind .gap-label { color: var(--success); }
+    .gap-target {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+    .gap-target .pos {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-tertiary);
+      font-weight: 700;
+      margin-right: 4px;
+    }
+    .gap-sub {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .gap-trend {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border-subtle);
+      grid-column: 1 / -1;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .gap-trend.worse { color: var(--danger); }
+    .gap-trend.better { color: var(--success); }
+
+    .pane-podio {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: var(--r-md);
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      color: var(--warning);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .pane-podio.achieved {
+      background: linear-gradient(135deg, #3a2808, #2a1d07);
+      color: #fbbf24;
+      border-color: #f59e0b;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .pane-empty {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--text-tertiary);
+    }
+    .pane-empty .ico {
+      font-size: 42px;
+      margin-bottom: 10px;
+      opacity: 0.7;
+    }
+    .pane-empty h4 {
+      font-size: 16px;
+      color: var(--text-primary);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .pane-empty p {
+      font-size: 13px;
+      margin-bottom: 14px;
+      max-width: 260px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.4;
+    }
+    .pane-empty .btn {
+      display: inline-block;
+      padding: 10px 18px;
+      background: var(--brand-500);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-md);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
     /* ==================== PADDOCK (appPublic) ==================== */
     .pub-header {
       position: sticky;
@@ -4923,8 +5204,10 @@
     let currentClassificaPS = []; // Classifica della PS corrente per il popup
     let prevClassificaPS = []; // Classifica PS precedente per variazioni
     
+    // Stato popup PS corrente (riusato nei render delle 3 tab)
+    let popupPSState = null;
+
     async function showDettagliPS(psNum) {
-      // Se non abbiamo gli snapshot, caricali
       if (!snapshotsData || snapshotsData.length === 0) {
         if (!currentUser?.evento?.id) {
           alert('Evento non disponibile');
@@ -4941,28 +5224,25 @@
           return;
         }
       }
-      
-      // Usa lo snapshot della PS cliccata (psNum è 1-based, array è 0-based)
+
       const snapshotIndex = Math.min(psNum - 1, snapshotsData.length - 1);
       const snapshotCorrente = snapshotsData[snapshotIndex];
-      
+
       if (!snapshotCorrente?.classifica || snapshotCorrente.classifica.length === 0 || !currentUser?.pilota) {
         alert('Dati classifica non disponibili per PS' + psNum);
         return;
       }
-      
+
       currentClassificaPS = snapshotCorrente.classifica;
-      // Snapshot precedente per calcolare variazioni (null se PS1)
       prevClassificaPS = snapshotIndex > 0 ? (snapshotsData[snapshotIndex - 1]?.classifica || []) : [];
-      
+
       const mioPilota = currentClassificaPS.find(p => p.num == currentUser.pilota.numero);
       if (!mioPilota) {
         alert('Pilota non trovato nella classifica');
         return;
       }
-      
-      // Ordina classifica corrente
-      const classificaOrdinata = [...currentClassificaPS]
+
+      const ordina = (arr) => [...arr]
         .filter(p => p.stato === 'attivo')
         .map(p => ({ ...p, tempoSec: parseTempoTotale(p.totale) }))
         .sort((a, b) => {
@@ -4971,146 +5251,207 @@
           if (psB !== psA) return psB - psA;
           return a.tempoSec - b.tempoSec;
         });
-      
-      // Classifica precedente ordinata
-      const classificaPrevOrdinata = prevClassificaPS.length > 0 
-        ? [...prevClassificaPS]
-            .filter(p => p.stato === 'attivo')
-            .map(p => ({ ...p, tempoSec: parseTempoTotale(p.totale) }))
-            .sort((a, b) => {
-              const psA = contaPSCompletate(a);
-              const psB = contaPSCompletate(b);
-              if (psB !== psA) return psB - psA;
-              return a.tempoSec - b.tempoSec;
-            })
-        : [];
-      
-      // Posizione assoluta
-      const posAssoluta = classificaOrdinata.findIndex(p => p.num == mioPilota.num) + 1;
-      const totPiloti = classificaOrdinata.length;
-      
-      // Variazione posizione assoluta
-      let variazionePosAssoluta = 0;
-      if (classificaPrevOrdinata.length > 0) {
-        const posAssolutaPrev = classificaPrevOrdinata.findIndex(p => p.num == mioPilota.num) + 1;
-        if (posAssolutaPrev > 0) {
-          variazionePosAssoluta = posAssolutaPrev - posAssoluta;
-        }
-      }
-      
-      // Classifica classe
-      const miaClasse = mioPilota.classe;
-      const classificaClasse = classificaOrdinata.filter(p => p.classe === miaClasse);
-      const posClasse = classificaClasse.findIndex(p => p.num == mioPilota.num) + 1;
-      const totClasse = classificaClasse.length;
-      
-      // Variazione posizione classe
-      let variazionePosClasse = 0;
-      if (classificaPrevOrdinata.length > 0) {
-        const classificaClassePrev = classificaPrevOrdinata.filter(p => p.classe === miaClasse);
-        const posClassePrev = classificaClassePrev.findIndex(p => p.num == mioPilota.num) + 1;
-        if (posClassePrev > 0) {
-          variazionePosClasse = posClassePrev - posClasse;
-        }
-      }
-      
-      // Chi precede/segue
-      const davantiAssoluta = posAssoluta > 1 ? classificaOrdinata[posAssoluta - 2] : null;
-      const dietroAssoluta = posAssoluta < totPiloti ? classificaOrdinata[posAssoluta] : null;
-      const davantiClasse = posClasse > 1 ? classificaClasse[posClasse - 2] : null;
-      const dietroClasse = posClasse < totClasse ? classificaClasse[posClasse] : null;
-      
-      const mioTempo = parseTempoTotale(mioPilota.totale);
-      
-      // Calcola variazioni gap
-      let varGapDavantiAss = calcVarGap(mioPilota, davantiAssoluta, mioTempo, 'davanti');
-      let varGapDietroAss = calcVarGap(mioPilota, dietroAssoluta, mioTempo, 'dietro');
-      let varGapDavantiCl = calcVarGap(mioPilota, davantiClasse, mioTempo, 'davanti');
-      let varGapDietroCl = calcVarGap(mioPilota, dietroClasse, mioTempo, 'dietro');
-      
-      // Popola popup
+
+      const classificaOrdinata = ordina(currentClassificaPS);
+      const classificaPrevOrdinata = prevClassificaPS.length > 0 ? ordina(prevClassificaPS) : [];
+
+      popupPSState = { psNum, mioPilota, classificaOrdinata, classificaPrevOrdinata };
+
       document.getElementById('popupPilotaName').textContent = `${mioPilota.cognome} ${mioPilota.nome || ''}`;
       document.getElementById('popupPSNum').textContent = `PS${psNum}`;
-      
-      // Assoluta
-      document.getElementById('popupPosAssoluta').textContent = `${posAssoluta}°/${totPiloti}`;
-      renderPilotaBox('popupDavantiAssoluta', davantiAssoluta, 'davanti', mioTempo, psNum, varGapDavantiAss);
-      renderMeBox('popupMeAssoluta', mioPilota, psNum);
-      renderPilotaBox('popupDietroAssoluta', dietroAssoluta, 'dietro', mioTempo, psNum, varGapDietroAss);
-      
-      // Podio assoluta
-      const podioAssoluta = document.getElementById('popupPodioAssoluta');
-      if (posAssoluta <= 3) {
-        podioAssoluta.style.display = 'block';
-        podioAssoluta.className = 'popup-podio achieved';
-        podioAssoluta.innerHTML = '🏆 Sei sul podio!';
-      } else if (posAssoluta <= 5) {
-        const terzo = classificaOrdinata[2];
-        const gapPodio = (mioTempo - parseTempoTotale(terzo.totale)).toFixed(1);
-        podioAssoluta.style.display = 'block';
-        podioAssoluta.className = 'popup-podio';
-        podioAssoluta.innerHTML = `🥉 Gap dal podio: <strong>${gapPodio}s</strong> da ${terzo.cognome}`;
-      } else {
-        podioAssoluta.style.display = 'none';
-      }
-      
-      // Variazione posizione ASSOLUTA
-      const varAssoluta = document.getElementById('popupVarAssoluta');
-      if (psNum === 1 || classificaPrevOrdinata.length === 0) {
-        varAssoluta.className = 'popup-variazione neutra';
-        varAssoluta.textContent = '● POSIZIONE INVARIATA';
-      } else if (variazionePosAssoluta > 0) {
-        varAssoluta.className = 'popup-variazione positiva';
-        varAssoluta.textContent = `▲ HAI GUADAGNATO ${variazionePosAssoluta} POSIZION${variazionePosAssoluta > 1 ? 'I' : 'E'}`;
-      } else if (variazionePosAssoluta < 0) {
-        varAssoluta.className = 'popup-variazione negativa';
-        varAssoluta.textContent = `▼ HAI PERSO ${Math.abs(variazionePosAssoluta)} POSIZION${Math.abs(variazionePosAssoluta) > 1 ? 'I' : 'E'}`;
-      } else {
-        varAssoluta.className = 'popup-variazione neutra';
-        varAssoluta.textContent = '● POSIZIONE INVARIATA';
-      }
-      
-      // Classe
-      document.getElementById('popupClasseName').textContent = miaClasse;
-      document.getElementById('popupPosClasse').textContent = `${posClasse}°/${totClasse}`;
-      renderPilotaBox('popupDavantiClasse', davantiClasse, 'davanti', mioTempo, psNum, varGapDavantiCl);
-      renderMeBox('popupMeClasse', mioPilota, psNum);
-      renderPilotaBox('popupDietroClasse', dietroClasse, 'dietro', mioTempo, psNum, varGapDietroCl);
-      
-      // Podio classe
-      const podioClasse = document.getElementById('popupPodioClasse');
-      if (posClasse <= 3) {
-        podioClasse.style.display = 'block';
-        podioClasse.className = 'popup-podio achieved';
-        podioClasse.innerHTML = '🏆 Sei sul podio di classe!';
-      } else if (posClasse <= 5 && classificaClasse.length >= 3) {
-        const terzoClasse = classificaClasse[2];
-        const gapPodioClasse = (mioTempo - parseTempoTotale(terzoClasse.totale)).toFixed(1);
-        podioClasse.style.display = 'block';
-        podioClasse.className = 'popup-podio';
-        podioClasse.innerHTML = `🥉 Gap dal podio classe: <strong>${gapPodioClasse}s</strong> da ${terzoClasse.cognome}`;
-      } else {
-        podioClasse.style.display = 'none';
-      }
-      
-      // Variazione posizione CLASSE
-      const varClasse = document.getElementById('popupVarClasse');
-      if (psNum === 1 || classificaPrevOrdinata.length === 0) {
-        varClasse.className = 'popup-variazione neutra';
-        varClasse.textContent = '● POSIZIONE INVARIATA';
-      } else if (variazionePosClasse > 0) {
-        varClasse.className = 'popup-variazione positiva';
-        varClasse.textContent = `▲ HAI GUADAGNATO ${variazionePosClasse} POSIZION${variazionePosClasse > 1 ? 'I' : 'E'}`;
-      } else if (variazionePosClasse < 0) {
-        varClasse.className = 'popup-variazione negativa';
-        varClasse.textContent = `▼ HAI PERSO ${Math.abs(variazionePosClasse)} POSIZION${Math.abs(variazionePosClasse) > 1 ? 'I' : 'E'}`;
-      } else {
-        varClasse.className = 'popup-variazione neutra';
-        varClasse.textContent = '● POSIZIONE INVARIATA';
-      }
-      
-      // Mostra popup
+
+      showPopupTab('assoluta');
       document.getElementById('popupDettagliPS').classList.add('active');
+    }
+
+    function showPopupTab(tab) {
+      ['assoluta', 'classe', 'amici'].forEach(t => {
+        const btn = document.getElementById('popupTab' + t[0].toUpperCase() + t.slice(1));
+        const pane = document.getElementById('popupPane' + t[0].toUpperCase() + t.slice(1));
+        if (btn) btn.classList.toggle('active', t === tab);
+        if (pane) pane.classList.toggle('active', t === tab);
+      });
+      if (!popupPSState) return;
+      if (tab === 'assoluta') renderPopupPane('assoluta');
+      else if (tab === 'classe') renderPopupPane('classe');
+      else if (tab === 'amici') renderPopupPane('amici');
+    }
+
+    function renderPopupPane(tipo) {
+      const { psNum, mioPilota, classificaOrdinata, classificaPrevOrdinata } = popupPSState;
+      const paneId = 'popupPane' + tipo[0].toUpperCase() + tipo.slice(1);
+      const pane = document.getElementById(paneId);
+
+      // Determina insieme di piloti della vista
+      let gruppo, gruppoPrev, labelGruppo;
+      if (tipo === 'assoluta') {
+        gruppo = classificaOrdinata;
+        gruppoPrev = classificaPrevOrdinata;
+        labelGruppo = 'assoluta';
+      } else if (tipo === 'classe') {
+        gruppo = classificaOrdinata.filter(p => p.classe === mioPilota.classe);
+        gruppoPrev = classificaPrevOrdinata.filter(p => p.classe === mioPilota.classe);
+        labelGruppo = `classe ${mioPilota.classe}`;
+      } else {
+        // Amici = piloti della squadra (inclusi ME)
+        if (!currentSquadra || !currentSquadra.piloti || currentSquadra.piloti.length === 0) {
+          pane.innerHTML = `
+            <div class="pane-empty">
+              <div class="ico">👥</div>
+              <h4>Nessuna squadra</h4>
+              <p>Crea una squadra per confrontarti con i tuoi amici PS per PS.</p>
+              <button class="btn" onclick="closeDettagliPS(); showTab('altro'); setTimeout(()=>showTab('squadra'),50);">Crea squadra</button>
+            </div>`;
+          return;
+        }
+        const squadNums = new Set(currentSquadra.piloti.map(p => String(p.numero_gara)));
+        squadNums.add(String(mioPilota.num));
+        gruppo = classificaOrdinata.filter(p => squadNums.has(String(p.num)));
+        gruppoPrev = classificaPrevOrdinata.filter(p => squadNums.has(String(p.num)));
+        labelGruppo = 'amici';
+      }
+
+      const pos = gruppo.findIndex(p => p.num == mioPilota.num) + 1;
+      const tot = gruppo.length;
+
+      if (pos === 0 || tot === 0) {
+        pane.innerHTML = `
+          <div class="pane-empty">
+            <div class="ico">—</div>
+            <h4>Dati non disponibili</h4>
+            <p>Non risulti in questa classifica per PS${psNum}.</p>
+          </div>`;
+        return;
+      }
+
+      // Variazione posizione
+      let varPos = 0;
+      if (gruppoPrev.length > 0) {
+        const posPrev = gruppoPrev.findIndex(p => p.num == mioPilota.num) + 1;
+        if (posPrev > 0) varPos = posPrev - pos;
+      }
+
+      const davanti = pos > 1 ? gruppo[pos - 2] : null;
+      const dietro = pos < tot ? gruppo[pos] : null;
+      const mioTempo = parseTempoTotale(mioPilota.totale);
+
+      const varGapDavanti = calcVarGap(mioPilota, davanti, mioTempo, 'davanti');
+      const varGapDietro = calcVarGap(mioPilota, dietro, mioTempo, 'dietro');
+
+      // Variazione chip
+      let varChipHtml;
+      if (psNum === 1 || gruppoPrev.length === 0) {
+        varChipHtml = `<div class="var-chip neutra">— 1ª PS</div>`;
+      } else if (varPos > 0) {
+        varChipHtml = `<div class="var-chip positiva">▲ +${varPos} pos.</div>`;
+      } else if (varPos < 0) {
+        varChipHtml = `<div class="var-chip negativa">▼ ${varPos} pos.</div>`;
+      } else {
+        varChipHtml = `<div class="var-chip neutra">● invariata</div>`;
+      }
+
+      // Me card
+      const mioPSTime = mioPilota[`ps${psNum}_time`];
+      const mioPSFmt = mioPSTime ? formatTempoPS(parseFloat(mioPSTime)) : '--';
+
+      // Gap hero davanti (rosso, "Gap dal pilota davanti")
+      const davantiHtml = renderGapHero('ahead', davanti, mioTempo, psNum, varGapDavanti);
+      // Gap hero dietro (verde, "Vantaggio sul pilota dietro")
+      const dietroHtml = renderGapHero('behind', dietro, mioTempo, psNum, varGapDietro);
+
+      // Podio
+      let podioHtml = '';
+      if (pos <= 3) {
+        const suffix = tipo === 'classe' ? ' di classe' : tipo === 'amici' ? ' della squadra' : '';
+        podioHtml = `<div class="pane-podio achieved">🏆 Sei sul podio${suffix}!</div>`;
+      } else if (pos <= 5 && gruppo.length >= 3) {
+        const terzo = gruppo[2];
+        const gapPodio = (mioTempo - parseTempoTotale(terzo.totale)).toFixed(1);
+        const suffix = tipo === 'classe' ? ' di classe' : tipo === 'amici' ? '' : '';
+        podioHtml = `<div class="pane-podio">🥉 Gap dal podio${suffix}: <strong>${gapPodio}s</strong> da ${terzo.cognome}</div>`;
+      }
+
+      pane.innerHTML = `
+        <div class="pane-head">
+          <div class="pane-pos">
+            <div class="label">Posizione ${labelGruppo}</div>
+            <div class="value">${pos}°<span style="font-size:14px;color:var(--text-tertiary);font-weight:600;"> / ${tot}</span></div>
+          </div>
+          ${varChipHtml}
+        </div>
+        <div class="me-card">
+          <div>
+            <div class="me-name">${escHTML(mioPilota.cognome)} ${escHTML(mioPilota.nome || '')}</div>
+            <div class="me-ps">PS${psNum}: <span class="ps-val">${mioPSFmt}</span></div>
+          </div>
+          <div class="me-tempo">${escHTML(mioPilota.totale || '--')}</div>
+        </div>
+        ${davantiHtml}
+        ${dietroHtml}
+        ${podioHtml}
+      `;
+    }
+
+    function escHTML(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function renderGapHero(kind, pilota, mioTempo, psNum, varGap) {
+      if (!pilota) {
+        const label = kind === 'ahead' ? 'Sei in testa' : 'Sei l\'ultimo';
+        const sub = kind === 'ahead' ? 'Nessun pilota davanti' : 'Nessun pilota dietro';
+        return `
+          <div class="gap-hero none">
+            <div class="gap-big">—</div>
+            <div class="gap-info">
+              <div class="gap-label">${kind === 'ahead' ? '▲ Pilota davanti' : '▼ Pilota dietro'}</div>
+              <div class="gap-target">${label}</div>
+              <div class="gap-sub">${sub}</div>
+            </div>
+          </div>`;
+      }
+
+      const suoTempo = parseTempoTotale(pilota.totale);
+      const gapAbs = Math.abs(suoTempo - mioTempo).toFixed(1);
+      const segno = kind === 'ahead' ? '−' : '+';
+
+      // Posizione pilota nel gruppo
+      const posPilota = popupPSState.classificaOrdinata.findIndex(p => p.num === pilota.num) + 1;
+
+      const psTime = pilota[`ps${psNum}_time`];
+      const psTimeFmt = psTime ? formatTempoPS(parseFloat(psTime)) : '--';
+
+      // Trend
+      let trendHtml = '';
+      if (varGap) {
+        const varNum = parseFloat(varGap.variazione);
+        if (kind === 'ahead') {
+          if (varGap.staPerdendo && varNum > 0) {
+            trendHtml = `<div class="gap-trend worse">⚠️ stai perdendo ${Math.abs(varNum)}s in questa PS</div>`;
+          } else if (varNum < 0) {
+            trendHtml = `<div class="gap-trend better">✅ hai recuperato ${Math.abs(varNum)}s in questa PS</div>`;
+          }
+        } else {
+          if (varGap.staRecuperando) {
+            trendHtml = `<div class="gap-trend worse">⚠️ ti sta recuperando ${Math.abs(varNum)}s</div>`;
+          } else if (varNum > 0) {
+            trendHtml = `<div class="gap-trend better">✅ hai allungato di ${Math.abs(varNum)}s</div>`;
+          }
+        }
+      }
+
+      const label = kind === 'ahead' ? '▲ Gap dal pilota davanti' : '▼ Vantaggio sul pilota dietro';
+
+      return `
+        <div class="gap-hero ${kind}">
+          <div class="gap-big">${segno}${gapAbs}s</div>
+          <div class="gap-info">
+            <div class="gap-label">${label}</div>
+            <div class="gap-target"><span class="pos">${posPilota}°</span>${escHTML(pilota.cognome)} ${escHTML((pilota.nome || '').charAt(0))}${pilota.nome ? '.' : ''} <span style="color:var(--text-tertiary);font-weight:500;">(${escHTML(pilota.classe || '')})</span></div>
+            <div class="gap-sub">PS${psNum}: ${psTimeFmt} · totale ${escHTML(pilota.totale || '--')}</div>
+          </div>
+          ${trendHtml}
+        </div>`;
     }
     
     function calcVarGap(mioPilota, altroPilota, mioTempo, tipo) {
@@ -9026,42 +9367,30 @@ ${mapsLink}`;
     };
   </script>
   
-  <!-- p36: Popup Dettagli PS -->
+  <!-- p36: Popup Dettagli PS (v2 con 3 tab) -->
   <div id="popupDettagliPS" class="popup-overlay" onclick="if(event.target===this) closeDettagliPS()">
     <div class="popup-content">
       <div class="popup-header">
         <h3 id="popupPilotaName">Pilota</h3>
         <span class="popup-ps" id="popupPSNum">PS1</span>
       </div>
-      
-      <!-- Sezione Assoluta -->
-      <div class="popup-section assoluta">
-        <div class="popup-section-title">
-          <span>🏁 CLASSIFICA ASSOLUTA</span>
-          <span class="popup-posizione" id="popupPosAssoluta">1°/100</span>
-        </div>
-        <div class="popup-variazione neutra" id="popupVarAssoluta">● POSIZIONE INVARIATA</div>
-        
-        <div id="popupDavantiAssoluta"></div>
-        <div class="popup-pilota-box me" id="popupMeAssoluta"></div>
-        <div id="popupDietroAssoluta"></div>
-        <div class="popup-podio" id="popupPodioAssoluta" style="display:none;"></div>
+
+      <div class="popup-tabs" role="tablist">
+        <button class="popup-tab active" onclick="showPopupTab('assoluta')" id="popupTabAssoluta">
+          <span class="tab-ico">🏁</span>Assoluta
+        </button>
+        <button class="popup-tab" onclick="showPopupTab('classe')" id="popupTabClasse">
+          <span class="tab-ico">🏆</span>Classe
+        </button>
+        <button class="popup-tab" onclick="showPopupTab('amici')" id="popupTabAmici">
+          <span class="tab-ico">👥</span>Amici
+        </button>
       </div>
-      
-      <!-- Sezione Classe -->
-      <div class="popup-section classe">
-        <div class="popup-section-title">
-          <span>🏆 CLASSIFICA CLASSE <span id="popupClasseName"></span></span>
-          <span class="popup-posizione" id="popupPosClasse">1°/50</span>
-        </div>
-        <div class="popup-variazione neutra" id="popupVarClasse">● POSIZIONE INVARIATA</div>
-        
-        <div id="popupDavantiClasse"></div>
-        <div class="popup-pilota-box me" id="popupMeClasse"></div>
-        <div id="popupDietroClasse"></div>
-        <div class="popup-podio" id="popupPodioClasse" style="display:none;"></div>
-      </div>
-      
+
+      <div class="popup-tab-pane active" id="popupPaneAssoluta"></div>
+      <div class="popup-tab-pane" id="popupPaneClasse"></div>
+      <div class="popup-tab-pane" id="popupPaneAmici"></div>
+
       <button class="popup-close-btn" onclick="closeDettagliPS()">Chiudi</button>
     </div>
   </div>

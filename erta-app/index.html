@@ -2109,6 +2109,22 @@
       color: var(--text-tertiary);
       line-height: 1.4;
     }
+    .tour-tips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      justify-content: center;
+      margin: 14px 0 4px;
+      padding: 10px 12px;
+      background: var(--bg-surface-2);
+      border-radius: var(--r-md);
+      border: 1px dashed var(--border-default);
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      text-align: center;
+    }
+    .tour-tips strong { color: var(--text-primary); font-weight: 700; }
 
     .onb-progress {
       display: flex;
@@ -3976,57 +3992,47 @@
         </div>
       </div>
 
-      <!-- Step 4: Tour delle tab -->
+      <!-- Step 4: Tour delle tab (compatto) -->
       <div class="onb-step" id="onbStep4">
-        <h3>Come funziona ERTA</h3>
-        <p class="lead">Una panoramica rapida: ecco cosa trovi in ogni schermata.</p>
+        <h3>Le 4 schermate di ERTA</h3>
+        <p class="lead">In 10 secondi ecco cosa trovi in ognuna.</p>
         <div class="tour-grid">
           <div class="tour-card">
             <div class="emo">⏱️</div>
             <div class="txt">
               <div class="title">Tempi</div>
-              <div class="sub">La tua home: posizione, gap, tempo totale e ultima PS. Tocca una PS per vedere il dettaglio con Assoluta, Classe e Amici.</div>
+              <div class="sub">Home: posizione, gap, ultima PS. Tocca una PS per il dettaglio.</div>
             </div>
           </div>
           <div class="tour-card">
             <div class="emo">🏆</div>
             <div class="txt">
               <div class="title">Classifica</div>
-              <div class="sub">Generale, per classe, per MotoClub, per squadra o solo tra i tuoi amici.</div>
+              <div class="sub">Generale, classe, MotoClub, squadre, amici.</div>
             </div>
           </div>
           <div class="tour-card">
             <div class="emo">📢</div>
             <div class="txt">
               <div class="title">Comunicati</div>
-              <div class="sub">Messaggi ufficiali della Direzione Gara, informazioni generali e del paddock.</div>
+              <div class="sub">Messaggi DdG, informazioni gara e paddock.</div>
             </div>
           </div>
           <div class="tour-card">
             <div class="emo">☰</div>
             <div class="txt">
               <div class="title">Altro</div>
-              <div class="sub">Orari teorici, confronto piloti, la tua squadra, segnalazioni e questa guida.</div>
-            </div>
-          </div>
-          <div class="tour-card">
-            <div class="emo">🆘</div>
-            <div class="txt">
-              <div class="title">Pulsante SOS</div>
-              <div class="sub">In basso a destra. <strong>Tieni premuto 3 secondi</strong> per allertare la DdG e inviare la tua posizione.</div>
-            </div>
-          </div>
-          <div class="tour-card">
-            <div class="emo">📲</div>
-            <div class="txt">
-              <div class="title">Tira per aggiornare</div>
-              <div class="sub">In ogni schermata, swipe-down dall'alto per ricaricare i dati al volo.</div>
+              <div class="sub">Orari, confronto, squadra, segnalazioni, guida.</div>
             </div>
           </div>
         </div>
+        <div class="tour-tips">
+          <span>🆘 <strong>SOS:</strong> tieni premuto 3s</span>
+          <span>📲 <strong>Swipe-down</strong> per aggiornare</span>
+        </div>
         <div class="onb-actions">
           <button class="onb-btn ghost" id="onbTourBack" onclick="onbPrev()">Indietro</button>
-          <button class="onb-btn primary" onclick="hideOnboarding()">Inizia la gara</button>
+          <button class="onb-btn primary" onclick="hideOnboarding()">Inizia</button>
         </div>
       </div>
     </div>
@@ -11003,6 +11009,7 @@ ${mapsLink}`;
     function hideOnboarding() {
       document.getElementById('onbOverlay').classList.remove('show');
       localStorage.setItem('erta_onboarded', '1');
+      localStorage.setItem('erta_tour_shown', '1');
     }
     function setOnbStep(n) {
       _onbStep = n;
@@ -11077,9 +11084,16 @@ ${mapsLink}`;
     window.showTabTour = showTabTour;
 
     function maybeShowOnboarding() {
-      if (localStorage.getItem('erta_onboarded') === '1') return;
       if (isDdG || isPublic) return;
-      setTimeout(showOnboarding, 600);
+      // Mai visto onboarding → mostra flusso completo (include tour come step 4)
+      if (localStorage.getItem('erta_onboarded') !== '1') {
+        setTimeout(showOnboarding, 600);
+        return;
+      }
+      // Già onboarded ma mai visto tour (utenti legacy) → mostra solo il tour
+      if (localStorage.getItem('erta_tour_shown') !== '1') {
+        setTimeout(showTabTour, 600);
+      }
     }
 
     // ==================== INIT ====================

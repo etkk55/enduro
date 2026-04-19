@@ -1824,6 +1824,271 @@
     }
     .ps-chip.none { color: var(--text-disabled); font-weight: 500; }
 
+    /* ==================== NETWORK STATUS + PULL TO REFRESH ==================== */
+    .net-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: var(--danger);
+      color: #fff;
+      padding: calc(var(--safe-top) + 8px) 14px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      transform: translateY(-100%);
+      transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      letter-spacing: 0.02em;
+    }
+    .net-banner.show { transform: translateY(0); }
+    .net-banner .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      margin-right: 6px;
+      animation: netDotPulse 1.2s ease-in-out infinite;
+    }
+    @keyframes netDotPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Live dot accanto a "ultimo agg." */
+    .live-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      margin-right: 4px;
+      box-shadow: 0 0 0 0 var(--success);
+      animation: liveDotPulse 2s ease-in-out infinite;
+      vertical-align: middle;
+    }
+    .live-dot.offline {
+      background: var(--text-disabled);
+      animation: none;
+      box-shadow: none;
+    }
+    @keyframes liveDotPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+      50% { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+    }
+
+    /* Pull-to-refresh indicator */
+    .ptr-indicator {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -120%);
+      z-index: 45;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-pill);
+      box-shadow: var(--shadow-md);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms, transform 200ms;
+    }
+    .ptr-indicator.active {
+      opacity: 1;
+      transform: translate(-50%, calc(var(--safe-top) + 8px));
+    }
+    .ptr-indicator .arrow {
+      font-size: 16px;
+      line-height: 1;
+      transition: transform 250ms;
+    }
+    .ptr-indicator.ready .arrow { transform: rotate(180deg); color: var(--brand-500); }
+    .ptr-indicator.refreshing .arrow {
+      animation: ptrSpin 0.8s linear infinite;
+    }
+    @keyframes ptrSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ==================== ONBOARDING SHEET ==================== */
+    .onb-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 2000;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fadeIn 250ms ease-out;
+    }
+    .onb-overlay.show { display: flex; }
+    .onb-sheet {
+      background: var(--bg-surface);
+      width: 100%;
+      max-width: 500px;
+      border-radius: var(--r-xl) var(--r-xl) 0 0;
+      padding: 24px 20px calc(var(--safe-bottom) + 24px);
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
+      animation: onbSlideUp 300ms cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+    @keyframes onbSlideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .onb-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--border-default);
+      border-radius: 2px;
+      margin: -10px auto 18px;
+    }
+    .onb-step {
+      display: none;
+    }
+    .onb-step.active { display: block; }
+    .onb-step h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+    .onb-step .lead {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      line-height: 1.45;
+    }
+
+    .onb-feature {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      align-items: flex-start;
+    }
+    .onb-feature .emo {
+      flex: 0 0 44px;
+      height: 44px;
+      border-radius: var(--r-md);
+      background: var(--bg-surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .onb-feature .txt { flex: 1; min-width: 0; }
+    .onb-feature .title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .onb-feature .sub {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      line-height: 1.4;
+    }
+
+    .onb-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .onb-toggle:active { background: var(--bg-surface-3); }
+    .onb-toggle .info { flex: 1; min-width: 0; }
+    .onb-toggle .title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .onb-toggle .sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+    .onb-toggle input[type=checkbox] {
+      width: 48px;
+      height: 28px;
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--border-default);
+      border-radius: 14px;
+      position: relative;
+      transition: background 200ms;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .onb-toggle input[type=checkbox]::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 200ms, background 200ms;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .onb-toggle input[type=checkbox]:checked {
+      background: var(--brand-500);
+    }
+    .onb-toggle input[type=checkbox]:checked::before {
+      transform: translateX(20px);
+    }
+
+    .onb-progress {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+    .onb-progress .step {
+      width: 28px;
+      height: 4px;
+      background: var(--border-default);
+      border-radius: 2px;
+      transition: background 200ms;
+    }
+    .onb-progress .step.active { background: var(--brand-500); }
+    .onb-progress .step.done { background: var(--success); }
+
+    .onb-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .onb-btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: var(--r-md);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 150ms, transform 150ms;
+      min-height: 48px;
+    }
+    .onb-btn.primary {
+      background: var(--brand-500);
+      color: #fff;
+    }
+    .onb-btn.primary:active { background: var(--brand-600); transform: scale(0.98); }
+    .onb-btn.ghost {
+      background: var(--bg-surface-2);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
+    }
+
     /* ==================== MOMENTUM CHIP ==================== */
     .momentum-chip {
       display: inline-flex;
@@ -3541,6 +3806,113 @@
 </head>
 <body>
 
+  <!-- Network status banner (hidden by default) -->
+  <div id="netBanner" class="net-banner" role="status" aria-live="polite">
+    <span class="dot"></span><span id="netBannerText">Senza connessione · dati in cache</span>
+  </div>
+
+  <!-- Pull-to-refresh indicator -->
+  <div id="ptrIndicator" class="ptr-indicator">
+    <span class="arrow">↓</span><span id="ptrLabel">Tira per aggiornare</span>
+  </div>
+
+  <!-- Onboarding sheet -->
+  <div id="onbOverlay" class="onb-overlay" role="dialog" aria-modal="true">
+    <div class="onb-sheet">
+      <div class="onb-handle"></div>
+      <div class="onb-progress">
+        <div class="step active" id="onbStepDot1"></div>
+        <div class="step" id="onbStepDot2"></div>
+        <div class="step" id="onbStepDot3"></div>
+      </div>
+
+      <!-- Step 1: Welcome -->
+      <div class="onb-step active" id="onbStep1">
+        <h3>Benvenuto in ERTA 👋</h3>
+        <p class="lead">L'app che ti tiene collegato alla Direzione Gara in tempo reale. Attiva queste 3 cose per una gara sicura.</p>
+        <div class="onb-feature">
+          <div class="emo">📍</div>
+          <div class="txt">
+            <div class="title">GPS di sicurezza</div>
+            <div class="sub">Solo in gara. Serve per ritrovarti in caso di SOS o caduta.</div>
+          </div>
+        </div>
+        <div class="onb-feature">
+          <div class="emo">🔔</div>
+          <div class="txt">
+            <div class="title">Notifiche push</div>
+            <div class="sub">Comunicati urgenti della DdG, allarmi dai compagni.</div>
+          </div>
+        </div>
+        <div class="onb-feature">
+          <div class="emo">📲</div>
+          <div class="txt">
+            <div class="title">Installa sul telefono</div>
+            <div class="sub">Come un'app vera: apri veloce, funziona meglio offline.</div>
+          </div>
+        </div>
+        <div class="onb-actions">
+          <button class="onb-btn ghost" onclick="skipOnboarding()">Salta</button>
+          <button class="onb-btn primary" onclick="onbNext()">Iniziamo</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Permessi -->
+      <div class="onb-step" id="onbStep2">
+        <h3>Permessi e notifiche</h3>
+        <p class="lead">Scegli cosa attivare. Puoi cambiare idea dopo dalle impostazioni.</p>
+
+        <label class="onb-toggle">
+          <div class="info">
+            <div class="title">📍 Posizione GPS</div>
+            <div class="sub">Inviata solo in gara, utile per SOS e team</div>
+          </div>
+          <input type="checkbox" id="onbTogGps" checked>
+        </label>
+
+        <label class="onb-toggle">
+          <div class="info">
+            <div class="title">📢 Comunicati DdG</div>
+            <div class="sub">Avvisi urgenti dalla Direzione Gara</div>
+          </div>
+          <input type="checkbox" id="onbTogPush" checked>
+        </label>
+
+        <label class="onb-toggle">
+          <div class="info">
+            <div class="title">🆘 Emergenze squadra</div>
+            <div class="sub">Se un amico invia SOS o perde GPS</div>
+          </div>
+          <input type="checkbox" id="onbTogSos" checked>
+        </label>
+
+        <div class="onb-actions">
+          <button class="onb-btn ghost" onclick="onbPrev()">Indietro</button>
+          <button class="onb-btn primary" onclick="applyOnbPermissions()">Conferma</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Installa -->
+      <div class="onb-step" id="onbStep3">
+        <h3>Installa sul telefono</h3>
+        <p class="lead">Aggiungi ERTA alla home del telefono per aprirla in 1 tap, anche in zone senza segnale.</p>
+        <div id="onbInstallContent">
+          <div class="onb-feature">
+            <div class="emo">📲</div>
+            <div class="txt">
+              <div class="title" id="onbInstallTitle">Installa come app</div>
+              <div class="sub" id="onbInstallHow">Dal menu condividi del browser scegli "Aggiungi alla schermata Home".</div>
+            </div>
+          </div>
+        </div>
+        <div class="onb-actions">
+          <button class="onb-btn ghost" onclick="onbPrev()">Indietro</button>
+          <button class="onb-btn primary" id="onbInstallBtn" onclick="triggerInstall()">Ho capito</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== SPLASH SCREEN ==================== -->
   <div id="splash">
     <div class="banner-container">
@@ -5176,6 +5548,10 @@
       showTab('tempi');
       startPolling();
       startTempiPolling(); // CHAT 23: Avvia polling tempi
+
+      // Onboarding (prima volta) + live dots
+      if (typeof injectLiveDots === 'function') setTimeout(injectLiveDots, 400);
+      if (typeof maybeShowOnboarding === 'function') maybeShowOnboarding();
 
       // CHAT 25: Attiva push notifications automaticamente (come GPS)
       initPushNotifications();
@@ -10199,6 +10575,271 @@ ${mapsLink}`;
           </div>
         `;
       }).join('');
+    }
+
+    // ==================== NETWORK / CACHE / PTR / ONBOARDING ====================
+    const _cacheKey = (url) => 'erta_cache_' + btoa(unescape(encodeURIComponent(url))).slice(0, 80);
+    const _cacheTtl = 24 * 60 * 60 * 1000; // 24h
+
+    function saveCache(url, data) {
+      try {
+        localStorage.setItem(_cacheKey(url), JSON.stringify({ at: Date.now(), data }));
+      } catch (e) { /* quota */ }
+    }
+    function readCache(url) {
+      try {
+        const raw = localStorage.getItem(_cacheKey(url));
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (Date.now() - obj.at > _cacheTtl) return null;
+        return obj;
+      } catch (e) { return null; }
+    }
+    async function cachedFetch(url, options) {
+      try {
+        const res = await fetch(url, options);
+        if (res.ok) {
+          const cloned = res.clone();
+          try {
+            const json = await cloned.json();
+            saveCache(url, json);
+            setLastSync(Date.now());
+          } catch (e) { /* non-JSON */ }
+        }
+        return res;
+      } catch (err) {
+        // Fallback cache: costruisci una Response finta
+        const c = readCache(url);
+        if (c) {
+          return new Response(JSON.stringify(c.data), { status: 200, headers: { 'Content-Type': 'application/json', 'X-From-Cache': '1' } });
+        }
+        throw err;
+      }
+    }
+    window.cachedFetch = cachedFetch;
+
+    // Last sync timestamp
+    let _lastSync = 0;
+    function setLastSync(ts) {
+      _lastSync = ts;
+      updateNetBannerText();
+    }
+    function fmtAgo(ts) {
+      if (!ts) return 'mai';
+      const s = Math.floor((Date.now() - ts) / 1000);
+      if (s < 60) return `${s}s fa`;
+      if (s < 3600) return `${Math.floor(s/60)}m fa`;
+      return `${Math.floor(s/3600)}h fa`;
+    }
+
+    // Network status
+    function updateNetBannerText() {
+      const el = document.getElementById('netBannerText');
+      if (!el) return;
+      if (!navigator.onLine) {
+        el.textContent = _lastSync
+          ? `Senza connessione · ultimo aggiornamento ${fmtAgo(_lastSync)}`
+          : 'Senza connessione';
+      }
+    }
+    function onNetOnline() {
+      const b = document.getElementById('netBanner');
+      if (b) b.classList.remove('show');
+      // Ritrigger refresh dei tab principali
+      if (currentUser && !isDdG && !isPublic) {
+        if (typeof loadTempi === 'function') loadTempi();
+        if (typeof loadComunicati === 'function') loadComunicati();
+      }
+    }
+    function onNetOffline() {
+      const b = document.getElementById('netBanner');
+      if (b) {
+        updateNetBannerText();
+        b.classList.add('show');
+      }
+    }
+    window.addEventListener('online', onNetOnline);
+    window.addEventListener('offline', onNetOffline);
+    setInterval(updateNetBannerText, 30000);
+
+    // ==================== PULL TO REFRESH ====================
+    (function setupPTR() {
+      let startY = 0;
+      let pulling = false;
+      let pulled = 0;
+      const THRESHOLD = 70;
+      const ind = () => document.getElementById('ptrIndicator');
+      const lbl = () => document.getElementById('ptrLabel');
+
+      function refreshCurrentTab() {
+        if (!currentUser) return;
+        const tab = document.querySelector('.tab-content.active')?.id || '';
+        if (isDdG) { if (typeof loadDdGData === 'function') loadDdGData(); return; }
+        if (isPublic) { if (typeof loadPublicData === 'function') loadPublicData(); return; }
+        if (tab === 'tabTempi') loadTempi();
+        else if (tab === 'tabClassifica') caricaClassificaGenerale();
+        else if (tab === 'tabComunicati') loadComunicati();
+        else if (tab === 'tabOrari') loadOrariTeorici();
+        else if (tab === 'tabSquadra') loadSquadra();
+        else { loadTempi(); loadComunicati(); }
+        setLastSync(Date.now());
+      }
+
+      document.addEventListener('touchstart', (e) => {
+        if (document.scrollingElement.scrollTop > 0) { pulling = false; return; }
+        // Non attivare in overlay/modal aperti
+        if (document.querySelector('.popup-overlay.active, .onb-overlay.show, .sos-popup.active')) { pulling = false; return; }
+        startY = e.touches[0].clientY;
+        pulling = true;
+      }, { passive: true });
+
+      document.addEventListener('touchmove', (e) => {
+        if (!pulling) return;
+        const dy = e.touches[0].clientY - startY;
+        if (dy <= 0) { ind().classList.remove('active', 'ready'); return; }
+        pulled = Math.min(dy, 140);
+        const el = ind();
+        el.classList.add('active');
+        if (pulled >= THRESHOLD) {
+          el.classList.add('ready');
+          lbl().textContent = 'Rilascia per aggiornare';
+        } else {
+          el.classList.remove('ready');
+          lbl().textContent = 'Tira per aggiornare';
+        }
+      }, { passive: true });
+
+      document.addEventListener('touchend', () => {
+        if (!pulling) return;
+        const el = ind();
+        if (pulled >= THRESHOLD) {
+          el.classList.remove('ready');
+          el.classList.add('refreshing');
+          lbl().textContent = 'Aggiornamento…';
+          if (navigator.vibrate) navigator.vibrate(30);
+          refreshCurrentTab();
+          setTimeout(() => {
+            el.classList.remove('active', 'refreshing');
+            lbl().textContent = 'Tira per aggiornare';
+          }, 800);
+        } else {
+          el.classList.remove('active', 'ready');
+        }
+        pulling = false;
+        pulled = 0;
+      }, { passive: true });
+    })();
+
+    // ==================== LIVE DOT update ====================
+    function injectLiveDots() {
+      ['tempiUpdateTime', 'comunicatiUpdateTime', 'lastUpdateComunicati', 'lastUpdateClassifica', 'lastUpdateSquadra', 'lastUpdateOrari', 'publicLastUpdate'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || el.querySelector('.live-dot')) return;
+        const dot = document.createElement('span');
+        dot.className = 'live-dot';
+        dot.setAttribute('aria-hidden', 'true');
+        el.insertBefore(dot, el.firstChild);
+      });
+    }
+    function updateLiveDots() {
+      document.querySelectorAll('.live-dot').forEach(d => {
+        d.classList.toggle('offline', !navigator.onLine);
+      });
+    }
+    setInterval(updateLiveDots, 5000);
+
+    // ==================== ONBOARDING ====================
+    let _deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      _deferredInstallPrompt = e;
+      const btn = document.getElementById('onbInstallBtn');
+      if (btn) { btn.textContent = 'Installa'; }
+    });
+
+    let _onbStep = 1;
+    function showOnboarding() {
+      _onbStep = 1;
+      setOnbStep(1);
+      document.getElementById('onbOverlay').classList.add('show');
+
+      // Setup istruzioni install per iOS/Android
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const inStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+      const contentEl = document.getElementById('onbInstallHow');
+      const titleEl = document.getElementById('onbInstallTitle');
+      const btn = document.getElementById('onbInstallBtn');
+      if (inStandalone) {
+        titleEl.textContent = 'Già installata ✅';
+        contentEl.textContent = 'L\'app è già sulla tua home. Nessuna azione necessaria.';
+        btn.textContent = 'Fatto';
+      } else if (isIOS) {
+        contentEl.innerHTML = 'Premi il pulsante <strong>Condividi</strong> <span style="font-size:16px;">⬆️</span> in basso a Safari, poi scorri e scegli <strong>"Aggiungi alla schermata Home"</strong>.';
+        btn.textContent = 'Ho capito';
+      } else if (_deferredInstallPrompt) {
+        contentEl.textContent = 'Premi "Installa" per aggiungere ERTA alla schermata Home del telefono.';
+        btn.textContent = 'Installa';
+      } else {
+        contentEl.textContent = 'Dal menu del browser (⋮) scegli "Aggiungi a schermata Home" o "Installa app".';
+        btn.textContent = 'Ho capito';
+      }
+    }
+    function hideOnboarding() {
+      document.getElementById('onbOverlay').classList.remove('show');
+      localStorage.setItem('erta_onboarded', '1');
+    }
+    function setOnbStep(n) {
+      _onbStep = n;
+      [1, 2, 3].forEach(i => {
+        document.getElementById('onbStep' + i).classList.toggle('active', i === n);
+        const dot = document.getElementById('onbStepDot' + i);
+        if (dot) {
+          dot.classList.toggle('active', i === n);
+          dot.classList.toggle('done', i < n);
+        }
+      });
+    }
+    function onbNext() { if (_onbStep < 3) setOnbStep(_onbStep + 1); else hideOnboarding(); }
+    function onbPrev() { if (_onbStep > 1) setOnbStep(_onbStep - 1); }
+    function skipOnboarding() { hideOnboarding(); }
+    window.skipOnboarding = skipOnboarding;
+    window.onbNext = onbNext;
+    window.onbPrev = onbPrev;
+
+    async function applyOnbPermissions() {
+      const wantGps = document.getElementById('onbTogGps').checked;
+      const wantPush = document.getElementById('onbTogPush').checked;
+      const wantSos = document.getElementById('onbTogSos').checked;
+
+      localStorage.setItem('erta_pref_push', wantPush ? '1' : '0');
+      localStorage.setItem('erta_pref_sos', wantSos ? '1' : '0');
+      localStorage.setItem('erta_pref_gps', wantGps ? '1' : '0');
+
+      if (wantGps && navigator.geolocation) {
+        try { navigator.geolocation.getCurrentPosition(() => {}, () => {}, { timeout: 5000 }); } catch (e) {}
+      }
+      if (wantPush && 'Notification' in window && Notification.permission === 'default') {
+        try { await Notification.requestPermission(); } catch (e) {}
+      }
+
+      setOnbStep(3);
+    }
+    window.applyOnbPermissions = applyOnbPermissions;
+
+    async function triggerInstall() {
+      if (_deferredInstallPrompt) {
+        _deferredInstallPrompt.prompt();
+        try { await _deferredInstallPrompt.userChoice; } catch (e) {}
+        _deferredInstallPrompt = null;
+      }
+      hideOnboarding();
+    }
+    window.triggerInstall = triggerInstall;
+
+    function maybeShowOnboarding() {
+      if (localStorage.getItem('erta_onboarded') === '1') return;
+      if (isDdG || isPublic) return;
+      setTimeout(showOnboarding, 600);
     }
 
     // ==================== INIT ====================

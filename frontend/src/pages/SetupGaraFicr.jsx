@@ -570,9 +570,10 @@ export default function SetupGaraFicr() {
         setCodiceAccessoPubblico(primo.codice_accesso_pubblico || '');
       }
       
-      // Passa allo step 4 (Struttura Gara)
-      setStepCorrente(4);
-      
+      // Salta direttamente allo step Import (7). Le impostazioni avanzate
+      // (struttura, tempi CO, GPS) sono accessibili da link nello step 7.
+      setStepCorrente(7);
+
     } catch (err) {
       setErrore('Errore: ' + err.message);
     } finally {
@@ -692,12 +693,12 @@ export default function SetupGaraFicr() {
       }
       
       console.log(`Struttura salvata: ${successi}/${eventiCreati.length} eventi`);
-      
-      // Passa allo step 5 (Tempi CO)
-      setStepCorrente(5);
+
+      // Nel nuovo flusso torna a step 7 (Import), non prosegue a CO
+      setStepCorrente(7);
     } catch (err) {
       console.log('Errore salvataggio struttura:', err);
-      setStepCorrente(5);
+      setStepCorrente(7);
     } finally {
       setSalvandoStruttura(false);
     }
@@ -759,7 +760,8 @@ export default function SetupGaraFicr() {
           throw new Error(`HTTP ${res.status}: ${errText}`);
         }
       }
-      setStepCorrente(6);
+      // Nel nuovo flusso torna a step 7 (Import) dopo salva
+      setStepCorrente(7);
     } catch (err) {
       console.error('Errore salvataggio tempi:', err);
       setErrore('Errore salvataggio tempi: ' + err.message);
@@ -982,25 +984,28 @@ export default function SetupGaraFicr() {
       </div>
 
       {/* Progress Steps */}
+      {/*
+        ProgressSteps SEMPLIFICATO a 3 step logici: Gara | Configura | Importa.
+        Internamente stepCorrente va da 1 a 7 (step 4-6 sono le Avanzate).
+        Mapping stepCorrente -> visuale:
+          1, 2   -> visuale 0 (Gara)
+          3      -> visuale 1 (Configura)
+          4-7    -> visuale 2 (Importa, con Avanzate dentro)
+      */}
       <div className="bg-surface border border-border-subtle rounded-lg p-5 mb-4">
         <ProgressSteps
-          steps={['Anno', 'Gara', 'Eventi', 'Struttura', 'Tempi CO', 'GPS', 'Import']}
-          currentStep={stepCorrente - 1}
-          canNavigateTo={(idx) => {
-            const targetStep = idx + 1;
-            // Step gia' completati sempre navigabili
-            if (stepCorrente > targetStep) return true;
-            // Step corrente ovviamente
-            if (stepCorrente === targetStep) return true;
-            // Se gara gia' configurata e abbiamo eventi creati, libero accesso agli step 4-7
-            if (garaEsistente && targetStep >= 3 && eventiCreati.length > 0) return true;
-            return false;
+          steps={['Gara', 'Configura', 'Importa']}
+          currentStep={stepCorrente <= 2 ? 0 : stepCorrente === 3 ? 1 : 2}
+          canNavigateTo={(visualIdx) => {
+            if (visualIdx === 0) return true;
+            if (visualIdx === 1) return garaEsistente || stepCorrente >= 3;
+            // visualIdx === 2 (Importa): serve aver creato almeno un evento
+            return (garaEsistente && eventiCreati.length > 0) || stepCorrente >= 3 || eventiCreati.length > 0;
           }}
-          onStepClick={(idx) => {
-            const targetStep = idx + 1;
-            if (stepCorrente > targetStep || (garaEsistente && targetStep >= 3 && eventiCreati.length > 0)) {
-              setStepCorrente(targetStep);
-            }
+          onStepClick={(visualIdx) => {
+            if (visualIdx === 0) setStepCorrente(stepCorrente > 2 ? 2 : stepCorrente);
+            else if (visualIdx === 1) setStepCorrente(3);
+            else setStepCorrente(7);
           }}
         />
       </div>
@@ -1438,10 +1443,10 @@ export default function SetupGaraFicr() {
             {/* Navigation */}
             <div className="flex justify-between mt-6">
               <button
-                onClick={() => setStepCorrente(3)}
+                onClick={() => setStepCorrente(7)}
                 className="px-4 py-2 text-content-secondary hover:text-content-primary"
               >
-                ← Indietro
+                ← Torna all'Import
               </button>
               <button
                 onClick={salvaStrutturaGara}
@@ -1604,10 +1609,10 @@ export default function SetupGaraFicr() {
           
           <div className="flex justify-between mt-6">
             <button
-              onClick={() => setStepCorrente(4)}
+              onClick={() => setStepCorrente(7)}
               className="px-4 py-2 text-content-secondary hover:text-content-primary"
             >
-              ← Indietro
+              ← Torna all'Import
             </button>
             <button
               onClick={salvaTempiSettore}
@@ -1770,10 +1775,10 @@ export default function SetupGaraFicr() {
           
           <div className="flex justify-between">
             <button
-              onClick={() => setStepCorrente(5)}
+              onClick={() => setStepCorrente(7)}
               className="px-4 py-2 text-content-secondary hover:text-content-primary"
             >
-              ← Indietro
+              ← Torna all'Import
             </button>
             <button
               onClick={salvaParametriGPS}
@@ -1943,9 +1948,57 @@ export default function SetupGaraFicr() {
             <XmlImportPanel eventiCreati={eventiCreati} />
           </div>
 
+          {/* Impostazioni avanzate - link agli step 4, 5, 6 (opzionali) */}
+          <div className="mb-6 bg-surface-2 border border-border-subtle rounded-lg p-4">
+            <div className="flex items-start gap-2 mb-3">
+              <Settings className="w-4 h-4 text-content-secondary mt-0.5" />
+              <div>
+                <h3 className="text-sm font-semibold text-content-primary">Impostazioni avanzate (opzionali)</h3>
+                <p className="text-xs text-content-tertiary mt-0.5">
+                  Non obbligatorie per far funzionare la gara. Configurale solo se usi le relative funzionalita'.
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setStepCorrente(4)}
+                className="flex items-center justify-between p-3 rounded-md border border-border bg-surface hover:bg-surface-3 transition-colors text-left"
+              >
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-content-primary">Struttura gara</div>
+                  <div className="text-2xs text-content-tertiary mt-0.5">Giri e tipologie prove</div>
+                </div>
+                <span className="text-content-tertiary shrink-0">→</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setStepCorrente(5)}
+                className="flex items-center justify-between p-3 rounded-md border border-border bg-surface hover:bg-surface-3 transition-colors text-left"
+              >
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-content-primary">Tempi settore CO</div>
+                  <div className="text-2xs text-content-tertiary mt-0.5">Orari teorici LiveTiming</div>
+                </div>
+                <span className="text-content-tertiary shrink-0">→</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setStepCorrente(6)}
+                className="flex items-center justify-between p-3 rounded-md border border-border bg-surface hover:bg-surface-3 transition-colors text-left"
+              >
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-content-primary">GPS &amp; paddock</div>
+                  <div className="text-2xs text-content-tertiary mt-0.5">Tracking piloti, codice DdG</div>
+                </div>
+                <span className="text-content-tertiary shrink-0">→</span>
+              </button>
+            </div>
+          </div>
+
           <div className="flex justify-between mt-6">
             <button
-              onClick={() => setStepCorrente(6)}
+              onClick={() => setStepCorrente(3)}
               className="px-4 py-2 text-content-secondary hover:text-content-primary"
             >
               ← Indietro

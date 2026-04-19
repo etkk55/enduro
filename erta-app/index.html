@@ -2126,6 +2126,172 @@
     }
     .tour-tips strong { color: var(--text-primary); font-weight: 700; }
 
+    /* ==================== GUIDA COMPLETA (dal menu Altro) ==================== */
+    .guide-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 2100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fadeIn 200ms ease-out;
+    }
+    .guide-overlay.show { display: flex; }
+    .guide-sheet {
+      background: var(--bg-surface);
+      width: 100%;
+      max-width: 560px;
+      border-radius: var(--r-xl) var(--r-xl) 0 0;
+      padding: 0;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
+      animation: onbSlideUp 280ms cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .guide-header {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .guide-header h2 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+    .guide-header p {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+    .guide-close {
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .guide-body {
+      overflow-y: auto;
+      padding: 14px 16px calc(var(--safe-bottom) + 20px);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .guide-section {
+      margin-bottom: 14px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+    }
+    .guide-section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .guide-section-head:active { background: var(--bg-surface-3); }
+    .guide-section-head .icon {
+      font-size: 22px;
+      flex: 0 0 auto;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, var(--brand-50), var(--bg-surface));
+      border: 1px solid var(--brand-500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .guide-section-head .title-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+    .guide-section-head .title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .guide-section-head .subtitle {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+    }
+    .guide-section-head .chev {
+      font-size: 14px;
+      color: var(--text-tertiary);
+      transition: transform 200ms;
+    }
+    .guide-section.open .guide-section-head .chev {
+      transform: rotate(90deg);
+    }
+    .guide-section-body {
+      display: none;
+      padding: 0 14px 14px 66px;
+    }
+    .guide-section.open .guide-section-body {
+      display: block;
+      animation: fadeIn 200ms ease-out;
+    }
+    .guide-section-body p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .guide-section-body ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 10px;
+    }
+    .guide-section-body li {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      padding: 6px 0 6px 22px;
+      position: relative;
+    }
+    .guide-section-body li::before {
+      content: '•';
+      position: absolute;
+      left: 8px;
+      color: var(--brand-500);
+      font-weight: 700;
+    }
+    .guide-section-body strong { color: var(--text-primary); font-weight: 700; }
+    .guide-section-body .tip {
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+      color: var(--info);
+      padding: 8px 12px;
+      border-radius: var(--r-sm);
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
     .onb-progress {
       display: flex;
       gap: 6px;
@@ -3896,6 +4062,22 @@
     <span class="arrow">↓</span><span id="ptrLabel">Tira per aggiornare</span>
   </div>
 
+  <!-- Guida completa (da Altro → Guida rapida) -->
+  <div id="guideOverlay" class="guide-overlay" role="dialog" aria-modal="true" onclick="if(event.target===this)hideGuida()">
+    <div class="guide-sheet">
+      <div class="guide-header">
+        <div>
+          <h2>📖 Guida completa</h2>
+          <p>Tutto quello che puoi fare con ERTA</p>
+        </div>
+        <button class="guide-close" onclick="hideGuida()" aria-label="Chiudi">✕</button>
+      </div>
+      <div class="guide-body" id="guideBody">
+        <!-- popolato dal JS -->
+      </div>
+    </div>
+  </div>
+
   <!-- Onboarding sheet -->
   <div id="onbOverlay" class="onb-overlay" role="dialog" aria-modal="true">
     <div class="onb-sheet">
@@ -4554,11 +4736,11 @@
               <div class="altro-sub">Emergenze, messaggi</div>
             </div>
           </button>
-          <button onclick="toggleAltroSheet(); showTabTour()" class="altro-item">
+          <button onclick="toggleAltroSheet(); showGuidaRapida()" class="altro-item">
             <span class="altro-icon">📖</span>
             <div>
-              <div class="altro-title">Guida rapida</div>
-              <div class="altro-sub">Come funziona ogni tab</div>
+              <div class="altro-title">Guida completa</div>
+              <div class="altro-sub">Tutte le funzionalità</div>
             </div>
           </button>
         </div>
@@ -11073,15 +11255,189 @@ ${mapsLink}`;
     }
     window.afterInstall = afterInstall;
 
-    // Standalone: riapri solo il tour (dal menu Altro → Guida rapida)
+    // Standalone: riapri solo il tour (usato per utenti legacy al login)
     function showTabTour() {
       document.getElementById('onbOverlay').classList.add('show');
       setOnbStep(4);
-      // Nascondi "Indietro" dato che siamo entrati diretti
       const backBtn = document.getElementById('onbTourBack');
       if (backBtn) backBtn.style.display = 'none';
     }
     window.showTabTour = showTabTour;
+
+    // ==================== GUIDA COMPLETA ====================
+    const GUIDE_SECTIONS = [
+      {
+        icon: '⏱️',
+        title: 'Tempi — la tua home',
+        subtitle: 'Posizione, gap, ultima PS, condivisione',
+        body: `
+          <p>La prima schermata che vedi. Ti mostra in tempo reale dove sei in gara.</p>
+          <ul>
+            <li><strong>Posizione assoluta</strong> + numero totale piloti</li>
+            <li><strong>Posizione di classe</strong> con numero piloti in classe</li>
+            <li><strong>Tempo totale</strong> e <strong>gap dal primo</strong></li>
+            <li><strong>Ultima PS</strong>: nome e tempo della tua prova più recente</li>
+            <li><strong>Lista prove speciali</strong>: tocca una PS per aprire il popup di dettaglio</li>
+            <li><strong>📤 Condividi i miei tempi</strong>: apre il menu nativo WhatsApp/Telegram</li>
+          </ul>
+          <div class="tip">💡 Il pop-up PS ha 3 tab: <strong>Assoluta / Classe / Amici</strong>. Vedi chi hai davanti, chi hai dietro, e quanto hai guadagnato/perso in quella PS.</div>
+        `
+      },
+      {
+        icon: '🏆',
+        title: 'Classifica generale',
+        subtitle: 'Classi, MotoClub, Squadre, Amici',
+        body: `
+          <p>Quattro viste diverse della classifica, accessibili dai toggle in alto.</p>
+          <ul>
+            <li><strong>Classi</strong>: classifica per categoria (Expert, Senior…)</li>
+            <li><strong>Club</strong>: filtra per MotoClub di appartenenza</li>
+            <li><strong>Squadre</strong>: classifica dei MotoClub per punti squadra (top 3 piloti)</li>
+            <li><strong>👥 Amici</strong>: solo i membri della tua squadra</li>
+          </ul>
+          <p>I primi 3 posti hanno bordo oro/argento/bronzo. Il tuo nome è evidenziato in brand.</p>
+        `
+      },
+      {
+        icon: '📢',
+        title: 'Comunicati',
+        subtitle: 'Messaggi DdG, generali, paddock',
+        body: `
+          <p>Tutti gli avvisi ufficiali della Direzione Gara e informazioni utili.</p>
+          <ul>
+            <li><strong>Comunicati</strong>: messaggi urgenti della DdG (blu)</li>
+            <li><strong>Generali</strong>: informazioni sulla gara (verde)</li>
+            <li><strong>Paddock</strong>: info su aree paddock e servizi (ambra)</li>
+          </ul>
+          <p>Ogni card mostra numero progressivo + orario (HH:MM:SS). Se c'è un allegato, puoi aprirlo con 📎.</p>
+        `
+      },
+      {
+        icon: '👥',
+        title: 'La Mia Squadra',
+        subtitle: 'Confronta te con i tuoi amici',
+        body: `
+          <p>La sezione più ricca per duellare con i tuoi compagni. Crea una squadra e aggiungi piloti dal menu a tendina.</p>
+          <ul>
+            <li><strong>Classifica squadra</strong>: posizioni interne con chip di <strong>momentum</strong> (🔥 In forma, 📈 In recupero, ➖ Stabile, 📉 In calo)</li>
+            <li><strong>⚔️ Tu vs Amico</strong>: selezioni un amico e vedi score "4 - 3" PS per PS, delta totale, chi ha vinto ogni prova</li>
+            <li><strong>📏 Distacchi dal leader</strong>: bar chart orizzontale vs il più veloce della squadra</li>
+            <li><strong>🏅 Re delle PS</strong>: chi ha fatto il miglior tempo in ogni PS</li>
+            <li><strong>🌡️ Heatmap</strong>: griglia colorata verde→rosso per posizione in ogni PS</li>
+            <li><strong>Tutte le PS</strong>: matrice compatta con miglior tempo evidenziato in oro</li>
+            <li><strong>Grafici</strong>: posizioni, gap dal migliore, cumulato</li>
+          </ul>
+          <div class="tip">💡 Solo il creatore della squadra può aggiungere/rimuovere piloti. 👑 = creatore.</div>
+        `
+      },
+      {
+        icon: '🔍',
+        title: 'Confronta piloti',
+        subtitle: 'Grafici tra qualsiasi pilota',
+        body: `
+          <p>Cerca fino a 10 piloti (anche fuori squadra) e confrontali con 3 grafici:</p>
+          <ul>
+            <li><strong>Posizione tra i piloti</strong> PS per PS</li>
+            <li><strong>Secondi persi dal più veloce</strong> per PS</li>
+            <li><strong>Cumulato</strong>: somma progressiva dei secondi persi</li>
+          </ul>
+          <p>Tocca i grafici per vedere il tooltip con tempi esatti.</p>
+        `
+      },
+      {
+        icon: '⏰',
+        title: 'Orari teorici CO',
+        subtitle: 'Passaggi ai controlli orario',
+        body: `
+          <p>Gli orari ai quali devi passare ai Controlli Orario (CO), calcolati dalla tua partenza e dai tempi ufficiali di trasferimento.</p>
+          <ul>
+            <li><strong>Partenza</strong> (blu): il tuo orario di start</li>
+            <li><strong>CO1…CO7</strong> (ambra): solo i CO attivi della gara</li>
+            <li><strong>Arrivo</strong> (verde): orario teorico finale</li>
+          </ul>
+        `
+      },
+      {
+        icon: '🆘',
+        title: 'SOS ed emergenze',
+        subtitle: 'Tieni premuto 3 secondi',
+        body: `
+          <p>Il pulsante rosso in basso a destra è sempre visibile. In caso di emergenza:</p>
+          <ul>
+            <li><strong>Tieni premuto 3 secondi</strong> → vibrazione + anello rosso che si riempie</li>
+            <li>L'SOS parte con la tua posizione GPS e allerta subito la DdG</li>
+            <li>Puoi aggiungere un testo breve dopo l'invio (es. "bucato al km 5")</li>
+            <li>Rilasciando prima dei 3 secondi si annulla</li>
+          </ul>
+          <p>Nel tab <strong>Segnala</strong> puoi anche mandare messaggi non urgenti: Assistenza, Guasto, Ritiro.</p>
+        `
+      },
+      {
+        icon: '📤',
+        title: 'Condividi risultati',
+        subtitle: 'WhatsApp, Telegram, Messages',
+        body: `
+          <p>Dal tab <strong>Tempi</strong>, in fondo alla card posizione, c'è il bottone <strong>📤 Condividi i miei tempi</strong>.</p>
+          <p>Apre il menu nativo del telefono per condividere su WhatsApp, Telegram, SMS, etc. Il testo include:</p>
+          <ul>
+            <li>Nome evento e numero pilota</li>
+            <li>Posizione assoluta e di classe</li>
+            <li>Tempo totale e gap dal leader</li>
+          </ul>
+        `
+      },
+      {
+        icon: '📲',
+        title: 'Trucchi e gesture',
+        subtitle: 'Pull-to-refresh, offline, install',
+        body: `
+          <ul>
+            <li><strong>Swipe-down dall'alto</strong>: aggiorna i dati del tab corrente. Funziona ovunque.</li>
+            <li><strong>Puntino verde</strong> accanto ai timestamp: pulsa quando sei online, grigio fisso se offline.</li>
+            <li><strong>Offline</strong>: un banner rosso in alto avvisa se perdi la connessione. I dati in cache rimangono visibili.</li>
+            <li><strong>Installa PWA</strong>: dal menu condividi del browser scegli "Aggiungi alla schermata Home". Su iOS usa Safari.</li>
+            <li><strong>Notifiche</strong>: puoi attivarle per comunicati DdG ed emergenze squadra.</li>
+          </ul>
+        `
+      }
+    ];
+
+    function renderGuide() {
+      const body = document.getElementById('guideBody');
+      if (!body) return;
+      body.innerHTML = GUIDE_SECTIONS.map((s, i) => `
+        <div class="guide-section ${i === 0 ? 'open' : ''}" data-idx="${i}">
+          <div class="guide-section-head" onclick="toggleGuideSection(${i})">
+            <div class="icon">${s.icon}</div>
+            <div class="title-wrap">
+              <div class="title">${s.title}</div>
+              <div class="subtitle">${s.subtitle}</div>
+            </div>
+            <div class="chev">▶</div>
+          </div>
+          <div class="guide-section-body">${s.body}</div>
+        </div>
+      `).join('');
+    }
+
+    function toggleGuideSection(idx) {
+      if (typeof haptic === 'function') haptic(8);
+      const el = document.querySelector(`.guide-section[data-idx="${idx}"]`);
+      if (el) el.classList.toggle('open');
+    }
+    window.toggleGuideSection = toggleGuideSection;
+
+    function showGuidaRapida() {
+      if (!document.getElementById('guideBody').innerHTML) renderGuide();
+      document.getElementById('guideOverlay').classList.add('show');
+      if (typeof haptic === 'function') haptic(10);
+    }
+    window.showGuidaRapida = showGuidaRapida;
+
+    function hideGuida() {
+      document.getElementById('guideOverlay').classList.remove('show');
+    }
+    window.hideGuida = hideGuida;
 
     function maybeShowOnboarding() {
       if (isDdG || isPublic) return;

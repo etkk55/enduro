@@ -823,16 +823,63 @@
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--r-lg);
-      padding: 14px;
-      margin-bottom: 10px;
-      transition: border-color 150ms;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      transition: border-color 150ms, transform 150ms;
     }
-
     .comunicato-card.new {
       border-color: var(--brand-500);
       background: var(--brand-50);
     }
-
+    .comunicato-card .comunicato-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .comunicato-card .comunicato-numero {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    .comunicato-card .comunicato-ora {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      background: var(--bg-surface-2);
+      padding: 4px 10px;
+      border-radius: var(--r-pill);
+      border: 1px solid var(--border-subtle);
+    }
+    .comunicato-card .comunicato-testo {
+      font-size: 17px;
+      color: var(--text-primary);
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .comunicato-card .comunicato-pdf {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .comunicato-card .comunicato-pdf:active {
+      background: var(--bg-surface-3);
+    }
     .comunicato-card h4 {
       font-size: 15px;
       font-weight: 600;
@@ -842,15 +889,13 @@
       align-items: center;
       gap: 6px;
     }
-
     .comunicato-card p {
-      font-size: 16px;
+      font-size: 17px;
       color: var(--text-primary);
-      line-height: 1.5;
+      line-height: 1.55;
       margin-bottom: 8px;
       white-space: pre-wrap;
     }
-
     .comunicato-card .meta {
       font-size: 13px;
       color: var(--text-tertiary);
@@ -858,6 +903,106 @@
       gap: 8px;
       align-items: center;
     }
+
+    /* Sub-tab docs piloti (Comunicati / Generali / Paddock) */
+    .doc-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      background: var(--bg-surface-2);
+      padding: 4px;
+      border-radius: var(--r-md);
+      margin-bottom: 16px;
+    }
+    .doc-tab {
+      padding: 12px 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: var(--r-sm);
+      min-height: 44px;
+      transition: background 150ms, color 150ms;
+    }
+    .doc-tab.active {
+      background: var(--brand-500);
+      color: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+    .doc-section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .doc-section-title.blue { color: var(--info); }
+    .doc-section-title.green { color: var(--success); }
+    .doc-section-title.amber { color: var(--warning); }
+    .no-comunicati {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-tertiary);
+    }
+    .no-comunicati .icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+      opacity: 0.7;
+    }
+    .no-comunicati p {
+      font-size: 14px;
+    }
+
+    /* Orari Teorici */
+    .orari-list { display: flex; flex-direction: column; gap: 10px; }
+    .orario-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 18px;
+      border-radius: var(--r-lg);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+    }
+    .orario-row.partenza {
+      background: linear-gradient(135deg, rgba(59,130,246,0.12), var(--bg-surface));
+      border-color: var(--info-border);
+    }
+    .orario-row.co {
+      background: linear-gradient(135deg, rgba(245,158,11,0.10), var(--bg-surface));
+      border-color: var(--warning-border);
+    }
+    .orario-row.arrivo {
+      background: linear-gradient(135deg, rgba(16,185,129,0.12), var(--bg-surface));
+      border-color: var(--success-border);
+    }
+    .orario-label .title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.02em;
+    }
+    .orario-label .sub {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+    .orario-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+    .orario-row.partenza .orario-time { color: var(--info); }
+    .orario-row.co .orario-time { color: var(--warning); }
+    .orario-row.arrivo .orario-time { color: var(--success); }
 
     /* ==================== SOS ==================== */
     .sos-container {
@@ -891,20 +1036,61 @@
     .sos-btn {
       position: relative;
       z-index: 1;
-      width: 140px;
-      height: 140px;
+      width: 150px;
+      height: 150px;
       border-radius: 50%;
       background: var(--danger);
       color: white;
       border: none;
-      font-size: 56px;
+      font-size: 60px;
       cursor: pointer;
       box-shadow: 0 0 0 6px rgba(239,68,68,0.2), var(--shadow-lg);
-      transition: transform 150ms;
+      transition: transform 150ms, box-shadow 150ms;
+      user-select: none;
+      -webkit-user-select: none;
     }
-
     .sos-btn:active {
       transform: scale(0.95);
+    }
+    .sos-btn.pressing {
+      animation: sosHoldPulse 600ms ease-in-out infinite;
+      box-shadow: 0 0 0 12px rgba(239,68,68,0.35), 0 0 40px rgba(239,68,68,0.6), var(--shadow-lg);
+    }
+    @keyframes sosHoldPulse {
+      0%, 100% { transform: scale(0.96); }
+      50% { transform: scale(1.04); }
+    }
+
+    /* Ring of countdown during hold */
+    .sos-container .sos-progress {
+      background: radial-gradient(circle, transparent 65%, rgba(239,68,68,0.55) 65%);
+    }
+    .sos-container .sos-progress.active {
+      animation: sosCountdown 3s linear forwards;
+    }
+    @keyframes sosCountdown {
+      0% {
+        width: 160px; height: 160px;
+        background: conic-gradient(var(--danger) 0deg, rgba(239,68,68,0.15) 0deg);
+        opacity: 0.85;
+      }
+      100% {
+        width: 260px; height: 260px;
+        background: conic-gradient(var(--danger) 360deg, rgba(239,68,68,0.15) 360deg);
+        opacity: 1;
+      }
+    }
+
+    /* Text label while pressing */
+    .sos-container.holding .sos-label {
+      color: var(--danger);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      animation: sosLabelPulse 0.5s ease-in-out infinite alternate;
+    }
+    @keyframes sosLabelPulse {
+      from { opacity: 0.7; }
+      to { opacity: 1; }
     }
 
     .sos-label {
@@ -1221,15 +1407,19 @@
       background: var(--bg-surface-2);
       border-radius: var(--r-md);
     }
-    .add-membro-form input {
+    .add-membro-form input,
+    .add-membro-form .add-membro-select {
       padding: 12px;
       background: var(--bg-surface);
       border: 1px solid var(--border-default);
       border-radius: var(--r-md);
       color: var(--text-primary);
       font-size: 16px;
+      font-family: inherit;
+      min-width: 0;
     }
-    .add-membro-form input:focus { outline: none; border-color: var(--brand-500); }
+    .add-membro-form input:focus,
+    .add-membro-form .add-membro-select:focus { outline: none; border-color: var(--brand-500); }
     .add-membro-form button {
       padding: 12px 14px;
       background: var(--brand-500);
@@ -1483,43 +1673,99 @@
       margin-top: 2px;
     }
 
-    /* Compact PS confrontation (substitutes old table) */
+    /* Compact PS confrontation (unified horizontal scroll) */
     .ps-matrix {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--r-lg);
       overflow: hidden;
     }
-    .ps-matrix-head {
-      padding: 12px 14px;
+    .ps-matrix-title {
+      padding: 12px 14px 10px;
       background: var(--bg-surface-2);
       border-bottom: 1px solid var(--border-subtle);
       font-size: 14px;
       font-weight: 700;
       color: var(--text-primary);
     }
-    .ps-matrix-head .hint {
+    .ps-matrix-title .hint {
       display: block;
       font-size: 11px;
       font-weight: 500;
       color: var(--text-tertiary);
       margin-top: 2px;
     }
-    .ps-matrix-row {
+    .ps-matrix-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ps-matrix-scroll::-webkit-scrollbar { height: 6px; }
+    .ps-matrix-scroll::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+
+    /* Header row: PS numbers */
+    .ps-matrix-heading {
+      display: flex;
+      align-items: stretch;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface-2);
+      min-width: min-content;
+    }
+    .ps-matrix-heading .corner {
+      flex: 0 0 120px;
+      padding: 8px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      border-right: 1px solid var(--border-subtle);
+      position: sticky;
+      left: 0;
+      background: var(--bg-surface-2);
+      z-index: 2;
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
+    }
+    .ps-matrix-heading .ps-col {
+      flex: 0 0 68px;
+      padding: 8px 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+
+    /* Body rows */
+    .ps-matrix-row {
+      display: flex;
+      align-items: stretch;
       border-bottom: 1px solid var(--border-subtle);
+      min-width: min-content;
+      background: var(--bg-surface);
     }
     .ps-matrix-row:last-child { border-bottom: none; }
     .ps-matrix-row.me { background: var(--brand-50); }
     .ps-matrix-row.ritirato { opacity: 0.55; }
+
     .ps-matrix-pilot {
-      flex: 0 0 100px;
+      flex: 0 0 120px;
+      padding: 10px 12px;
       font-size: 13px;
       font-weight: 600;
       color: var(--text-primary);
+      border-right: 1px solid var(--border-subtle);
+      overflow: hidden;
+      position: sticky;
+      left: 0;
+      background: inherit;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .ps-matrix-pilot .cognome {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -1529,47 +1775,29 @@
       font-size: 11px;
       color: var(--text-tertiary);
       font-weight: 500;
-      display: block;
+      margin-top: 2px;
     }
-    .ps-matrix-chips {
-      flex: 1;
-      display: flex;
-      gap: 5px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding-bottom: 2px;
-    }
-    .ps-matrix-chips::-webkit-scrollbar { height: 3px; }
+
     .ps-chip {
-      flex: 0 0 auto;
-      min-width: 58px;
-      padding: 6px 8px;
-      border-radius: var(--r-sm);
-      background: var(--bg-surface-2);
-      border: 1px solid var(--border-subtle);
+      flex: 0 0 68px;
+      padding: 8px 4px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-secondary);
       text-align: center;
-      scroll-snap-align: start;
       line-height: 1.2;
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .ps-chip .ps-num {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      color: var(--text-tertiary);
-      display: block;
-    }
+    .ps-chip:last-child { border-right: none; }
     .ps-chip.best {
-      background: linear-gradient(135deg, rgba(251,191,36,0.24), rgba(251,191,36,0.08));
-      border-color: #fbbf24;
+      background: rgba(251,191,36,0.18);
       color: #fbbf24;
     }
-    .ps-chip.fast { border-color: var(--success); color: var(--success); }
-    .ps-chip.slow { border-color: var(--danger); color: var(--danger); opacity: 0.88; }
-    .ps-chip.none { color: var(--text-disabled); }
+    .ps-chip.none { color: var(--text-disabled); font-weight: 500; }
 
     /* ==================== GRAFICI ==================== */
     .grafico-container {
@@ -2072,83 +2300,152 @@
 
     /* Gap hero: davanti/dietro */
     .gap-hero {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
       border-radius: var(--r-lg);
       padding: 14px;
       margin-bottom: 10px;
       display: grid;
       grid-template-columns: auto 1fr;
-      gap: 12px;
+      gap: 14px;
       align-items: center;
+      border: 1px solid var(--border-subtle);
     }
-    .gap-hero.ahead { border-left: 4px solid var(--danger); }
-    .gap-hero.behind { border-left: 4px solid var(--success); }
-    .gap-hero.none { border-left: 4px solid var(--border-default); opacity: 0.7; }
+    .gap-hero.ahead {
+      background: linear-gradient(135deg, rgba(239,68,68,0.10), var(--bg-surface));
+      border-color: var(--danger-border);
+    }
+    .gap-hero.behind {
+      background: linear-gradient(135deg, rgba(16,185,129,0.10), var(--bg-surface));
+      border-color: var(--success-border);
+    }
+    .gap-hero.none {
+      background: var(--bg-surface);
+      border-color: var(--border-subtle);
+      opacity: 0.75;
+    }
 
     .gap-big {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 32px;
+      font-size: 34px;
       font-weight: 800;
       letter-spacing: -0.03em;
       line-height: 1;
       min-width: 90px;
       text-align: center;
+      padding: 6px 8px;
+      border-radius: var(--r-md);
     }
-    .gap-hero.ahead .gap-big { color: var(--danger); }
-    .gap-hero.behind .gap-big { color: var(--success); }
-    .gap-hero.none .gap-big { color: var(--text-disabled); font-size: 22px; }
+    .gap-hero.ahead .gap-big {
+      color: #ffffff;
+      background: var(--danger);
+      box-shadow: 0 2px 8px rgba(239,68,68,0.4);
+    }
+    .gap-hero.behind .gap-big {
+      color: #ffffff;
+      background: var(--success);
+      box-shadow: 0 2px 8px rgba(16,185,129,0.4);
+    }
+    .gap-hero.none .gap-big {
+      color: var(--text-disabled);
+      background: var(--bg-surface-2);
+      font-size: 22px;
+      box-shadow: none;
+    }
 
     .gap-info { min-width: 0; }
     .gap-label {
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-tertiary);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       display: flex;
       align-items: center;
       gap: 4px;
     }
     .gap-hero.ahead .gap-label { color: var(--danger); }
     .gap-hero.behind .gap-label { color: var(--success); }
+
     .gap-target {
       font-size: 14px;
       font-weight: 600;
       color: var(--text-primary);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      line-height: 1.2;
-    }
-    .gap-target .pos {
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-tertiary);
-      font-weight: 700;
-      margin-right: 4px;
-    }
-    .gap-sub {
-      font-size: 11px;
-      color: var(--text-tertiary);
-      margin-top: 2px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .gap-trend {
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px dashed var(--border-subtle);
-      grid-column: 1 / -1;
-      font-size: 12px;
-      font-weight: 600;
+      line-height: 1.3;
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-wrap: wrap;
     }
-    .gap-trend.worse { color: var(--danger); }
-    .gap-trend.better { color: var(--success); }
+    .gap-target .num-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--bg-surface-3);
+      color: var(--text-primary);
+      padding: 3px 7px;
+      border-radius: var(--r-sm);
+    }
+    .gap-target .pos {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-secondary);
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .gap-target .classe {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      background: var(--bg-surface-2);
+      padding: 2px 6px;
+      border-radius: var(--r-sm);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .gap-sub {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* PS gain/loss arrow banner */
+    .ps-delta {
+      grid-column: 1 / -1;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: var(--r-md);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ps-delta b {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+    }
+    .ps-delta .arrow {
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 900;
+    }
+    .ps-delta.better {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+    }
+    .ps-delta.worse {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+    .ps-delta.neutral {
+      background: var(--bg-surface-2);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
 
     .pane-podio {
       margin-top: 12px;
@@ -2420,13 +2717,14 @@
     }
     .view-toggle {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 4px;
       background: var(--bg-surface-2);
       padding: 4px;
       border-radius: var(--r-md);
       margin-bottom: 14px;
     }
+    .view-toggle-btn { font-size: 12px; padding: 10px 4px; }
     .view-toggle-btn {
       padding: 10px 6px;
       border: none;
@@ -3048,53 +3346,49 @@
 
     <!-- Tab: Comunicati -->
     <div class="tab-content" id="tabComunicati">
-      <!-- Sub-tab per i 3 tipi di documenti -->
-      <div style="display: flex; gap: 5px; margin-bottom: 15px;">
-        <button onclick="showDocPilotaTab('comunicato')" id="pilotaDocTabCom" 
-          style="flex: 1; padding: 8px 4px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; background: #3b82f6; color: white;">
+      <div class="doc-tabs">
+        <button onclick="showDocPilotaTab('comunicato')" id="pilotaDocTabCom" class="doc-tab active">
           📢 Comunicati
         </button>
-        <button onclick="showDocPilotaTab('general_info')" id="pilotaDocTabGen"
-          style="flex: 1; padding: 8px 4px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; background: #374151; color: #9ca3af;">
+        <button onclick="showDocPilotaTab('general_info')" id="pilotaDocTabGen" class="doc-tab">
           📋 Generali
         </button>
-        <button onclick="showDocPilotaTab('paddock_info')" id="pilotaDocTabPad"
-          style="flex: 1; padding: 8px 4px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; background: #374151; color: #9ca3af;">
+        <button onclick="showDocPilotaTab('paddock_info')" id="pilotaDocTabPad" class="doc-tab">
           🅿️ Paddock
         </button>
       </div>
-      
+
       <div id="pilotaDocComunicato" style="display: block;">
-        <h3 style="margin-bottom: 10px; color: #3b82f6; font-size: 14px;">📢 Comunicati Direzione Gara</h3>
+        <h3 class="doc-section-title blue">📢 Comunicati Direzione Gara</h3>
         <div id="comunicatiList">
           <div class="loading"><div class="spinner"></div></div>
         </div>
       </div>
-      
+
       <div id="pilotaDocGeneral" style="display: none;">
-        <h3 style="margin-bottom: 10px; color: #22c55e; font-size: 14px;">📋 Informazioni Generali</h3>
+        <h3 class="doc-section-title green">📋 Informazioni Generali</h3>
         <div id="generalInfoList">
           <div class="loading"><div class="spinner"></div></div>
         </div>
       </div>
-      
+
       <div id="pilotaDocPaddock" style="display: none;">
-        <h3 style="margin-bottom: 10px; color: #f59e0b; font-size: 14px;">🅿️ Informazioni Paddock</h3>
+        <h3 class="doc-section-title amber">🅿️ Informazioni Paddock</h3>
         <div id="paddockInfoList">
           <div class="loading"><div class="spinner"></div></div>
         </div>
       </div>
-      
+
       <div class="last-update" id="lastUpdateComunicati">--</div>
     </div>
 
-    <!-- Tab: Orari Teorici CO (Chat 20) -->
+    <!-- Tab: Orari Teorici CO -->
     <div class="tab-content" id="tabOrari">
-      <h3 style="margin-bottom: 15px; color: #f59e0b; font-size: 16px; text-align: center;">⏰ I Miei Orari Teorici</h3>
+      <h3 class="doc-section-title amber">⏰ I Miei Orari Teorici</h3>
       <div id="orariTeoriciContent">
         <div class="loading"><div class="spinner"></div></div>
       </div>
-      <p style="text-align: center; color: #888; font-size: 12px; margin-top: 15px;">
+      <p style="text-align: center; color: var(--text-tertiary); font-size: 13px; margin-top: 16px; line-height: 1.4;">
         Orari calcolati in base alla tua partenza e ai tempi di trasferimento ufficiali
       </p>
       <div class="last-update" id="lastUpdateOrari">--</div>
@@ -3148,8 +3442,9 @@
 
       <div class="view-toggle">
         <button id="toggleClassi" onclick="setVistaClassifica('classi')" class="view-toggle-btn active">Classi</button>
-        <button id="toggleMotoClub" onclick="setVistaClassifica('motoclub')" class="view-toggle-btn">MotoClub</button>
+        <button id="toggleMotoClub" onclick="setVistaClassifica('motoclub')" class="view-toggle-btn">Club</button>
         <button id="toggleSquadre" onclick="setVistaClassifica('squadre')" class="view-toggle-btn">Squadre</button>
+        <button id="toggleAmici" onclick="setVistaClassifica('amici')" class="view-toggle-btn">👥 Amici</button>
       </div>
 
       <div id="filtriClassifica" class="filtri-row">
@@ -3194,67 +3489,26 @@
       </div>
       
       <!-- Bottone genera grafici -->
-      <button onclick="generaGraficiConfronto()" id="btnGeneraGrafici"
-        style="width: 100%; padding: 12px; border-radius: 8px; background: #8b5cf6; color: white; border: none; font-weight: bold; margin-bottom: 15px;">
-        📊 GENERA GRAFICI
+      <button onclick="generaGraficiConfronto()" id="btnGeneraGrafici" class="crea-squadra-btn" style="margin-bottom: 18px;">
+        📊 Genera grafici confronto
       </button>
-      
+
       <!-- Grafici confronto -->
       <div id="graficiConfronto" style="display: none;">
         <div class="grafico-container">
-          <h4>📈 Andamento Posizioni</h4>
+          <h4>📈 Posizione tra i piloti confrontati</h4>
+          <p class="grafico-subtitle">Più in alto = meglio. 1° = migliore tempo in quella PS.</p>
           <canvas id="chartPosizioniConf"></canvas>
         </div>
         <div class="grafico-container">
-          <h4>⏱️ Scostamenti Tempi PS</h4>
+          <h4>⏱️ Secondi persi dal più veloce (per PS)</h4>
+          <p class="grafico-subtitle">Per ogni PS: il più veloce è a 0s. Gli altri mostrano quanti secondi hanno perso.</p>
           <canvas id="chartTempiConf"></canvas>
         </div>
         <div class="grafico-container">
-          <h4>📊 Differenza Cumulata</h4>
+          <h4>📊 Secondi persi totali dal più veloce</h4>
+          <p class="grafico-subtitle">Somma progressiva PS dopo PS. Chi sta in basso è il più veloce totale.</p>
           <canvas id="chartCumulatoConf"></canvas>
-        </div>
-        <div class="grafico-container">
-          <h4>🎯 Performance PS (Radar)</h4>
-          
-          <!-- Controlli -->
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 11px; color: #a0a0a0;">
-            <span>Min:</span>
-            <input type="range" id="sliderMinConf" min="10" max="30" value="10" style="flex: 1;" onchange="renderRadarSVG()">
-            <span id="minValueConf">10%</span>
-            <button onclick="toggleTempiRadar()" id="btnTempiRadar" style="padding: 4px 8px; background: #4b5563; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-size: 10px;">
-              ⏱️ Tempi
-            </button>
-            <button onclick="toggleTempiConf()" id="btnTempiConf" style="padding: 4px 8px; background: #4b5563; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-size: 10px;">
-              📊 Tabella
-            </button>
-          </div>
-          
-          <!-- Bottoni pilota -->
-          <div id="pilotiBtnsConf" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; justify-content: center;"></div>
-          
-          <!-- SVG Radar -->
-          <div style="display: flex; justify-content: center;">
-            <svg id="radarSvgConf" viewBox="0 0 500 500" style="width: 100%; max-width: 400px; height: auto;"></svg>
-          </div>
-          
-          <!-- Legenda interpretazione -->
-          <div style="margin-top: 15px; background: #1f2937; border-radius: 8px; padding: 12px; font-size: 11px;">
-            <h5 style="margin: 0 0 8px 0; color: #fff;">📖 Come leggere il grafico:</h5>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; color: #9ca3af;">
-              <span>• <span style="color: #4ade80;">Esterno</span> = più veloce</span>
-              <span>• <span style="color: #ef4444;">Centro</span> = più lento</span>
-              <span>• <span style="color: #fbbf24;">Forma grande</span> = costante</span>
-              <span>• <span style="color: #60a5fa;">Picchi</span> = PS forti</span>
-            </div>
-          </div>
-          
-          <!-- Tabella tempi Confronta -->
-          <div id="tabellaTempiConf" style="display: none; margin-top: 15px; overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
-              <thead id="tabellaTempiConfHead"></thead>
-              <tbody id="tabellaTempiConfBody"></tbody>
-            </table>
-          </div>
         </div>
       </div>
     </div>
@@ -3358,7 +3612,9 @@
 
         <!-- Form aggiungi membro (nascosto) -->
         <div id="formAggiungiMembro" class="add-membro-form" style="display:none;">
-          <input type="number" id="nuovoMembro" placeholder="Numero pilota">
+          <select id="nuovoMembro" class="add-membro-select">
+            <option value="">Caricamento piloti…</option>
+          </select>
           <button onclick="aggiungiMembro()">Aggiungi</button>
           <button onclick="nascondiAggiungiMembro()">Annulla</button>
         </div>
@@ -3371,62 +3627,19 @@
         <!-- Grafici Squadra -->
         <div class="grafici-squadra" id="graficiSquadra" style="display:none;">
           <div class="grafico-container">
-            <h4>📈 Andamento Posizioni</h4>
+            <h4>📈 Posizione nella squadra PS per PS</h4>
+            <p class="grafico-subtitle">Più in alto = meglio stai nella squadra. 1° = migliore della squadra in quella PS.</p>
             <canvas id="chartPosizioni"></canvas>
           </div>
           <div class="grafico-container">
-            <h4>⏱️ Scostamenti Tempi PS (rispetto alla media)</h4>
-            <p class="grafico-subtitle">Sopra = più veloce della media, Sotto = più lento</p>
+            <h4>⏱️ Secondi persi dal più veloce</h4>
+            <p class="grafico-subtitle">Per ogni PS: il più veloce della squadra è a 0s. Gli altri, quanti secondi hanno perso.</p>
             <canvas id="chartTempi"></canvas>
           </div>
           <div class="grafico-container">
-            <h4>📊 Differenza Cumulata (rispetto alla media)</h4>
-            <p class="grafico-subtitle">Linea in alto = accumula vantaggio, Linea in basso = accumula ritardo</p>
+            <h4>📊 Secondi persi totali dal più veloce</h4>
+            <p class="grafico-subtitle">Somma progressiva dei secondi persi PS dopo PS. 0s = sei sempre stato il più veloce.</p>
             <canvas id="chartCumulato"></canvas>
-          </div>
-          <!-- CHAT 22: Grafico Radar Performance PS -->
-          <div class="grafico-container">
-            <h4>🎯 Performance PS (Radar)</h4>
-            
-            <!-- Controlli -->
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 11px; color: #a0a0a0;">
-              <span>Min:</span>
-              <input type="range" id="sliderMinSquadra" min="10" max="30" value="10" style="flex: 1;" onchange="renderRadarSVGSquadra()">
-              <span id="minValueSquadra">10%</span>
-              <button onclick="toggleTempiRadarSquadra()" id="btnTempiSquadra" style="padding: 4px 8px; background: #4b5563; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-size: 10px;">
-                ⏱️ Tempi
-              </button>
-              <button onclick="toggleTabellaSquadra()" id="btnTabellaSquadra" style="padding: 4px 8px; background: #4b5563; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-size: 10px;">
-                📊 Tabella
-              </button>
-            </div>
-            
-            <!-- Bottoni pilota -->
-            <div id="pilotiBtnsSquadra" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; justify-content: center;"></div>
-            
-            <!-- SVG Radar -->
-            <div style="display: flex; justify-content: center;">
-              <svg id="radarSvgSquadra" viewBox="0 0 500 500" style="width: 100%; max-width: 400px; height: auto;"></svg>
-            </div>
-            
-            <!-- Legenda interpretazione -->
-            <div style="margin-top: 15px; background: #1f2937; border-radius: 8px; padding: 12px; font-size: 11px;">
-              <h5 style="margin: 0 0 8px 0; color: #fff;">📖 Come leggere il grafico:</h5>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; color: #9ca3af;">
-                <span>• <span style="color: #4ade80;">Esterno</span> = più veloce</span>
-                <span>• <span style="color: #ef4444;">Centro</span> = più lento</span>
-                <span>• <span style="color: #fbbf24;">Forma grande</span> = costante</span>
-                <span>• <span style="color: #60a5fa;">Picchi</span> = PS forti</span>
-              </div>
-            </div>
-            
-            <!-- Tabella tempi Squadra -->
-            <div id="tabellaTempiSquadra" style="display: none; margin-top: 15px; overflow-x: auto;">
-              <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
-                <thead id="tabellaTempiSquadraHead"></thead>
-                <tbody id="tabellaTempiSquadraBody"></tbody>
-              </table>
-            </div>
           </div>
         </div>
 
@@ -4850,49 +5063,45 @@
         const orari = data.orari;
         const checkpoints = data.checkpoint_attivi || {};
         
-        let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
-        
-        // Partenza
+        let html = '<div class="orari-list">';
+
         if (orari.partenza) {
           html += `
-            <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%); border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <div style="font-size: 12px; color: #94a3b8; text-transform: uppercase;">🏁 Partenza</div>
-                <div style="font-size: 11px; color: #64748b;">Orario assegnato</div>
+            <div class="orario-row partenza">
+              <div class="orario-label">
+                <div class="title">🏁 Partenza</div>
+                <div class="sub">Orario assegnato</div>
               </div>
-              <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">${orari.partenza}</div>
+              <div class="orario-time">${orari.partenza}</div>
             </div>`;
         }
-        
-        // CO1-CO7
+
         const coLabels = ['CO1', 'CO2', 'CO3', 'CO4', 'CO5', 'CO6', 'CO7'];
         const coKeys = ['co1', 'co2', 'co3', 'co4', 'co5', 'co6', 'co7'];
-        
         coKeys.forEach((key, idx) => {
           if (orari[key] && checkpoints[key]) {
             html += `
-              <div style="background: rgba(249, 158, 11, 0.1); border: 1px solid #f59e0b; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                  <div style="font-size: 12px; color: #fbbf24; text-transform: uppercase;">⏰ ${coLabels[idx]}</div>
-                  <div style="font-size: 11px; color: #64748b;">Controllo Orario</div>
+              <div class="orario-row co">
+                <div class="orario-label">
+                  <div class="title">⏰ ${coLabels[idx]}</div>
+                  <div class="sub">Controllo Orario</div>
                 </div>
-                <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">${orari[key]}</div>
+                <div class="orario-time">${orari[key]}</div>
               </div>`;
           }
         });
-        
-        // Arrivo
+
         if (orari.arrivo) {
           html += `
-            <div style="background: linear-gradient(135deg, #14532d 0%, #166534 100%); border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <div style="font-size: 12px; color: #86efac; text-transform: uppercase;">🏁 Arrivo</div>
-                <div style="font-size: 11px; color: #64748b;">Orario teorico finale</div>
+            <div class="orario-row arrivo">
+              <div class="orario-label">
+                <div class="title">🏁 Arrivo</div>
+                <div class="sub">Orario teorico finale</div>
               </div>
-              <div style="font-size: 28px; font-weight: bold; color: #22c55e;">${orari.arrivo}</div>
+              <div class="orario-time">${orari.arrivo}</div>
             </div>`;
         }
-        
+
         html += '</div>';
         container.innerHTML = html;
         updateEl.textContent = `Aggiornato: ${new Date().toLocaleTimeString('it-IT')}`;
@@ -5051,19 +5260,31 @@
     
     function showDocPilotaTab(tipo) {
       currentPilotaDocTab = tipo;
-      
-      // Aggiorna bottoni
-      document.getElementById('pilotaDocTabCom').style.background = tipo === 'comunicato' ? '#3b82f6' : '#374151';
-      document.getElementById('pilotaDocTabCom').style.color = tipo === 'comunicato' ? 'white' : '#9ca3af';
-      document.getElementById('pilotaDocTabGen').style.background = tipo === 'general_info' ? '#22c55e' : '#374151';
-      document.getElementById('pilotaDocTabGen').style.color = tipo === 'general_info' ? 'white' : '#9ca3af';
-      document.getElementById('pilotaDocTabPad').style.background = tipo === 'paddock_info' ? '#f59e0b' : '#374151';
-      document.getElementById('pilotaDocTabPad').style.color = tipo === 'paddock_info' ? 'white' : '#9ca3af';
-      
-      // Mostra contenuto
+      document.getElementById('pilotaDocTabCom').classList.toggle('active', tipo === 'comunicato');
+      document.getElementById('pilotaDocTabGen').classList.toggle('active', tipo === 'general_info');
+      document.getElementById('pilotaDocTabPad').classList.toggle('active', tipo === 'paddock_info');
+
       document.getElementById('pilotaDocComunicato').style.display = tipo === 'comunicato' ? 'block' : 'none';
       document.getElementById('pilotaDocGeneral').style.display = tipo === 'general_info' ? 'block' : 'none';
       document.getElementById('pilotaDocPaddock').style.display = tipo === 'paddock_info' ? 'block' : 'none';
+    }
+
+    // Estrae solo HH:MM:SS da una stringa ora (varie forme possibili)
+    function formatOraHHMMSS(ora) {
+      if (!ora) return '';
+      const s = String(ora).trim();
+      // Match HH:MM:SS o HH.MM.SS (anche con millisecondi)
+      const m = s.match(/(\d{1,2})[:.](\d{2})[:.](\d{2})/);
+      if (m) {
+        const pad = (n) => n.toString().padStart(2, '0');
+        return `${pad(parseInt(m[1]))}:${m[2]}:${m[3]}`;
+      }
+      // Se contiene solo HH:MM, appendi :00
+      const m2 = s.match(/(\d{1,2})[:.](\d{2})/);
+      if (m2) {
+        return `${m2[1].padStart(2, '0')}:${m2[2]}:00`;
+      }
+      return s;
     }
     
     async function loadComunicati() {
@@ -5115,13 +5336,13 @@
       }
 
       container.innerHTML = documenti.map(c => `
-        <div class="comunicato-card" style="background: ${colori.bg}; border-color: ${colori.border};">
+        <div class="comunicato-card" style="border-left: 4px solid ${colori.border};">
           <div class="comunicato-header">
             <span class="comunicato-numero" style="color: ${colori.text};">${colori.prefix} #${c.numero}</span>
-            <span class="comunicato-ora">${c.ora || ''} ${c.data || ''}</span>
+            <span class="comunicato-ora">🕒 ${formatOraHHMMSS(c.ora)}</span>
           </div>
           <div class="comunicato-testo">${c.testo || ''}</div>
-          ${c.ha_pdf ? `<a class="comunicato-pdf" onclick="openAllegato('${c.id}', '${c.pdf_nome || ''}')" style="color: ${colori.text};">📎 Apri Allegato</a>` : ''}
+          ${c.ha_pdf ? `<a class="comunicato-pdf" onclick="openAllegato('${c.id}', '${c.pdf_nome || ''}')" style="color: ${colori.text}; border-color: ${colori.border};">📎 Apri Allegato</a>` : ''}
         </div>
       `).join('');
     }
@@ -5398,59 +5619,66 @@
 
     function renderGapHero(kind, pilota, mioTempo, psNum, varGap) {
       if (!pilota) {
-        const label = kind === 'ahead' ? 'Sei in testa' : 'Sei l\'ultimo';
-        const sub = kind === 'ahead' ? 'Nessun pilota davanti' : 'Nessun pilota dietro';
         return `
           <div class="gap-hero none">
             <div class="gap-big">—</div>
             <div class="gap-info">
-              <div class="gap-label">${kind === 'ahead' ? '▲ Pilota davanti' : '▼ Pilota dietro'}</div>
-              <div class="gap-target">${label}</div>
-              <div class="gap-sub">${sub}</div>
+              <div class="gap-label">${kind === 'ahead' ? 'Pilota davanti' : 'Pilota dietro'}</div>
+              <div class="gap-target">${kind === 'ahead' ? '🏆 Sei in testa' : '🏁 Sei l\'ultimo'}</div>
+              <div class="gap-sub">Nessun pilota ${kind === 'ahead' ? 'davanti a te' : 'dietro di te'}</div>
             </div>
           </div>`;
       }
 
       const suoTempo = parseTempoTotale(pilota.totale);
       const gapAbs = Math.abs(suoTempo - mioTempo).toFixed(1);
-      const segno = kind === 'ahead' ? '−' : '+';
-
-      // Posizione pilota nel gruppo
       const posPilota = popupPSState.classificaOrdinata.findIndex(p => p.num === pilota.num) + 1;
 
       const psTime = pilota[`ps${psNum}_time`];
       const psTimeFmt = psTime ? formatTempoPS(parseFloat(psTime)) : '--';
 
-      // Trend
-      let trendHtml = '';
-      if (varGap) {
-        const varNum = parseFloat(varGap.variazione);
-        if (kind === 'ahead') {
-          if (varGap.staPerdendo && varNum > 0) {
-            trendHtml = `<div class="gap-trend worse">⚠️ stai perdendo ${Math.abs(varNum)}s in questa PS</div>`;
-          } else if (varNum < 0) {
-            trendHtml = `<div class="gap-trend better">✅ hai recuperato ${Math.abs(varNum)}s in questa PS</div>`;
+      // Gain/loss IN QUESTA PS: confronta tempo PS vs mio tempo PS
+      const miaPS = popupPSState.mioPilota[`ps${psNum}_time`];
+      let psArrowHtml = '';
+      if (psTime && miaPS) {
+        const delta = parseFloat(psTime) - parseFloat(miaPS);
+        const deltaAbs = Math.abs(delta).toFixed(2);
+        if (Math.abs(delta) < 0.05) {
+          psArrowHtml = `<div class="ps-delta neutral">≈ stesso tempo in PS${psNum}</div>`;
+        } else if (kind === 'ahead') {
+          if (delta > 0) {
+            // Il pilota davanti è stato più lento di me → io ho guadagnato
+            psArrowHtml = `<div class="ps-delta better"><span class="arrow">▲</span>Hai guadagnato <b>${deltaAbs}s</b> su di lui in PS${psNum}</div>`;
+          } else {
+            psArrowHtml = `<div class="ps-delta worse"><span class="arrow">▼</span>Hai perso <b>${deltaAbs}s</b> da lui in PS${psNum}</div>`;
           }
         } else {
-          if (varGap.staRecuperando) {
-            trendHtml = `<div class="gap-trend worse">⚠️ ti sta recuperando ${Math.abs(varNum)}s</div>`;
-          } else if (varNum > 0) {
-            trendHtml = `<div class="gap-trend better">✅ hai allungato di ${Math.abs(varNum)}s</div>`;
+          if (delta < 0) {
+            // Il pilota dietro è stato più veloce di me → io ho perso
+            psArrowHtml = `<div class="ps-delta worse"><span class="arrow">▼</span>Ha guadagnato <b>${deltaAbs}s</b> su di te in PS${psNum}</div>`;
+          } else {
+            psArrowHtml = `<div class="ps-delta better"><span class="arrow">▲</span>Hai allungato di <b>${deltaAbs}s</b> in PS${psNum}</div>`;
           }
         }
       }
 
-      const label = kind === 'ahead' ? '▲ Gap dal pilota davanti' : '▼ Vantaggio sul pilota dietro';
+      const label = kind === 'ahead' ? '🎯 Ritardo da chi ti precede' : '🛡️ Vantaggio su chi ti segue';
+      const gapValue = `${gapAbs}s`;
 
       return `
         <div class="gap-hero ${kind}">
-          <div class="gap-big">${segno}${gapAbs}s</div>
+          <div class="gap-big">${gapValue}</div>
           <div class="gap-info">
             <div class="gap-label">${label}</div>
-            <div class="gap-target"><span class="pos">${posPilota}°</span>${escHTML(pilota.cognome)} ${escHTML((pilota.nome || '').charAt(0))}${pilota.nome ? '.' : ''} <span style="color:var(--text-tertiary);font-weight:500;">(${escHTML(pilota.classe || '')})</span></div>
-            <div class="gap-sub">PS${psNum}: ${psTimeFmt} · totale ${escHTML(pilota.totale || '--')}</div>
+            <div class="gap-target">
+              <span class="num-pill">#${escHTML(pilota.num)}</span>
+              <span class="pos">${posPilota}°</span>
+              ${escHTML(pilota.cognome)} ${escHTML((pilota.nome || '').charAt(0))}${pilota.nome ? '.' : ''}
+              <span class="classe">${escHTML(pilota.classe || '')}</span>
+            </div>
+            <div class="gap-sub">PS${psNum}: ${psTimeFmt} · Tot ${escHTML(pilota.totale || '--')}</div>
           </div>
-          ${trendHtml}
+          ${psArrowHtml}
         </div>`;
     }
     
@@ -5672,15 +5900,27 @@
       const container = document.getElementById('tabellaClassifica');
       const filtroClasse = document.getElementById('filtroClasse').value;
       const filtroTeam = document.getElementById('filtroTeam').value;
-      
+
       let dati = [...classificaGeneraleData];
-      
-      // Applica filtri
-      if (filtroClasse) {
-        dati = dati.filter(p => p.classe === filtroClasse);
-      }
-      if (filtroTeam) {
-        dati = dati.filter(p => p.team === filtroTeam);
+
+      // Vista "Amici": filtra sui membri della squadra (incluso me)
+      if (vistaClassifica === 'amici') {
+        if (!currentSquadra || !currentSquadra.piloti || currentSquadra.piloti.length === 0) {
+          container.innerHTML = `
+            <div class="pane-empty">
+              <div class="ico">👥</div>
+              <h4>Nessuna squadra</h4>
+              <p>Crea una squadra per vedere la classifica dei tuoi amici.</p>
+              <button class="btn" onclick="showTab('altro'); setTimeout(()=>showTab('squadra'),50);">Crea squadra</button>
+            </div>`;
+          return;
+        }
+        const amiciNums = new Set(currentSquadra.piloti.map(p => String(p.numero_gara)));
+        if (currentUser?.pilota) amiciNums.add(String(currentUser.pilota.numero));
+        dati = dati.filter(p => amiciNums.has(String(p.num)));
+      } else {
+        if (filtroClasse) dati = dati.filter(p => p.classe === filtroClasse);
+        if (filtroTeam) dati = dati.filter(p => p.team === filtroTeam);
       }
       
       // Conta PS completate per ogni pilota (ps1_time..ps7_time)
@@ -5734,6 +5974,7 @@
       document.getElementById('toggleClassi').classList.toggle('active', vista === 'classi');
       document.getElementById('toggleMotoClub').classList.toggle('active', vista === 'motoclub');
       document.getElementById('toggleSquadre').classList.toggle('active', vista === 'squadre');
+      document.getElementById('toggleAmici').classList.toggle('active', vista === 'amici');
 
       const filtri = document.getElementById('filtriClassifica');
       const tabIndiv = document.getElementById('tabellaClassifica');
@@ -5744,6 +5985,11 @@
         tabIndiv.style.display = 'none';
         tabSquadre.style.display = 'block';
         renderClassificaSquadre();
+      } else if (vista === 'amici') {
+        filtri.style.display = 'none';
+        tabIndiv.style.display = 'block';
+        tabSquadre.style.display = 'none';
+        renderClassificaGenerale();
       } else {
         filtri.style.display = 'flex';
         tabIndiv.style.display = 'block';
@@ -6030,167 +6276,194 @@
     }
     
     function renderGraficiConfronto(classifica, prove) {
-      const colori = ['#ef4444', '#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'];
-      
-      // Usa nomi reali delle prove
+      const colori = ['#60a5fa', '#34d399', '#f59e0b', '#a78bfa', '#f472b6', '#2dd4bf', '#fb923c', '#fbbf24', '#c084fc', '#84cc16'];
+      const BRAND = '#ef476f';
       const numPS = prove.length || 7;
-      const labels = prove.map((p, i) => `PS${i+1}\n${p.nome || ''}`);
-      
+      const labels = prove.map((p, i) => `PS${i+1}`);
+      const nomiProve = prove.map(p => p.nome || '');
+
+      const gridColor = 'rgba(148,163,184,0.18)';
+      const textColor = '#d4dbed';
+      const tickFont = { size: 12, weight: '600' };
+
+      const datasetFor = (m, idx, values) => {
+        const isMe = currentUser?.pilota && m.num == currentUser.pilota.numero;
+        return {
+          label: `#${m.num} ${m.cognome?.substring(0, 8) || ''}`,
+          data: values,
+          borderColor: isMe ? BRAND : colori[idx % colori.length],
+          backgroundColor: isMe ? BRAND : colori[idx % colori.length],
+          borderWidth: isMe ? 4 : 2,
+          pointRadius: isMe ? 6 : 4,
+          pointHoverRadius: isMe ? 8 : 6,
+          pointBorderWidth: isMe ? 2 : 1,
+          pointBorderColor: isMe ? '#fff' : 'rgba(0,0,0,0.25)',
+          tension: 0,
+          order: isMe ? 0 : 1
+        };
+      };
+
+      const sharedOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: textColor, boxWidth: 14, boxHeight: 3, padding: 10,
+              font: { size: 12, weight: '600' }, usePointStyle: true
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(5,7,15,0.95)',
+            titleColor: '#fff', bodyColor: '#d4dbed',
+            borderColor: 'rgba(148,163,184,0.3)', borderWidth: 1,
+            padding: 12, cornerRadius: 8,
+            titleFont: { size: 13, weight: '700' }, bodyFont: { size: 12 },
+            callbacks: {
+              title: (items) => {
+                const idx = items[0].dataIndex;
+                const nome = nomiProve[idx];
+                return `PS${idx + 1}${nome ? ' · ' + nome : ''}`;
+              }
+            }
+          }
+        }
+      };
+
       // ==================== GRAFICO 1: POSIZIONI ====================
-      // Per ogni PS, calcola la posizione di ogni pilota nel gruppo selezionato
       const datasetsPosizioni = classifica.map((m, idx) => {
         const posizioni = [];
         for (let i = 1; i <= numPS; i++) {
           const key = `ps${i}_time`;
-          // Raccogli tempi di tutti i piloti per questa PS
           const tempiPS = classifica
             .filter(p => p[key] && parseFloat(p[key]) > 0)
             .map(p => ({ num: p.num, tempo: parseFloat(p[key]) }))
             .sort((a, b) => a.tempo - b.tempo);
-          
           const pos = tempiPS.findIndex(t => t.num === m.num);
           posizioni.push(pos >= 0 ? pos + 1 : null);
         }
-        
-        return {
-          label: `#${m.num} ${m.cognome?.substring(0, 6) || ''}`,
-          data: posizioni,
-          borderColor: colori[idx % colori.length],
-          backgroundColor: colori[idx % colori.length],
-          borderWidth: 2,
-          pointRadius: 4,
-          tension: 0.3
-        };
+        return datasetFor(m, idx, posizioni);
       });
-      
+
       if (chartPosizioniConf) chartPosizioniConf.destroy();
-      const ctxPos = document.getElementById('chartPosizioniConf').getContext('2d');
-      chartPosizioniConf = new Chart(ctxPos, {
+      chartPosizioniConf = new Chart(document.getElementById('chartPosizioniConf').getContext('2d'), {
         type: 'line',
         data: { labels, datasets: datasetsPosizioni },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          ...sharedOptions,
           scales: {
-            y: { 
-              reverse: true,
-              min: 1,
-              ticks: { color: '#a0a0a0', stepSize: 1 },
-              grid: { color: 'rgba(255,255,255,0.1)' },
-              title: { display: true, text: 'Posizione', color: '#a0a0a0' }
+            y: {
+              reverse: true, min: 1, max: classifica.length,
+              ticks: { color: textColor, stepSize: 1, font: tickFont, callback: v => `${v}°` },
+              grid: { color: gridColor }
             },
-            x: { ticks: { color: '#a0a0a0' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+            x: { ticks: { color: textColor, font: tickFont }, grid: { color: gridColor, display: false } }
           },
-          plugins: { legend: { labels: { color: '#fff', boxWidth: 15, font: { size: 10 } }, position: 'bottom' } }
+          plugins: {
+            ...sharedOptions.plugins,
+            tooltip: {
+              ...sharedOptions.plugins.tooltip,
+              callbacks: {
+                ...sharedOptions.plugins.tooltip.callbacks,
+                label: (ctx) => `${ctx.dataset.label}: ${ctx.raw != null ? ctx.raw + '°' : '—'}`
+              }
+            }
+          }
         }
       });
-      
-      // ==================== GRAFICO 2: SCOSTAMENTI ====================
-      // Calcola media per ogni PS usando campi diretti (ps1_time..ps7_time)
-      const mediePS = [];
+
+      // ==================== GRAFICO 2: GAP DAL MIGLIORE PER PS ====================
+      const gapPerPS = {};
+      classifica.forEach(m => { gapPerPS[m.num] = []; });
       for (let i = 1; i <= numPS; i++) {
         const key = `ps${i}_time`;
         const tempi = classifica
           .map(m => m[key] ? parseFloat(m[key]) : null)
           .filter(t => t && t > 0);
-        if (tempi.length === 0) {
-          mediePS.push(0);
-        } else {
-          const somma = tempi.reduce((acc, t) => acc + t, 0);
-          mediePS.push(somma / tempi.length);
-        }
+        const migliore = tempi.length > 0 ? Math.min(...tempi) : null;
+        classifica.forEach(m => {
+          const t = m[key] ? parseFloat(m[key]) : null;
+          if (t && migliore != null) gapPerPS[m.num].push(parseFloat((t - migliore).toFixed(2)));
+          else gapPerPS[m.num].push(null);
+        });
       }
-      
-      const datasetsScostamenti = classifica.map((m, idx) => {
-        const scostamenti = [];
-        for (let i = 1; i <= numPS; i++) {
-          const key = `ps${i}_time`;
-          const tempo = m[key] ? parseFloat(m[key]) : null;
-          if (!tempo || !mediePS[i-1]) {
-            scostamenti.push(null);
-          } else {
-            scostamenti.push(parseFloat((tempo - mediePS[i-1]).toFixed(2)));
-          }
-        }
-        
-        return {
-          label: `#${m.num} ${m.cognome?.substring(0, 6) || ''}`,
-          data: scostamenti,
-          borderColor: colori[idx % colori.length],
-          backgroundColor: colori[idx % colori.length] + '33',
-          borderWidth: 2,
-          pointRadius: 3,
-          tension: 0.3
-        };
-      });
-      
+
+      const datasetsGap = classifica.map((m, idx) => datasetFor(m, idx, gapPerPS[m.num]));
+
       if (chartTempiConf) chartTempiConf.destroy();
-      const ctxTempi = document.getElementById('chartTempiConf').getContext('2d');
-      chartTempiConf = new Chart(ctxTempi, {
+      chartTempiConf = new Chart(document.getElementById('chartTempiConf').getContext('2d'), {
         type: 'line',
-        data: { labels, datasets: datasetsScostamenti },
+        data: { labels, datasets: datasetsGap },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          ...sharedOptions,
           scales: {
-            y: { 
-              reverse: true,
-              ticks: { color: '#a0a0a0', callback: (v) => v > 0 ? `+${v.toFixed(0)}s` : `${v.toFixed(0)}s` },
-              grid: { color: 'rgba(255,255,255,0.1)' }
+            y: {
+              min: 0,
+              ticks: { color: textColor, font: tickFont, callback: v => v === 0 ? '0s' : `+${v.toFixed(1)}s` },
+              grid: { color: gridColor }
             },
-            x: { ticks: { color: '#a0a0a0' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+            x: { ticks: { color: textColor, font: tickFont }, grid: { color: gridColor, display: false } }
           },
-          plugins: { legend: { labels: { color: '#fff', boxWidth: 15, font: { size: 10 } }, position: 'bottom' } }
-        }
-      });
-      
-      // Grafico 3: Cumulato
-      const datasetsCumulato = classifica.map((m, idx) => {
-        let cumulato = 0;
-        const scostamentiCumulati = [];
-        for (let i = 1; i <= numPS; i++) {
-          const key = `ps${i}_time`;
-          const tempo = m[key] ? parseFloat(m[key]) : null;
-          if (!tempo || !mediePS[i-1]) {
-            scostamentiCumulati.push(null);
-          } else {
-            cumulato += (tempo - mediePS[i-1]);
-            scostamentiCumulati.push(parseFloat(cumulato.toFixed(2)));
+          plugins: {
+            ...sharedOptions.plugins,
+            tooltip: {
+              ...sharedOptions.plugins.tooltip,
+              callbacks: {
+                ...sharedOptions.plugins.tooltip.callbacks,
+                label: (ctx) => {
+                  const v = ctx.raw;
+                  if (v == null) return `${ctx.dataset.label}: —`;
+                  return v === 0 ? `${ctx.dataset.label}: 🥇 miglior tempo` : `${ctx.dataset.label}: +${v.toFixed(2)}s`;
+                }
+              }
+            }
           }
         }
-        
-        return {
-          label: `#${m.num} ${m.cognome?.substring(0, 6) || ''}`,
-          data: scostamentiCumulati,
-          borderColor: colori[idx % colori.length],
-          borderWidth: 2,
-          pointRadius: 3,
-          tension: 0.3
-        };
       });
-      
+
+      // ==================== GRAFICO 3: GAP CUMULATO DAL MIGLIORE ====================
+      const datasetsCum = classifica.map((m, idx) => {
+        let cum = 0;
+        const values = gapPerPS[m.num].map(g => {
+          if (g == null) return null;
+          cum += g;
+          return parseFloat(cum.toFixed(2));
+        });
+        return datasetFor(m, idx, values);
+      });
+
       if (chartCumulatoConf) chartCumulatoConf.destroy();
-      const ctxCum = document.getElementById('chartCumulatoConf').getContext('2d');
-      chartCumulatoConf = new Chart(ctxCum, {
+      chartCumulatoConf = new Chart(document.getElementById('chartCumulatoConf').getContext('2d'), {
         type: 'line',
-        data: { labels, datasets: datasetsCumulato },
+        data: { labels, datasets: datasetsCum },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          ...sharedOptions,
           scales: {
-            y: { 
-              reverse: true,
-              ticks: { color: '#a0a0a0', callback: (v) => v > 0 ? `+${v.toFixed(0)}s` : `${v.toFixed(0)}s` },
-              grid: { color: 'rgba(255,255,255,0.1)' }
+            y: {
+              min: 0,
+              ticks: { color: textColor, font: tickFont, callback: v => v === 0 ? '0s' : `+${v.toFixed(0)}s` },
+              grid: { color: gridColor }
             },
-            x: { ticks: { color: '#a0a0a0' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+            x: { ticks: { color: textColor, font: tickFont }, grid: { color: gridColor, display: false } }
           },
-          plugins: { legend: { labels: { color: '#fff', boxWidth: 15, font: { size: 10 } }, position: 'bottom' } }
+          plugins: {
+            ...sharedOptions.plugins,
+            tooltip: {
+              ...sharedOptions.plugins.tooltip,
+              callbacks: {
+                ...sharedOptions.plugins.tooltip.callbacks,
+                label: (ctx) => {
+                  const v = ctx.raw;
+                  if (v == null) return `${ctx.dataset.label}: —`;
+                  return `${ctx.dataset.label}: +${v.toFixed(1)}s totali`;
+                }
+              }
+            }
+          }
         }
       });
-      
-      // Grafico 4: Radar SVG interattivo
-      renderRadarSVG();
     }
     
     function formatTempoSec(sec) {
@@ -6560,34 +6833,74 @@
     }
     
     // SOS - Pressione inizia
+    let sosVibrationInterval = null;
+    let sosCountdownInterval = null;
     function startSOS() {
       sosStartTime = Date.now();
       const btn = document.getElementById('sosBtn');
       const progress = document.getElementById('sosProgress');
-      
+      const container = btn.closest('.sos-container');
+      const label = container ? container.querySelector('.sos-label') : null;
+      const originalLabel = label ? label.textContent : '';
+
       btn.classList.add('pressing');
       progress.classList.add('active');
-      
-      // Vibrazione feedback
-      if (navigator.vibrate) navigator.vibrate(100);
-      
+      if (container) container.classList.add('holding');
+
+      // Vibrazione iniziale marcata
+      if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+
+      // Vibrazione ritmica ogni 500ms durante hold
+      if (navigator.vibrate) {
+        sosVibrationInterval = setInterval(() => navigator.vibrate(80), 500);
+      }
+
+      // Countdown dinamico nella label (3…2…1…)
+      let secRemaining = 3;
+      if (label) label.textContent = `⚠️ INVIO TRA ${secRemaining} SECONDI…`;
+      sosCountdownInterval = setInterval(() => {
+        secRemaining -= 1;
+        if (secRemaining > 0 && label) {
+          label.textContent = `⚠️ INVIO TRA ${secRemaining} ${secRemaining === 1 ? 'SECONDO' : 'SECONDI'}…`;
+        }
+      }, 1000);
+
+      // Memo label originale per restore
+      btn.dataset.originalLabel = originalLabel;
+
       sosTimer = setTimeout(() => {
         inviareSOS();
       }, SOS_HOLD_TIME);
     }
-    
+
     // SOS - Pressione annullata
     function cancelSOS() {
       if (sosTimer) {
         clearTimeout(sosTimer);
         sosTimer = null;
       }
-      
+      if (sosVibrationInterval) {
+        clearInterval(sosVibrationInterval);
+        sosVibrationInterval = null;
+      }
+      if (sosCountdownInterval) {
+        clearInterval(sosCountdownInterval);
+        sosCountdownInterval = null;
+      }
+
       const btn = document.getElementById('sosBtn');
       const progress = document.getElementById('sosProgress');
-      
+      const container = btn.closest('.sos-container');
+      const label = container ? container.querySelector('.sos-label') : null;
+
       btn.classList.remove('pressing');
       progress.classList.remove('active');
+      if (container) container.classList.remove('holding');
+      if (label && btn.dataset.originalLabel) {
+        label.textContent = btn.dataset.originalLabel;
+      }
+
+      if (navigator.vibrate) navigator.vibrate(0);
     }
     
     // SOS - Invia emergenza
@@ -6672,7 +6985,7 @@
       // Aggiorna il messaggio SOS con i dettagli
       try {
         await fetch(`${API_BASE}/api/messaggi-piloti/${window.lastSosId}/testo`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ testo: testo })
         });
@@ -6911,7 +7224,7 @@
       
       try {
         const response = await fetch(`${API_BASE}/api/app/squadra/${currentSquadra.id}/rimuovi`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ numero_pilota: numeroPilota })
         });
@@ -7135,12 +7448,22 @@
         html += '</div>';
       }
 
-      // === SEZIONE 4: MATRICE PS COMPATTA ===
+      // === SEZIONE 4: MATRICE PS (scroll orizzontale unificato) ===
       if (prove.length > 0) {
         html += '<div class="squadra-sec-title"><span>⏱️ Tutte le prove speciali</span></div>';
         html += '<div class="ps-matrix">';
-        html += `<div class="ps-matrix-head">Tempi PS per pilota<span class="hint">🥇 = miglior tempo della squadra • scorri →</span></div>`;
+        html += `<div class="ps-matrix-title">Tempi PS per pilota<span class="hint">🥇 = miglior tempo della squadra · scorri orizzontalmente per vedere tutte le PS →</span></div>`;
+        html += '<div class="ps-matrix-scroll">';
 
+        // Heading
+        html += '<div class="ps-matrix-heading">';
+        html += '<div class="corner">Pilota</div>';
+        prove.forEach(ps => {
+          html += `<div class="ps-col">PS${ps.numero}</div>`;
+        });
+        html += '</div>';
+
+        // Rows
         classifica.forEach(m => {
           const isMe = m.numero_gara == currentUser.numero;
           const cls = ['ps-matrix-row'];
@@ -7151,21 +7474,24 @@
           prove.forEach(ps => {
             const p = m.tempi_ps?.[ps.numero];
             if (!p || p.tempo === '--' || p.tempo == null) {
-              chips += `<div class="ps-chip none"><span class="ps-num">PS${ps.numero}</span>—</div>`;
+              chips += `<div class="ps-chip none">—</div>`;
               return;
             }
             const chipCls = ['ps-chip'];
             if (p.migliore) chipCls.push('best');
-            chips += `<div class="${chipCls.join(' ')}"><span class="ps-num">PS${ps.numero}</span>${esc(p.tempo)}</div>`;
+            chips += `<div class="${chipCls.join(' ')}">${esc(p.tempo)}</div>`;
           });
 
           html += `
             <div class="${cls.join(' ')}">
-              <div class="ps-matrix-pilot">${esc(m.cognome)}<span class="num">#${esc(m.numero_gara)} · ${esc(m.classe || '')}</span></div>
-              <div class="ps-matrix-chips">${chips}</div>
+              <div class="ps-matrix-pilot">
+                <div class="cognome">${esc(m.cognome)}</div>
+                <div class="num">#${esc(m.numero_gara)} · ${esc(m.classe || '')}</div>
+              </div>
+              ${chips}
             </div>`;
         });
-        html += '</div>';
+        html += '</div></div>';
       }
 
       container.innerHTML = html;
@@ -7182,242 +7508,233 @@
     function renderGraficiSquadra(data) {
       const classifica = data.classifica;
       const prove = data.prove;
-      
-      // Salva dati per slider
+
       radarSquadraData = { classifica, prove };
-      
       document.getElementById('graficiSquadra').style.display = 'block';
+
+      // Palette chiara, alto contrasto, daltonic-friendly
+      const colori = ['#60a5fa', '#34d399', '#f59e0b', '#a78bfa', '#f472b6', '#2dd4bf', '#fb923c', '#fbbf24'];
+      const BRAND = '#ef476f';
+
+      // Labels compatte (solo PS numero — nome in tooltip)
+      const labels = prove.map((p, idx) => `PS${idx + 1}`);
+      const nomiProve = prove.map((p, idx) => proveGenerali[idx]?.nome || '');
+
+      // Stile comune per tutti i grafici
+      const gridColor = 'rgba(148,163,184,0.18)';
+      const textColor = '#d4dbed';
+      const tickFont = { size: 12, weight: '600' };
       
-      // Colori per ogni pilota (stessi di La Mia Gara)
-      const colori = [
-        '#e94560', '#4ade80', '#3b82f6', '#f59e0b', '#8b5cf6', 
-        '#ec4899', '#14b8a6', '#f97316'
-      ];
-      
-      // Labels con nomi reali delle prove (da proveGenerali se disponibile)
-      const labels = prove.map((p, idx) => {
-        // Cerca nome reale in proveGenerali (caricato da export-replay)
-        const nomeReale = proveGenerali[idx]?.nome || '';
-        return `PS${idx + 1}\n${nomeReale}`;
-      });
-      
+      // Helper: costruisci dataset standard
+      const datasetFor = (m, idx, values) => {
+        const isMe = m.numero_gara == currentUser.numero;
+        return {
+          label: `#${m.numero_gara} ${m.cognome.substring(0, 8)}`,
+          data: values,
+          borderColor: isMe ? BRAND : colori[idx % colori.length],
+          backgroundColor: isMe ? BRAND : colori[idx % colori.length],
+          borderWidth: isMe ? 4 : 2,
+          pointRadius: isMe ? 6 : 4,
+          pointHoverRadius: isMe ? 8 : 6,
+          pointBorderWidth: isMe ? 2 : 1,
+          pointBorderColor: isMe ? '#fff' : 'rgba(0,0,0,0.25)',
+          tension: 0, // linee rette = più chiare
+          order: isMe ? 0 : 1
+        };
+      };
+
+      const sharedOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: textColor,
+              boxWidth: 14,
+              boxHeight: 3,
+              padding: 10,
+              font: { size: 12, weight: '600' },
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(5,7,15,0.95)',
+            titleColor: '#fff',
+            bodyColor: '#d4dbed',
+            borderColor: 'rgba(148,163,184,0.3)',
+            borderWidth: 1,
+            padding: 12,
+            cornerRadius: 8,
+            titleFont: { size: 13, weight: '700' },
+            bodyFont: { size: 12 },
+            callbacks: {
+              title: (items) => {
+                const idx = items[0].dataIndex;
+                const nome = nomiProve[idx];
+                return `PS${idx + 1}${nome ? ' · ' + nome : ''}`;
+              }
+            }
+          }
+        }
+      };
+
       // ==================== GRAFICO 1: POSIZIONI NELLA SQUADRA ====================
-      // Per ogni PS, calcola la posizione di ogni membro nella squadra
       const datasetsPosizioni = classifica.map((m, idx) => {
-        const posizioni = [];
-        
-        prove.forEach(ps => {
-          // Raccogli tempi di tutti i membri per questa PS
+        const posizioni = prove.map(ps => {
           const tempiPS = classifica
             .filter(p => p.tempi_ps[ps.numero] && p.tempi_ps[ps.numero].tempo_raw)
             .map(p => ({ num: p.numero_gara, tempo: p.tempi_ps[ps.numero].tempo_raw }))
             .sort((a, b) => a.tempo - b.tempo);
-          
           const pos = tempiPS.findIndex(t => t.num === m.numero_gara);
-          posizioni.push(pos >= 0 ? pos + 1 : null);
+          return pos >= 0 ? pos + 1 : null;
         });
-        
-        const isMe = m.numero_gara == currentUser.numero;
-        
-        return {
-          label: `#${m.numero_gara} ${m.cognome.substring(0, 6)}`,
-          data: posizioni,
-          borderColor: isMe ? '#fff' : colori[idx % colori.length],
-          backgroundColor: isMe ? '#fff' : colori[idx % colori.length],
-          borderWidth: isMe ? 3 : 2,
-          pointRadius: isMe ? 5 : 3,
-          tension: 0.3
-        };
+        return datasetFor(m, idx, posizioni);
       });
-      
+
       if (chartPosizioni) chartPosizioni.destroy();
-      
-      const ctxPos = document.getElementById('chartPosizioni').getContext('2d');
-      chartPosizioni = new Chart(ctxPos, {
+      chartPosizioni = new Chart(document.getElementById('chartPosizioni').getContext('2d'), {
         type: 'line',
         data: { labels, datasets: datasetsPosizioni },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          ...sharedOptions,
           scales: {
-            y: { 
-              reverse: true, 
+            y: {
+              reverse: true,
               min: 1,
-              ticks: { color: '#a0a0a0', stepSize: 1 },
-              grid: { color: 'rgba(255,255,255,0.1)' },
-              title: { display: true, text: 'Posizione', color: '#a0a0a0' }
+              max: Math.min(classifica.length, 10),
+              ticks: { color: textColor, stepSize: 1, font: tickFont, callback: v => `${v}°` },
+              grid: { color: gridColor }
             },
-            x: { 
-              ticks: { color: '#a0a0a0' },
-              grid: { color: 'rgba(255,255,255,0.1)' }
+            x: {
+              ticks: { color: textColor, font: tickFont },
+              grid: { color: gridColor, display: false }
             }
           },
           plugins: {
-            legend: { 
-              labels: { color: '#fff', boxWidth: 15, font: { size: 10 } },
-              position: 'bottom'
+            ...sharedOptions.plugins,
+            tooltip: {
+              ...sharedOptions.plugins.tooltip,
+              callbacks: {
+                ...sharedOptions.plugins.tooltip.callbacks,
+                label: (ctx) => `${ctx.dataset.label}: ${ctx.raw != null ? ctx.raw + '°' : '—'}`
+              }
             }
           }
         }
       });
       
-      // ==================== CALCOLA SCOSTAMENTI DALLA MEDIA ====================
-      // Per ogni PS, calcola la media dei tempi e lo scostamento di ogni pilota
-      const scostamentiPerPilota = {};
-      classifica.forEach(m => { scostamentiPerPilota[m.numero_gara] = []; });
-      
+      // ==================== CALCOLA GAP DAL MIGLIORE PER PS ====================
+      // Per ogni PS: migliore = 0s, altri = secondi in più rispetto al migliore
+      const gapPerPilota = {};
+      classifica.forEach(m => { gapPerPilota[m.numero_gara] = []; });
+
       prove.forEach(ps => {
-        // Raccogli tutti i tempi per questa PS
         const tempiPS = classifica
           .filter(p => p.tempi_ps[ps.numero] && p.tempi_ps[ps.numero].tempo_raw)
           .map(p => p.tempi_ps[ps.numero].tempo_raw);
-        
-        // Calcola media
-        let media = null;
-        if (tempiPS.length > 0) {
-          const somma = tempiPS.reduce((acc, t) => acc + t, 0);
-          media = somma / tempiPS.length;
-        }
-        
-        // Calcola scostamento per ogni pilota
+        const miglior = tempiPS.length > 0 ? Math.min(...tempiPS) : null;
+
         classifica.forEach(m => {
-          if (m.tempi_ps[ps.numero] && m.tempi_ps[ps.numero].tempo_raw && media) {
-            const scostamento = m.tempi_ps[ps.numero].tempo_raw - media;
-            scostamentiPerPilota[m.numero_gara].push(parseFloat(scostamento.toFixed(2)));
+          const t = m.tempi_ps[ps.numero]?.tempo_raw;
+          if (t && miglior != null) {
+            gapPerPilota[m.numero_gara].push(parseFloat((t - miglior).toFixed(2)));
           } else {
-            scostamentiPerPilota[m.numero_gara].push(null);
+            gapPerPilota[m.numero_gara].push(null);
           }
         });
       });
-      
-      // ==================== GRAFICO 2: SCOSTAMENTI DALLA MEDIA ====================
-      const datasetsScostamenti = classifica.map((m, idx) => {
-        const isMe = m.numero_gara == currentUser.numero;
-        
-        return {
-          label: `#${m.numero_gara} ${m.cognome.substring(0, 6)}`,
-          data: scostamentiPerPilota[m.numero_gara],
-          borderColor: isMe ? '#fff' : colori[idx % colori.length],
-          backgroundColor: isMe ? 'rgba(255,255,255,0.2)' : colori[idx % colori.length] + '33',
-          borderWidth: isMe ? 3 : 2,
-          pointRadius: isMe ? 5 : 3,
-          tension: 0.3
-        };
-      });
-      
+
+      // ==================== GRAFICO 2: GAP DAL MIGLIORE (PS per PS) ====================
+      const datasetsGap = classifica.map((m, idx) => datasetFor(m, idx, gapPerPilota[m.numero_gara]));
+
       if (chartTempi) chartTempi.destroy();
-      
-      const ctxTempi = document.getElementById('chartTempi').getContext('2d');
-      chartTempi = new Chart(ctxTempi, {
+      chartTempi = new Chart(document.getElementById('chartTempi').getContext('2d'), {
         type: 'line',
-        data: { labels, datasets: datasetsScostamenti },
+        data: { labels, datasets: datasetsGap },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          ...sharedOptions,
           scales: {
-            y: { 
-              reverse: true,
-              ticks: { 
-                color: '#a0a0a0',
-                callback: (v) => v > 0 ? `+${v.toFixed(1)}s` : `${v.toFixed(1)}s`
+            y: {
+              min: 0,
+              ticks: {
+                color: textColor,
+                font: tickFont,
+                callback: (v) => v === 0 ? '0s' : `+${v.toFixed(1)}s`
               },
-              grid: { color: 'rgba(255,255,255,0.1)' },
-              title: { display: true, text: 'Scostamento (s)', color: '#a0a0a0' }
+              grid: { color: gridColor }
             },
-            x: { 
-              ticks: { color: '#a0a0a0' },
-              grid: { color: 'rgba(255,255,255,0.1)' }
+            x: {
+              ticks: { color: textColor, font: tickFont },
+              grid: { color: gridColor, display: false }
             }
           },
           plugins: {
-            legend: { 
-              labels: { color: '#fff', boxWidth: 15, font: { size: 10 } },
-              position: 'bottom'
-            },
+            ...sharedOptions.plugins,
             tooltip: {
+              ...sharedOptions.plugins.tooltip,
               callbacks: {
+                ...sharedOptions.plugins.tooltip.callbacks,
                 label: (ctx) => {
                   const v = ctx.raw;
-                  if (v === null) return '';
-                  return `${ctx.dataset.label}: ${v > 0 ? '+' : ''}${v.toFixed(2)}s`;
+                  if (v == null) return `${ctx.dataset.label}: —`;
+                  return v === 0 ? `${ctx.dataset.label}: 🥇 miglior tempo` : `${ctx.dataset.label}: +${v.toFixed(2)}s dal migliore`;
                 }
               }
             }
           }
         }
       });
-      
-      // ==================== GRAFICO 3: SCOSTAMENTO CUMULATO ====================
-      const datasetsCumulato = classifica.map((m, idx) => {
-        let cumulato = 0;
-        const scostamentiCumulati = scostamentiPerPilota[m.numero_gara].map(scost => {
-          if (scost !== null) {
-            cumulato += scost;
-            return parseFloat(cumulato.toFixed(2));
-          }
-          return null;
+
+      // ==================== GRAFICO 3: GAP CUMULATO DAL MIGLIORE ====================
+      const datasetsCum = classifica.map((m, idx) => {
+        let cum = 0;
+        const values = gapPerPilota[m.numero_gara].map(g => {
+          if (g == null) return null;
+          cum += g;
+          return parseFloat(cum.toFixed(2));
         });
-        
-        const isMe = m.numero_gara == currentUser.numero;
-        
-        return {
-          label: `#${m.numero_gara} ${m.cognome.substring(0, 6)}`,
-          data: scostamentiCumulati,
-          borderColor: isMe ? '#fff' : colori[idx % colori.length],
-          backgroundColor: isMe ? 'rgba(255,255,255,0.1)' : 'transparent',
-          borderWidth: isMe ? 3 : 2,
-          pointRadius: isMe ? 5 : 3,
-          fill: isMe,
-          tension: 0.3
-        };
+        return datasetFor(m, idx, values);
       });
-      
+
       if (chartCumulato) chartCumulato.destroy();
-      
-      const ctxCum = document.getElementById('chartCumulato').getContext('2d');
-      chartCumulato = new Chart(ctxCum, {
+      chartCumulato = new Chart(document.getElementById('chartCumulato').getContext('2d'), {
         type: 'line',
-        data: { labels, datasets: datasetsCumulato },
+        data: { labels, datasets: datasetsCum },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          ...sharedOptions,
           scales: {
-            y: { 
-              reverse: true,
-              ticks: { 
-                color: '#a0a0a0',
-                callback: (v) => v > 0 ? `+${v.toFixed(0)}s` : `${v.toFixed(0)}s`
+            y: {
+              min: 0,
+              ticks: {
+                color: textColor,
+                font: tickFont,
+                callback: (v) => v === 0 ? '0s' : `+${v.toFixed(0)}s`
               },
-              grid: { color: 'rgba(255,255,255,0.1)' },
-              title: { display: true, text: 'Cumulato (s)', color: '#a0a0a0' }
+              grid: { color: gridColor }
             },
-            x: { 
-              ticks: { color: '#a0a0a0' },
-              grid: { color: 'rgba(255,255,255,0.1)' }
+            x: {
+              ticks: { color: textColor, font: tickFont },
+              grid: { color: gridColor, display: false }
             }
           },
           plugins: {
-            legend: { 
-              labels: { color: '#fff', boxWidth: 15, font: { size: 10 } },
-              position: 'bottom'
-            },
+            ...sharedOptions.plugins,
             tooltip: {
+              ...sharedOptions.plugins.tooltip,
               callbacks: {
+                ...sharedOptions.plugins.tooltip.callbacks,
                 label: (ctx) => {
                   const v = ctx.raw;
-                  if (v === null) return '';
-                  return `${ctx.dataset.label}: ${v > 0 ? '+' : ''}${v.toFixed(1)}s`;
+                  if (v == null) return `${ctx.dataset.label}: —`;
+                  return `${ctx.dataset.label}: +${v.toFixed(1)}s totali`;
                 }
               }
             }
           }
         }
       });
-      
-      // ==================== CHAT 22: GRAFICO 4 - RADAR PERFORMANCE PS (SVG) ====================
-      // Salva dati per il radar SVG
-      radarSquadraData = { classifica, prove };
-      renderRadarSVGSquadra();
     }
     
     // ==================== RADAR SVG SQUADRA ====================
@@ -7640,26 +7957,62 @@
       document.getElementById('tabellaTempiSquadraBody').innerHTML = bodyHtml;
     }
     
-    function mostraAggiungiMembro() {
-      document.getElementById('formAggiungiMembro').style.display = 'flex';
+    async function mostraAggiungiMembro() {
+      const form = document.getElementById('formAggiungiMembro');
+      form.style.display = 'grid';
+      const select = document.getElementById('nuovoMembro');
+
+      // Carica iscritti se non disponibili
+      if (!window._iscrittiCache || window._iscrittiCache.codice !== currentUser.codice) {
+        select.innerHTML = '<option value="">Caricamento piloti…</option>';
+        try {
+          const res = await fetch(`${API_BASE}/api/app/pubblico/iscritti/${currentUser.codice}`);
+          const data = await res.json();
+          if (data.success) {
+            window._iscrittiCache = { codice: currentUser.codice, piloti: data.piloti || [] };
+          }
+        } catch (err) {
+          console.error('Errore caricamento iscritti:', err);
+          select.innerHTML = '<option value="">Errore caricamento</option>';
+          return;
+        }
+      }
+
+      const piloti = window._iscrittiCache?.piloti || [];
+      const giaInSquadra = new Set((currentSquadra?.piloti || []).map(p => String(p.numero_gara)));
+      const disponibili = piloti
+        .filter(p => !giaInSquadra.has(String(p.numero)))
+        .sort((a, b) => parseInt(a.numero) - parseInt(b.numero));
+
+      if (disponibili.length === 0) {
+        select.innerHTML = '<option value="">Nessun pilota disponibile</option>';
+        return;
+      }
+
+      select.innerHTML = '<option value="">Scegli un pilota…</option>' +
+        disponibili.map(p => {
+          const label = `#${p.numero} — ${p.cognome} ${p.nome || ''}${p.classe ? ' · ' + p.classe : ''}`;
+          return `<option value="${p.numero}">${label}</option>`;
+        }).join('');
     }
-    
+
     function nascondiAggiungiMembro() {
       document.getElementById('formAggiungiMembro').style.display = 'none';
-      document.getElementById('nuovoMembro').value = '';
+      const sel = document.getElementById('nuovoMembro');
+      if (sel) sel.value = '';
     }
-    
+
     async function aggiungiMembro() {
       const numero = parseInt(document.getElementById('nuovoMembro').value);
-      
+
       if (!numero) {
-        alert('Inserisci un numero pilota valido');
+        alert('Seleziona un pilota dal menu');
         return;
       }
       
       try {
         const response = await fetch(`${API_BASE}/api/app/squadra/${currentSquadra.id}/aggiungi`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ numero_pilota: numero })
         });
@@ -8664,7 +9017,7 @@
     async function segnaVistoAllarme(msgId) {
       try {
         const response = await fetch(`${API_BASE}/api/messaggi-piloti/${msgId}/letto`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ letto: true })
         });

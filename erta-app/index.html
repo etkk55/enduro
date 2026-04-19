@@ -5384,7 +5384,7 @@
           document.getElementById('posClasse').textContent = (data.posizione_classe ?? '--') + '°';
           document.getElementById('totClasse').textContent = `/ ${data.totale_classe ?? '--'} in ${currentUser.pilota?.classe || 'classe'}`;
           document.getElementById('tempoTotale').textContent = data.tempo_totale || '--:--';
-          document.getElementById('gapPrimo').textContent = data.gap_primo ? `+${data.gap_primo}` : '—';
+          document.getElementById('gapPrimo').textContent = data.gap_primo ? (String(data.gap_primo).startsWith('+') ? data.gap_primo : `+${data.gap_primo}`) : '—';
 
           // Ultima PS: trova l'ultima prova con tempo valido
           const ultimaPsNomeEl = document.getElementById('ultimaPsNome');

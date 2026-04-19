@@ -1,0 +1,9 @@
+{
+  "name": "erta-app",
+  "version": "1.0.0",
+  "description": "Enduro Real-Time App - PWA mobile per piloti, DdG e pubblico",
+  "private": true,
+  "scripts": {
+    "build": "echo 'No build step - static HTML PWA'"
+  }
+}

@@ -184,14 +184,14 @@ function PilotaProgressCard({ pilota, curvaData, isMe }) {
         : 'bg-surface border border-border-subtle'
     }`}>
       {/* Chart area */}
-      <div className="flex items-end justify-around gap-8" style={{ height: '180px' }}>
+      <div className="flex items-end justify-around gap-5" style={{ height: '180px' }}>
         {provePS.map(ps => (
-          <div key={ps.nomeProva} className="flex-1 flex items-end justify-center gap-1.5 h-full">
+          <div key={ps.nomeProva} className="flex-1 flex items-end justify-center gap-1 h-full min-w-0">
             {ps.barre.map(b => {
               const h = ps.barHeight(b.tempo);
               const colorCls = GIRO_COLORS[(b.giro - 1) % GIRO_COLORS.length];
               return (
-                <div key={b.giro} className="flex-1 max-w-[36px] flex flex-col items-center justify-end h-full">
+                <div key={b.giro} className="flex-1 max-w-[22px] flex flex-col items-center justify-end h-full">
                   {/* Label sopra la barra:
                       - G1 (rif): 'Rif.' + tempo reale (2 righe)
                       - G2+: delta vs G1 */}
@@ -225,11 +225,11 @@ function PilotaProgressCard({ pilota, curvaData, isMe }) {
       </div>
 
       {/* G labels under bars */}
-      <div className="flex justify-around gap-8 mt-1.5 px-0">
+      <div className="flex justify-around gap-5 mt-1.5 px-0">
         {provePS.map(ps => (
-          <div key={ps.nomeProva} className="flex-1 flex justify-center gap-1.5">
+          <div key={ps.nomeProva} className="flex-1 flex justify-center gap-1 min-w-0">
             {ps.barre.map(b => (
-              <div key={b.giro} className="flex-1 max-w-[36px] text-center text-[10px] font-semibold text-content-tertiary">
+              <div key={b.giro} className="flex-1 max-w-[22px] text-center text-[10px] font-semibold text-content-tertiary">
                 G{b.giro}
               </div>
             ))}
@@ -238,9 +238,9 @@ function PilotaProgressCard({ pilota, curvaData, isMe }) {
       </div>
 
       {/* PS name labels (boxed) */}
-      <div className="flex justify-around gap-8 mt-2">
+      <div className="flex justify-around gap-5 mt-2">
         {provePS.map(ps => (
-          <div key={ps.nomeProva} className="flex-1 text-center">
+          <div key={ps.nomeProva} className="flex-1 text-center min-w-0">
             <div className="inline-block max-w-full px-2 py-0.5 rounded border border-border-subtle text-[11px] font-semibold text-content-secondary truncate">
               {ps.nomeProva}
             </div>
@@ -807,7 +807,7 @@ export default function LaMiaGara() {
         </div>
 
         {/* Selezione modalità confronto */}
-        {replayData && (
+        {replayData && replayData.snapshots?.length > 0 && (
           <div className="mt-4 p-4 bg-surface-2 rounded-md">
             <label className="block text-sm font-medium text-gray-700 mb-3">Confronta con:</label>
             <div className="flex flex-col gap-3">
@@ -942,14 +942,22 @@ export default function LaMiaGara() {
         </div>
 
         {error && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          <div className="mt-4 p-4 bg-danger-bg border border-danger-border rounded-lg text-danger-fg text-sm">
             {error}
+          </div>
+        )}
+
+        {/* Evento senza tempi/snapshots */}
+        {replayData && (!replayData.snapshots || replayData.snapshots.length === 0) && (
+          <div className="mt-4 p-4 bg-warning-bg border border-warning-border rounded-lg text-warning-fg text-sm">
+            <div className="font-semibold mb-1">Nessun dato disponibile per questo evento</div>
+            <div className="text-xs opacity-90">L'evento non ha ancora tempi registrati, oppure i tempi non sono stati importati. Prova un altro evento oppure importa i tempi da FICR.</div>
           </div>
         )}
       </div>
 
       {/* Risultato */}
-      {pilotaInfo && (
+      {pilotaInfo && replayData?.snapshots?.length > 0 && (
         <div className="space-y-4">
           {/* Header pilota */}
           <div className="bg-surface border border-border-subtle rounded-lg p-5 shadow-sm">

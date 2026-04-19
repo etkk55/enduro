@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import {
   LayoutDashboard, Calendar, Users, Settings, Radio, Activity, User,
@@ -195,6 +195,11 @@ function AppLayout({ children, onOpenPalette }) {
   );
 }
 
+function RouteErrorBoundary({ children }) {
+  const location = useLocation();
+  return <ErrorBoundary key={location.pathname}>{children}</ErrorBoundary>;
+}
+
 function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
@@ -225,7 +230,7 @@ export default function App() {
   return (
     <Router>
       <AppLayout onOpenPalette={() => setPaletteOpen(true)}>
-        <ErrorBoundary>
+        <RouteErrorBoundary>
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Dashboard />} />
@@ -246,7 +251,7 @@ export default function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
-        </ErrorBoundary>
+        </RouteErrorBoundary>
       </AppLayout>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} groups={NAV_GROUPS} />
     </Router>

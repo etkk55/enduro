@@ -17,21 +17,21 @@
     /* ==================== DESIGN TOKENS ==================== */
     :root {
       /* Surface */
-      --bg-base: #0a0e1a;
-      --bg-surface: #13182a;
-      --bg-surface-2: #1c2338;
-      --bg-surface-3: #272f48;
+      --bg-base: #05070f;
+      --bg-surface: #11182b;
+      --bg-surface-2: #1d2742;
+      --bg-surface-3: #2c375a;
 
-      /* Text */
-      --text-primary: #f5f7fb;
-      --text-secondary: #a8b0c2;
-      --text-tertiary: #6b7492;
-      --text-disabled: #3f4656;
+      /* Text (outdoor-readable: >=7:1 on bg-base) */
+      --text-primary: #ffffff;
+      --text-secondary: #d4dbed;
+      --text-tertiary: #97a1bf;
+      --text-disabled: #4a5377;
 
-      /* Borders */
-      --border-subtle: #1f2740;
-      --border-default: #2b3450;
-      --border-strong: #3d4866;
+      /* Borders (visible in sunlight) */
+      --border-subtle: #2a3456;
+      --border-default: #465175;
+      --border-strong: #6b7699;
 
       /* Brand (ERTA racing red) */
       --brand-50: #2d1a24;
@@ -88,17 +88,17 @@
     /* Light mode (auto via system preference) */
     @media (prefers-color-scheme: light) {
       :root.auto-theme {
-        --bg-base: #f7f8fb;
+        --bg-base: #ffffff;
         --bg-surface: #ffffff;
-        --bg-surface-2: #f0f2f8;
-        --bg-surface-3: #e5e8f0;
-        --text-primary: #0f172a;
-        --text-secondary: #475569;
-        --text-tertiary: #94a3b8;
-        --text-disabled: #cbd5e1;
-        --border-subtle: #e2e8f0;
-        --border-default: #cbd5e1;
-        --border-strong: #94a3b8;
+        --bg-surface-2: #eef1f7;
+        --bg-surface-3: #dde2ec;
+        --text-primary: #000000;
+        --text-secondary: #1f2937;
+        --text-tertiary: #475569;
+        --text-disabled: #94a3b8;
+        --border-subtle: #cbd5e1;
+        --border-default: #64748b;
+        --border-strong: #1f2937;
         --brand-50: #fef2f5;
         --brand-100: #fce7ed;
       }

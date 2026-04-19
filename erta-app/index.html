@@ -708,6 +708,30 @@
       color: var(--brand-500);
     }
 
+    .kpi-share-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-md);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 150ms, transform 150ms;
+      min-height: 44px;
+    }
+    .kpi-share-btn:active {
+      background: var(--bg-surface-3);
+      transform: scale(0.98);
+    }
+    .kpi-share-btn .ico { font-size: 16px; }
+
     .position-cards {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -4239,6 +4263,9 @@
           <span class="kpi-bot-value" id="ultimaPsNome">—</span>
           <span class="kpi-bot-time" id="ultimaPsTempo"></span>
         </div>
+        <button class="kpi-share-btn" onclick="shareMyRace()" aria-label="Condividi i tuoi risultati">
+          <span class="ico">📤</span>Condividi i miei tempi
+        </button>
       </section>
 
       <h4 style="margin-bottom: 10px; color: var(--text-tertiary); font-size:13px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;">⏱️ Tempi Prove Speciali</h4>
@@ -5817,6 +5844,7 @@
     }
 
     function showTab(tab) {
+      if (typeof haptic === 'function') haptic(10);
       // Nuovo nav bottom: solo 4 tab principali visibili (Tempi, Classifica, Comunicati, Altro).
       // I tab "secondari" (orari, confronta, squadra, segnala) sono raggiungibili via "Altro" sheet.
       _safeToggleActive('btnComunicati', tab === 'comunicati');
@@ -5925,8 +5953,8 @@
 
         html += '</div>';
         container.innerHTML = html;
-        updateEl.textContent = `Aggiornato: ${new Date().toLocaleTimeString('it-IT')}`;
-        
+        setUpdateTimestamp('lastUpdateOrari');
+
       } catch (err) {
         console.error('Errore caricamento orari:', err);
         container.innerHTML = '<div style="text-align: center; color: #ef4444; padding: 20px;">❌ Errore caricamento orari</div>';
@@ -6135,8 +6163,7 @@
           }
         }
         
-        document.getElementById('lastUpdateComunicati').textContent = 
-          `Ultimo aggiornamento: ${new Date().toLocaleTimeString('it-IT')}`;
+        setUpdateTimestamp('lastUpdateComunicati');
 
       } catch (err) {
         console.error('Errore caricamento documenti:', err);
@@ -6234,8 +6261,7 @@
             proveContainer.innerHTML = '<div class="no-comunicati"><p>Nessun tempo registrato</p></div>';
           }
 
-          document.getElementById('tempiUpdateTime').textContent = 
-            `Agg: ${new Date().toLocaleTimeString('it-IT')}`;
+          setUpdateTimestamp('tempiUpdateTime');
         }
       } catch (err) {
         console.error('Errore caricamento tempi:', err);
@@ -6308,6 +6334,7 @@
     }
 
     function showPopupTab(tab) {
+      if (typeof haptic === 'function') haptic(8);
       ['assoluta', 'classe', 'amici'].forEach(t => {
         const btn = document.getElementById('popupTab' + t[0].toUpperCase() + t.slice(1));
         const pane = document.getElementById('popupPane' + t[0].toUpperCase() + t.slice(1));
@@ -6710,7 +6737,7 @@
         }
         
         renderClassificaGenerale();
-        updateEl.textContent = `Agg: ${new Date().toLocaleTimeString('it-IT')}`;
+        setUpdateTimestamp('lastUpdateClassifica');
         
       } catch (err) {
         console.error('Errore classifica:', err);
@@ -6792,6 +6819,7 @@
 
     // ==================== CHAT 23: CLASSIFICA SQUADRE ====================
     function setVistaClassifica(vista) {
+      if (typeof haptic === 'function') haptic(8);
       vistaClassifica = vista;
       document.getElementById('toggleClassi').classList.toggle('active', vista === 'classi');
       document.getElementById('toggleMotoClub').classList.toggle('active', vista === 'motoclub');
@@ -8135,8 +8163,7 @@
         
         if (data.success) {
           renderClassificaSquadra(data);
-          document.getElementById('lastUpdateSquadra').textContent = 
-            'Ultimo aggiornamento: ' + new Date().toLocaleTimeString('it-IT');
+          setUpdateTimestamp('lastUpdateSquadra');
         }
       } catch (err) {
         console.error('Errore classifica squadra:', err);
@@ -9116,6 +9143,7 @@
       const popup = document.getElementById('notificationPopup');
       document.getElementById('notificationText').textContent = comunicato.testo || 'Nuovo comunicato dalla Direzione Gara';
       popup.style.display = 'block';
+      if (typeof haptic === 'function') haptic([40, 60, 40]);
 
       // Auto-hide after 10 seconds
       setTimeout(() => {
@@ -9323,7 +9351,7 @@
         loadPublicGps(codice)
       ]);
       
-      document.getElementById('publicLastUpdate').textContent = new Date().toLocaleTimeString('it-IT');
+      setUpdateTimestamp('publicLastUpdate');
     }
 
     async function loadPublicIscritti(codice) {
@@ -10832,9 +10860,11 @@ ${mapsLink}`;
       }, { passive: true });
     })();
 
-    // ==================== LIVE DOT update ====================
+    // ==================== LIVE DOT + RELATIVE TIMESTAMPS ====================
+    const _updateTsIds = ['tempiUpdateTime', 'comunicatiUpdateTime', 'lastUpdateComunicati', 'lastUpdateClassifica', 'lastUpdateSquadra', 'lastUpdateOrari', 'publicLastUpdate'];
+
     function injectLiveDots() {
-      ['tempiUpdateTime', 'comunicatiUpdateTime', 'lastUpdateComunicati', 'lastUpdateClassifica', 'lastUpdateSquadra', 'lastUpdateOrari', 'publicLastUpdate'].forEach(id => {
+      _updateTsIds.forEach(id => {
         const el = document.getElementById(id);
         if (!el || el.querySelector('.live-dot')) return;
         const dot = document.createElement('span');
@@ -10843,12 +10873,94 @@ ${mapsLink}`;
         el.insertBefore(dot, el.firstChild);
       });
     }
+
+    // Imposta un timestamp live su un elemento "ultimo agg." e lo renderizza come "X fa"
+    function setUpdateTimestamp(elId, ts) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      const when = ts || Date.now();
+      el.dataset.ts = when;
+      // Mantieni il dot + prefisso "Agg. " + time relativo
+      if (!el.querySelector('.live-dot')) {
+        const dot = document.createElement('span');
+        dot.className = 'live-dot';
+        el.insertBefore(dot, el.firstChild);
+      }
+      // Ricostruisci testo (mantieni dot)
+      const dotEl = el.querySelector('.live-dot');
+      el.innerHTML = '';
+      if (dotEl) el.appendChild(dotEl);
+      const txt = document.createElement('span');
+      txt.className = 'update-label';
+      txt.textContent = ` Agg. ${fmtAgo(when)}`;
+      el.appendChild(txt);
+    }
+    window.setUpdateTimestamp = setUpdateTimestamp;
+
+    function refreshAllTimestamps() {
+      _updateTsIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || !el.dataset.ts) return;
+        const lbl = el.querySelector('.update-label');
+        if (lbl) lbl.textContent = ` Agg. ${fmtAgo(parseInt(el.dataset.ts))}`;
+      });
+    }
+
     function updateLiveDots() {
       document.querySelectorAll('.live-dot').forEach(d => {
         d.classList.toggle('offline', !navigator.onLine);
       });
     }
-    setInterval(updateLiveDots, 5000);
+    setInterval(() => { updateLiveDots(); refreshAllTimestamps(); }, 5000);
+
+    // ==================== HAPTIC FEEDBACK ====================
+    function haptic(ms) {
+      if (!navigator.vibrate) return;
+      try { navigator.vibrate(ms || 12); } catch (e) {}
+    }
+    window.haptic = haptic;
+
+    // ==================== SHARE ====================
+    async function shareMyRace() {
+      if (!currentUser?.pilota) return;
+      const posAss = document.getElementById('posAssoluta')?.textContent || '';
+      const totPiloti = document.getElementById('totPiloti')?.textContent || '';
+      const posClasse = document.getElementById('posClasse')?.textContent || '';
+      const tempoTotale = document.getElementById('tempoTotale')?.textContent || '';
+      const gapPrimo = document.getElementById('gapPrimo')?.textContent || '';
+      const evento = currentUser.evento?.nome || 'Gara FMI';
+      const classe = currentUser.pilota.classe || '';
+
+      const lines = [
+        `🏁 ${evento}`,
+        `#${currentUser.pilota.numero} ${currentUser.pilota.cognome || ''} ${currentUser.pilota.nome || ''}`,
+        `Posizione: ${posAss} ${totPiloti}`,
+        `Classe ${classe}: ${posClasse}`,
+        `Tempo: ${tempoTotale}${gapPrimo && gapPrimo !== '—' ? ' (' + gapPrimo + ' dal 1°)' : ''}`,
+        '',
+        '— ERTA Enduro Race Assistant'
+      ];
+      const text = lines.join('\n');
+
+      haptic(15);
+
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: evento, text });
+          return;
+        } catch (e) { /* utente ha chiuso share sheet */ return; }
+      }
+      // Fallback: clipboard
+      if (navigator.clipboard) {
+        try {
+          await navigator.clipboard.writeText(text);
+          alert('Copiato negli appunti!');
+        } catch (e) { alert('Condivisione non supportata su questo dispositivo.'); }
+      } else {
+        alert('Condivisione non supportata su questo dispositivo.');
+      }
+    }
+    window.shareMyRace = shareMyRace;
 
     // ==================== ONBOARDING ====================
     let _deferredInstallPrompt = null;

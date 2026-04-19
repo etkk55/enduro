@@ -342,6 +342,134 @@
     .login-btn:active { transform: scale(0.98); }
     .login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    /* Login role selector */
+    .login-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: var(--bg-surface-2);
+      padding: 4px;
+      border-radius: var(--r-md);
+      margin-bottom: 20px;
+    }
+    .login-tab {
+      padding: 12px 8px;
+      border: none;
+      border-radius: var(--r-sm);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-secondary);
+      transition: background 150ms, color 150ms;
+      min-height: 44px;
+    }
+    .login-tab.active {
+      background: var(--brand-500);
+      color: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* PIN block */
+    .pin-group {
+      background: var(--brand-50);
+      border: 1px solid var(--brand-500);
+      border-radius: var(--r-md);
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .pin-group > label {
+      display: block;
+      color: var(--brand-500);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .pin-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 10px;
+    }
+    .pin-field label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+    .pin-field input {
+      width: 100%;
+      padding: 14px;
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 6px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-md);
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .pin-field input:focus {
+      outline: none;
+      border-color: var(--brand-500);
+    }
+
+    /* One-touch banner */
+    .one-touch-banner {
+      background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+      border-radius: var(--r-lg);
+      padding: 16px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #fff;
+    }
+    .one-touch-banner .icon { font-size: 28px; margin-bottom: 4px; }
+    .one-touch-banner .title { font-size: 15px; font-weight: 600; }
+    .one-touch-banner .sub { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+
+    .login-btn-wa {
+      background: linear-gradient(135deg, #25D366 0%, #128C7E 100%) !important;
+      font-size: 18px !important;
+    }
+
+    /* Secondary CTA under login */
+    .login-secondary {
+      text-align: center;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .login-secondary p {
+      color: var(--text-tertiary);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+    .login-secondary .btn-outline {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
+      padding: 10px 18px;
+      border-radius: var(--r-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 44px;
+    }
+    .login-secondary .btn-wa {
+      background: #25D366;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: var(--r-md);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 44px;
+    }
+
     /* ==================== APP SHELL ==================== */
     #app,
     #appDdG,
@@ -462,6 +590,98 @@
     }
 
     /* ==================== CARDS ==================== */
+    /* ==================== HERO KPI CARD (Tempi tab) ==================== */
+    .kpi-hero {
+      background: linear-gradient(150deg, var(--brand-50) 0%, var(--bg-surface) 70%);
+      border: 1px solid var(--brand-500);
+      border-radius: var(--r-xl);
+      padding: 18px 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-md);
+    }
+    .kpi-hero-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      align-items: flex-end;
+    }
+    .kpi-col { display: flex; flex-direction: column; gap: 4px; }
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .kpi-pos-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--brand-500);
+      letter-spacing: -0.03em;
+    }
+    .kpi-sub {
+      font-size: 13px;
+      color: var(--text-tertiary);
+    }
+    .kpi-classe-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .kpi-hero-mid {
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+      gap: 12px;
+      align-items: stretch;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .kpi-mid-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      text-align: center;
+    }
+    .kpi-mid-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .kpi-mid-value.gap { color: var(--warning); }
+    .kpi-mid-divider { background: var(--border-subtle); width: 1px; align-self: stretch; }
+    .kpi-hero-bot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      gap: 12px;
+    }
+    .kpi-bot-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-align: right;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .kpi-bot-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--brand-500);
+    }
+
     .position-cards {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1310,13 +1530,11 @@
 
     <div class="login-form">
       <!-- Tab selector - Solo Pilota e Paddock -->
-      <div style="display: flex; gap: 5px; margin-bottom: 20px;">
-        <button onclick="switchLoginTab('pilota')" id="loginTabPilota"
-          style="flex: 1; padding: 12px 8px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; background: #e94560; color: white;">
+      <div class="login-tabs">
+        <button onclick="switchLoginTab('pilota')" id="loginTabPilota" class="login-tab active">
           🏍️ Pilota
         </button>
-        <button onclick="switchLoginTab('pubblico')" id="loginTabPubblico"
-          style="flex: 1; padding: 12px 8px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; background: #374151; color: #9ca3af;">
+        <button onclick="switchLoginTab('pubblico')" id="loginTabPubblico" class="login-tab">
           🏕️ Paddock
         </button>
       </div>
@@ -1328,23 +1546,23 @@
         
         <!-- FORM ONE-TOUCH (utente registrato con TOKEN) -->
         <div id="formOneTouch" style="display: none;">
-          <div style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center;">
-            <div style="font-size: 24px; margin-bottom: 5px;">✅</div>
-            <div style="font-size: 14px; color: white;">Dispositivo registrato</div>
-            <div style="font-size: 12px; color: rgba(255,255,255,0.7);" id="oneTouchInfo"></div>
+          <div class="one-touch-banner">
+            <div class="icon">✅</div>
+            <div class="title">Dispositivo registrato</div>
+            <div class="sub" id="oneTouchInfo"></div>
           </div>
-          
+
           <div class="form-group">
             <label>Codice Gara</label>
-            <input type="text" id="codiceGaraOneTouch" placeholder="es. VENE015" maxlength="20" autocomplete="off" style="text-transform: uppercase; font-size: 20px; text-align: center; letter-spacing: 2px;">
+            <input type="text" id="codiceGaraOneTouch" placeholder="es. VENE015" maxlength="20" autocomplete="off" style="text-transform: uppercase; text-align: center; letter-spacing: 3px; font-weight: 700;">
           </div>
-          
-          <button class="login-btn" id="loginBtnOneTouch" onclick="doLoginOneTouch()" style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); font-size: 18px;">
+
+          <button class="login-btn login-btn-wa" id="loginBtnOneTouch" onclick="doLoginOneTouch()">
             🚀 ENTRA
           </button>
-          
-          <div style="text-align: center; margin-top: 20px;">
-            <button onclick="mostraFormCompleto()" style="background: transparent; color: #888; border: 1px solid #444; padding: 8px 16px; border-radius: 8px; font-size: 12px; cursor: pointer;">
+
+          <div class="login-secondary">
+            <button onclick="mostraFormCompleto()" class="btn-outline">
               Usa altro account / Test
             </button>
           </div>
@@ -1360,18 +1578,16 @@
           <label>Numero Pilota</label>
           <input type="text" id="numeroPilota" placeholder="es. 101" maxlength="10" autocomplete="off" style="text-transform: uppercase;">
         </div>
-        <div id="pinSection" style="background: rgba(233,69,96,0.1); border: 1px solid #e94560; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
-          <label style="display: block; color: #e94560; font-size: 12px; margin-bottom: 10px; text-align: center;">🔐 PIN SICUREZZA</label>
-          <div style="display: flex; gap: 10px;">
-            <div style="flex: 2;">
-              <label style="font-size: 10px; color: #888;">Ultime 4 cifre licenza</label>
-              <input type="text" id="pinLicenza" maxlength="4" inputmode="numeric" placeholder="0000" 
-                style="width: 100%; padding: 10px; font-size: 18px; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid #e94560; border-radius: 8px; color: white; letter-spacing: 4px;">
+        <div id="pinSection" class="pin-group">
+          <label>🔐 PIN Sicurezza</label>
+          <div class="pin-row">
+            <div class="pin-field">
+              <label>Ultime 4 cifre licenza</label>
+              <input type="text" id="pinLicenza" maxlength="4" inputmode="numeric" placeholder="0000">
             </div>
-            <div style="flex: 1;">
-              <label style="font-size: 10px; color: #888;">Anno nascita</label>
-              <input type="text" id="pinAnno" maxlength="2" inputmode="numeric" placeholder="00"
-                style="width: 100%; padding: 10px; font-size: 18px; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid #e94560; border-radius: 8px; color: white; letter-spacing: 4px;">
+            <div class="pin-field">
+              <label>Anno nascita</label>
+              <input type="text" id="pinAnno" maxlength="2" inputmode="numeric" placeholder="00">
             </div>
           </div>
         </div>
@@ -1385,9 +1601,9 @@
         </button>
         
         <!-- Link registrazione SMS -->
-        <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-          <p style="color: #888; font-size: 12px; margin-bottom: 8px;">Prima volta?</p>
-          <button onclick="mostraRegistrazioneSMS()" style="background: #25D366; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer;">
+        <div class="login-secondary">
+          <p>Prima volta?</p>
+          <button onclick="mostraRegistrazioneSMS()" class="btn-wa">
             📱 Registrati con SMS
           </button>
         </div>
@@ -1400,7 +1616,7 @@
           <label>Codice FMI Gara</label>
           <input type="text" id="codiceFmi" placeholder="es. VENE015" maxlength="20" autocomplete="off" style="text-transform: uppercase;">
         </div>
-        <p style="font-size: 12px; color: #888; margin-bottom: 15px; text-align: center;">
+        <p style="font-size: 14px; color: var(--text-tertiary); margin-bottom: 16px; text-align: center;">
           Accesso pubblico: iscritti, ordine partenza, comunicati
         </p>
         <button class="login-btn" id="loginBtnPubblico" onclick="doLoginPubblico()">
@@ -1484,26 +1700,38 @@
 
     <!-- Tab: I Miei Tempi (default attivo) -->
     <div class="tab-content active" id="tabTempi">
-      <div class="position-cards">
-        <div class="position-card highlight">
-          <div class="label">Posizione Assoluta</div>
-          <div class="value" id="posAssoluta">--</div>
-          <div class="sub" id="totPiloti">/ -- piloti</div>
+      <section class="kpi-hero" aria-label="Riepilogo gara">
+        <div class="kpi-hero-top">
+          <div class="kpi-col">
+            <span class="kpi-label">Posizione</span>
+            <span class="kpi-pos-value" id="posAssoluta">--</span>
+            <span class="kpi-sub" id="totPiloti">/ -- piloti</span>
+          </div>
+          <div class="kpi-col" style="align-items:flex-end;text-align:right;">
+            <span class="kpi-label">Classe</span>
+            <span class="kpi-classe-value" id="posClasse">--</span>
+            <span class="kpi-sub" id="totClasse">/ -- in classe</span>
+          </div>
         </div>
-        <div class="position-card">
-          <div class="label">Posizione Classe</div>
-          <div class="value" id="posClasse">--</div>
-          <div class="sub" id="totClasse">/ -- in classe</div>
+        <div class="kpi-hero-mid">
+          <div class="kpi-mid-item">
+            <span class="kpi-label">Tempo Totale</span>
+            <span class="kpi-mid-value" id="tempoTotale">--:--</span>
+          </div>
+          <div class="kpi-mid-divider"></div>
+          <div class="kpi-mid-item">
+            <span class="kpi-label">Gap dal 1°</span>
+            <span class="kpi-mid-value gap" id="gapPrimo">--</span>
+          </div>
         </div>
-      </div>
+        <div class="kpi-hero-bot">
+          <span class="kpi-label">Ultima PS</span>
+          <span class="kpi-bot-value" id="ultimaPsNome">—</span>
+          <span class="kpi-bot-time" id="ultimaPsTempo"></span>
+        </div>
+      </section>
 
-      <div class="tempo-totale">
-        <div class="label">Tempo Totale</div>
-        <div class="value" id="tempoTotale">--:--</div>
-        <div class="gap" id="gapPrimo"></div>
-      </div>
-
-      <h4 style="margin-bottom: 10px; color: #a0a0a0;">⏱️ Tempi Prove Speciali</h4>
+      <h4 style="margin-bottom: 10px; color: var(--text-tertiary); font-size:13px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;">⏱️ Tempi Prove Speciali</h4>
       <div class="prove-list" id="proveList">
         <div class="loading"><div class="spinner"></div></div>
       </div>
@@ -3032,18 +3260,13 @@
     // NUOVO Chat 22: Switch tab login
     function switchLoginTab(tab) {
       currentLoginTab = tab;
-      
-      // Aggiorna bottoni
-      document.getElementById('loginTabPilota').style.background = tab === 'pilota' ? '#e94560' : '#374151';
-      document.getElementById('loginTabPilota').style.color = tab === 'pilota' ? 'white' : '#9ca3af';
-      document.getElementById('loginTabPubblico').style.background = tab === 'pubblico' ? '#22c55e' : '#374151';
-      document.getElementById('loginTabPubblico').style.color = tab === 'pubblico' ? 'white' : '#9ca3af';
-      
-      // Mostra/nascondi form
+
+      document.getElementById('loginTabPilota').classList.toggle('active', tab === 'pilota');
+      document.getElementById('loginTabPubblico').classList.toggle('active', tab === 'pubblico');
+
       document.getElementById('formPilota').style.display = tab === 'pilota' ? 'block' : 'none';
       document.getElementById('formPubblico').style.display = tab === 'pubblico' ? 'block' : 'none';
-      
-      // Reset errori
+
       document.getElementById('loginError').style.display = 'none';
     }
 
@@ -3542,12 +3765,34 @@
         const data = await response.json();
 
         if (data.success) {
-          document.getElementById('posAssoluta').textContent = data.posizione_assoluta + '°';
-          document.getElementById('totPiloti').textContent = `/ ${data.totale_piloti} piloti`;
-          document.getElementById('posClasse').textContent = data.posizione_classe + '°';
-          document.getElementById('totClasse').textContent = `/ ${data.totale_classe} in ${currentUser.pilota.classe}`;
+          document.getElementById('posAssoluta').textContent = (data.posizione_assoluta ?? '--') + '°';
+          document.getElementById('totPiloti').textContent = `/ ${data.totale_piloti ?? '--'} piloti`;
+          document.getElementById('posClasse').textContent = (data.posizione_classe ?? '--') + '°';
+          document.getElementById('totClasse').textContent = `/ ${data.totale_classe ?? '--'} in ${currentUser.pilota?.classe || 'classe'}`;
           document.getElementById('tempoTotale').textContent = data.tempo_totale || '--:--';
-          document.getElementById('gapPrimo').textContent = data.gap_primo ? `Gap dal 1°: ${data.gap_primo}` : '';
+          document.getElementById('gapPrimo').textContent = data.gap_primo ? `+${data.gap_primo}` : '—';
+
+          // Ultima PS: trova l'ultima prova con tempo valido
+          const ultimaPsNomeEl = document.getElementById('ultimaPsNome');
+          const ultimaPsTempoEl = document.getElementById('ultimaPsTempo');
+          if (data.prove && data.prove.length > 0) {
+            let ultimaIdx = -1;
+            for (let i = data.prove.length - 1; i >= 0; i--) {
+              const t = data.prove[i].tempo;
+              if (t && t !== '--' && t !== '') { ultimaIdx = i; break; }
+            }
+            if (ultimaIdx >= 0) {
+              const p = data.prove[ultimaIdx];
+              ultimaPsNomeEl.textContent = `PS${ultimaIdx + 1}${p.nome ? ' · ' + p.nome : ''}`;
+              ultimaPsTempoEl.textContent = p.tempo;
+            } else {
+              ultimaPsNomeEl.textContent = 'In attesa del primo tempo';
+              ultimaPsTempoEl.textContent = '';
+            }
+          } else {
+            ultimaPsNomeEl.textContent = 'Nessuna PS registrata';
+            ultimaPsTempoEl.textContent = '';
+          }
 
           // Prove - CHAT 22: numerazione sequenziale PS1, PS2, PS3...
           // p36: Aggiunto onclick per popup dettagli

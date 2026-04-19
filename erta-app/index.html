@@ -1277,6 +1277,696 @@
       animation: zoomIn 250ms cubic-bezier(0.16, 1, 0.3, 1);
     }
 
+    /* ==================== POPUP DETTAGLI PS ==================== */
+    .popup-overlay .popup-content {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-xl);
+      width: 100%;
+      max-width: 440px;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      animation: zoomIn 250ms cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .popup-header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+      color: #fff;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-radius: var(--r-xl) var(--r-xl) 0 0;
+    }
+    .popup-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .popup-ps {
+      background: rgba(0,0,0,0.28);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: var(--r-pill);
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+
+    .popup-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .popup-section:last-of-type { border-bottom: none; }
+    .popup-section.assoluta { background: var(--bg-surface); }
+    .popup-section.classe { background: var(--bg-surface-2); }
+
+    .popup-section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 10px;
+    }
+    .popup-section-title > span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .popup-posizione {
+      background: var(--bg-surface-3);
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: var(--r-pill);
+      flex-shrink: 0;
+    }
+
+    .popup-variazione {
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: var(--r-md);
+      margin-bottom: 12px;
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+    .popup-variazione.neutra {
+      background: var(--bg-surface-2);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+    .popup-variazione.positiva {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+    }
+    .popup-variazione.negativa {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+
+    .popup-pilota-box {
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    .popup-pilota-box.davanti { border-left: 3px solid var(--info); }
+    .popup-pilota-box.dietro { border-left: 3px solid var(--warning); }
+    .popup-pilota-box.me {
+      background: linear-gradient(135deg, var(--brand-50), var(--bg-surface-2));
+      border: 1px solid var(--brand-500);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .popup-pilota-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .popup-pilota-row > div:first-child { flex: 1; min-width: 0; }
+    .popup-pilota-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+      line-height: 1.25;
+    }
+    .popup-pilota-detail {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.3;
+    }
+    .popup-pilota-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .var-gap {
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: var(--r-sm);
+      text-align: center;
+    }
+    .var-gap.positiva { background: var(--success-bg); color: var(--success); }
+    .var-gap.negativa { background: var(--danger-bg); color: var(--danger); }
+
+    .popup-gap-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border-subtle);
+      font-size: 12px;
+    }
+    .popup-gap-label {
+      color: var(--text-tertiary);
+      font-weight: 500;
+    }
+    .popup-gap-value {
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .popup-podio {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 12px;
+      margin-top: 8px;
+      border-radius: var(--r-md);
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      color: var(--warning);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .popup-podio.achieved {
+      background: linear-gradient(135deg, #3a2808, #2a1d07);
+      color: #fbbf24;
+      border-color: #f59e0b;
+    }
+
+    .popup-close-btn {
+      margin: 16px;
+      padding: 14px;
+      background: var(--brand-500);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-md);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 48px;
+      transition: background 150ms;
+    }
+    .popup-close-btn:active { background: var(--brand-600); transform: scale(0.98); }
+
+    /* ==================== PADDOCK (appPublic) ==================== */
+    .pub-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: #fff;
+      padding: calc(var(--safe-top) + 12px) 16px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+    .pub-header .pub-logout {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: var(--r-pill);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      min-height: 40px;
+    }
+    .pub-header-title {
+      text-align: right;
+      min-width: 0;
+    }
+    .pub-header-title .label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+    .pub-header-title .value {
+      font-size: 16px;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pub-tabs {
+      position: sticky;
+      top: calc(var(--safe-top) + 64px);
+      z-index: 40;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .pub-tab-btn {
+      padding: 12px 4px;
+      border: none;
+      background: transparent;
+      color: var(--text-tertiary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 52px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      position: relative;
+      transition: color 150ms;
+    }
+    .pub-tab-btn .ico { font-size: 18px; line-height: 1; }
+    .pub-tab-btn.active {
+      color: #10b981;
+    }
+    .pub-tab-btn.active::after {
+      content: '';
+      position: absolute;
+      left: 20%;
+      right: 20%;
+      bottom: 0;
+      height: 3px;
+      background: #10b981;
+      border-radius: 3px 3px 0 0;
+    }
+
+    .pub-tab-content {
+      padding: 14px;
+      padding-bottom: 80px;
+    }
+    .pub-tab-content.hidden { display: none; }
+
+    .pub-search {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border-default);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .pub-search:focus { outline: none; border-color: var(--brand-500); }
+    .pub-count {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .pub-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin: 16px 0 10px;
+    }
+    .pub-section-title:first-child { margin-top: 0; }
+
+    /* Pilot row (generic) */
+    .pilot-row {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      padding: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 60px;
+    }
+    .pilot-row .row-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 16px;
+      color: #fff;
+      background: var(--brand-500);
+      border-radius: var(--r-sm);
+      min-width: 44px;
+      padding: 8px 10px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .pilot-row .row-num.blue { background: var(--info); }
+    .pilot-row .row-num.green { background: #10b981; }
+    .pilot-row .row-num.neutral { background: var(--bg-surface-3); color: var(--text-primary); }
+    .pilot-row .row-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      background: #10b981;
+      padding: 8px 12px;
+      border-radius: var(--r-sm);
+      min-width: 68px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .pilot-row .row-main {
+      flex: 1;
+      min-width: 0;
+    }
+    .pilot-row .row-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.25;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pilot-row .row-meta {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pilot-row .row-sub {
+      font-size: 11px;
+      color: var(--text-disabled);
+    }
+    .pilot-row .row-action {
+      background: var(--bg-surface-2);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+      padding: 8px 12px;
+      border-radius: var(--r-md);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      flex-shrink: 0;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+    }
+
+    .pub-empty {
+      text-align: center;
+      color: var(--text-tertiary);
+      padding: 40px 20px;
+      font-size: 14px;
+    }
+
+    /* ==================== CLASSIFICA GENERALE ==================== */
+    .classifica-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--warning);
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
+    }
+    .view-toggle {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      background: var(--bg-surface-2);
+      padding: 4px;
+      border-radius: var(--r-md);
+      margin-bottom: 14px;
+    }
+    .view-toggle-btn {
+      padding: 10px 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: var(--r-sm);
+      min-height: 40px;
+      transition: background 150ms, color 150ms;
+    }
+    .view-toggle-btn.active {
+      background: var(--warning);
+      color: #1a1a2e;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filtri-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .filtro-select {
+      flex: 1;
+      min-width: 140px;
+      padding: 10px 12px;
+      border-radius: var(--r-md);
+      background: var(--bg-surface-2);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+      font-size: 15px;
+      font-family: inherit;
+    }
+    .filtro-select:focus { outline: none; border-color: var(--brand-500); }
+
+    /* Classifica card (generale) */
+    .class-row {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      display: grid;
+      grid-template-columns: 44px 44px 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .class-row.me {
+      background: linear-gradient(135deg, var(--brand-50), var(--bg-surface));
+      border-color: var(--brand-500);
+    }
+    .class-row.podio-1 { border-left: 4px solid #fbbf24; }
+    .class-row.podio-2 { border-left: 4px solid #cbd5e1; }
+    .class-row.podio-3 { border-left: 4px solid #cd7f32; }
+    .class-pos {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-primary);
+      text-align: center;
+    }
+    .class-row.podio-1 .class-pos { color: #fbbf24; }
+    .class-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: #fff;
+      background: var(--bg-surface-3);
+      padding: 6px 4px;
+      border-radius: var(--r-sm);
+      text-align: center;
+      font-size: 14px;
+    }
+    .class-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+    .class-meta {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+    .class-right {
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .class-tempo {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .class-gap {
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
+    .class-ps {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--success);
+      background: var(--success-bg);
+      padding: 2px 6px;
+      border-radius: var(--r-sm);
+      margin-top: 2px;
+    }
+
+    /* Team/Squadre cards */
+    .team-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .team-card.podio-1 { border-color: #fbbf24; }
+    .team-card.podio-2 { border-color: #cbd5e1; }
+    .team-card.podio-3 { border-color: #cd7f32; }
+
+    .team-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: var(--bg-surface-2);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .team-card.podio-1 .team-head { background: linear-gradient(135deg, rgba(251,191,36,0.22), var(--bg-surface-2)); }
+    .team-card.podio-2 .team-head { background: linear-gradient(135deg, rgba(203,213,225,0.18), var(--bg-surface-2)); }
+    .team-card.podio-3 .team-head { background: linear-gradient(135deg, rgba(205,127,50,0.22), var(--bg-surface-2)); }
+
+    .team-rank {
+      font-size: 28px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      min-width: 44px;
+      text-align: center;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .team-card.podio-1 .team-rank { color: #fbbf24; }
+    .team-card.podio-2 .team-rank { color: #cbd5e1; }
+    .team-card.podio-3 .team-rank { color: #cd7f32; }
+    .team-medal {
+      font-size: 28px;
+      line-height: 1;
+    }
+    .team-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .team-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+      word-break: break-word;
+    }
+    .team-sub {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+    .team-score {
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .team-score-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--success);
+      line-height: 1;
+    }
+    .team-score-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    .team-body {
+      padding: 8px 14px 14px;
+    }
+    .team-pilota-row {
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border-subtle);
+      font-size: 13px;
+    }
+    .team-pilota-row:last-child { border-bottom: none; }
+    .team-pilota-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+    .team-pilota-name {
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+    .team-pilota-name.excluded {
+      color: var(--danger);
+      opacity: 0.8;
+    }
+    .team-pilota-classe {
+      color: var(--text-tertiary);
+      font-size: 11px;
+      margin-left: 4px;
+    }
+    .team-pilota-pt {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--success);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .team-pilota-pt.zero { color: var(--text-disabled); }
+
+    .pub-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #047857;
+      padding: 8px calc(var(--safe-bottom) / 2 + 10px);
+      padding-bottom: calc(var(--safe-bottom) + 8px);
+      text-align: center;
+      font-size: 12px;
+      color: #fff;
+      font-weight: 600;
+      z-index: 20;
+    }
+
     /* Notification popup (floating) */
     .notification-popup {
       position: fixed;
@@ -1742,38 +2432,32 @@
 
     <!-- CHAT 23: Tab Classifica Generale con toggle -->
     <div class="tab-content" id="tabClassifica">
-      <h3 style="color: #fbbf24; margin-bottom: 15px;">🏆 Classifica Generale</h3>
-      
-      <!-- Toggle vista -->
-      <div style="display: flex; gap: 5px; margin-bottom: 15px;">
-        <button id="toggleClassi" onclick="setVistaClassifica('classi')" style="flex: 1; padding: 10px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; background: #fbbf24; color: #1a1a2e;">Per Classi</button>
-        <button id="toggleMotoClub" onclick="setVistaClassifica('motoclub')" style="flex: 1; padding: 10px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; background: #374151; color: #9ca3af;">Per MotoClub</button>
-        <button id="toggleSquadre" onclick="setVistaClassifica('squadre')" style="flex: 1; padding: 10px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; background: #374151; color: #9ca3af;">Per Squadre</button>
+      <h3 class="classifica-title">🏆 Classifica Generale</h3>
+
+      <div class="view-toggle">
+        <button id="toggleClassi" onclick="setVistaClassifica('classi')" class="view-toggle-btn active">Classi</button>
+        <button id="toggleMotoClub" onclick="setVistaClassifica('motoclub')" class="view-toggle-btn">MotoClub</button>
+        <button id="toggleSquadre" onclick="setVistaClassifica('squadre')" class="view-toggle-btn">Squadre</button>
       </div>
-      
-      <!-- Filtri (per vista classi e motoclub) -->
-      <div id="filtriClassifica" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-        <select id="filtroClasse" onchange="caricaClassificaGenerale()" 
-          style="flex: 1; min-width: 120px; padding: 8px; border-radius: 6px; background: #374151; color: white; border: 1px solid #4b5563;">
+
+      <div id="filtriClassifica" class="filtri-row">
+        <select id="filtroClasse" onchange="caricaClassificaGenerale()" class="filtro-select">
           <option value="">Tutte le classi</option>
         </select>
-        <select id="filtroTeam" onchange="caricaClassificaGenerale()"
-          style="flex: 1; min-width: 120px; padding: 8px; border-radius: 6px; background: #374151; color: white; border: 1px solid #4b5563;">
+        <select id="filtroTeam" onchange="caricaClassificaGenerale()" class="filtro-select">
           <option value="">Tutti i MotoClub</option>
         </select>
       </div>
-      
-      <!-- Tabella classifica individuale -->
-      <div id="tabellaClassifica" style="overflow-x: auto;">
+
+      <div id="tabellaClassifica">
         <div class="loading"><div class="spinner"></div></div>
       </div>
-      
-      <!-- Tabella classifica squadre (NUOVA Chat 23) -->
-      <div id="tabellaClassificaSquadre" style="overflow-x: auto; display: none;">
+
+      <div id="tabellaClassificaSquadre" style="display: none;">
         <div class="loading"><div class="spinner"></div></div>
       </div>
-      
-      <div class="last-update" id="lastUpdateClassifica" style="color: white;">--</div>
+
+      <div class="last-update" id="lastUpdateClassifica" style="color: var(--text-tertiary);">--</div>
     </div>
 
     <!-- CHAT 22: Tab Confronta -->
@@ -2388,103 +3072,85 @@
 
   <!-- ==================== PUBLIC APP (Chat 22) ==================== -->
   <div id="appPublic" style="display: none;">
-    <header style="background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
-      <button type="button" onclick="doLogout()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 12px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; -webkit-tap-highlight-color: transparent; touch-action: manipulation; min-height: 44px;">
-        ESCI
-      </button>
-      <div style="text-align: right;">
-        <div style="font-size: 12px; color: rgba(255,255,255,0.8);">🏕️ VISTA PADDOCK</div>
-        <div style="font-size: 14px; font-weight: bold;" id="publicEventoInfo">--</div>
+    <header class="pub-header">
+      <button type="button" onclick="doLogout()" class="pub-logout">ESCI</button>
+      <div class="pub-header-title">
+        <div class="label">🏕️ Vista Paddock</div>
+        <div class="value" id="publicEventoInfo">--</div>
       </div>
     </header>
 
-    <!-- Tab Navigation Pubblica -->
-    <div style="display: flex; background: #1e293b; border-bottom: 1px solid #334155;">
-      <button onclick="showPublicTab('iscritti')" id="btnPubIscritti" class="pub-tab-btn active"
-        style="flex: 1; padding: 12px 6px; border: none; background: #059669; color: white; font-size: 10px; font-weight: bold; cursor: pointer;">
-        👥 Iscritti
+    <nav class="pub-tabs">
+      <button onclick="showPublicTab('iscritti')" id="btnPubIscritti" class="pub-tab-btn active">
+        <span class="ico">👥</span>Iscritti
       </button>
-      <button onclick="showPublicTab('ordine')" id="btnPubOrdine" class="pub-tab-btn"
-        style="flex: 1; padding: 12px 6px; border: none; background: #1e293b; color: #9ca3af; font-size: 10px; font-weight: bold; cursor: pointer;">
-        🏁 Partenze
+      <button onclick="showPublicTab('ordine')" id="btnPubOrdine" class="pub-tab-btn">
+        <span class="ico">🏁</span>Partenze
       </button>
-      <button onclick="showPublicTab('programma')" id="btnPubProgramma" class="pub-tab-btn"
-        style="flex: 1; padding: 12px 6px; border: none; background: #1e293b; color: #9ca3af; font-size: 10px; font-weight: bold; cursor: pointer;">
-        📋 Prove
+      <button onclick="showPublicTab('programma')" id="btnPubProgramma" class="pub-tab-btn">
+        <span class="ico">📋</span>Prove
       </button>
-      <button onclick="showPublicTab('comunicati')" id="btnPubComunicati" class="pub-tab-btn"
-        style="flex: 1; padding: 12px 6px; border: none; background: #1e293b; color: #9ca3af; font-size: 10px; font-weight: bold; cursor: pointer;">
-        📢 Info
+      <button onclick="showPublicTab('comunicati')" id="btnPubComunicati" class="pub-tab-btn">
+        <span class="ico">📢</span>Info
       </button>
-      <button onclick="showPublicTab('gps')" id="btnPubGps" class="pub-tab-btn"
-        style="flex: 1; padding: 12px 6px; border: none; background: #1e293b; color: #9ca3af; font-size: 10px; font-weight: bold; cursor: pointer;">
-        📍 GPS
+      <button onclick="showPublicTab('gps')" id="btnPubGps" class="pub-tab-btn">
+        <span class="ico">📍</span>GPS
       </button>
-    </div>
+    </nav>
 
     <!-- Tab: Iscritti -->
-    <div class="pub-tab-content active" id="tabPubIscritti" style="padding: 15px; padding-bottom: 80px;">
-      <div style="margin-bottom: 15px;">
-        <input type="text" id="searchIscritti" placeholder="🔍 Cerca pilota..." 
-          oninput="filterIscritti()"
-          style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 14px;">
-      </div>
-      <div id="iscrittiCount" style="font-size: 12px; color: #888; margin-bottom: 10px;">Caricamento...</div>
-      <div id="iscrittiList" style="max-height: calc(100vh - 250px); overflow-y: auto;">
-        <div style="text-align: center; color: #888; padding: 40px;">Caricamento iscritti...</div>
+    <div class="pub-tab-content" id="tabPubIscritti">
+      <input type="text" id="searchIscritti" placeholder="🔍 Cerca pilota..."
+        oninput="filterIscritti()" class="pub-search">
+      <div id="iscrittiCount" class="pub-count">Caricamento...</div>
+      <div id="iscrittiList">
+        <div class="pub-empty">Caricamento iscritti...</div>
       </div>
     </div>
 
     <!-- Tab: Ordine Partenza -->
-    <div class="pub-tab-content" id="tabPubOrdine" style="display: none; padding: 15px; padding-bottom: 80px;">
-      <div style="margin-bottom: 15px;">
-        <input type="text" id="searchOrdine" placeholder="🔍 Cerca pilota..." 
-          oninput="filterOrdine()"
-          style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 14px;">
-      </div>
-      <div id="ordineCount" style="font-size: 12px; color: #888; margin-bottom: 10px;">Caricamento...</div>
-      <div id="ordineList" style="max-height: calc(100vh - 250px); overflow-y: auto;">
-        <div style="text-align: center; color: #888; padding: 40px;">Caricamento ordine partenza...</div>
+    <div class="pub-tab-content hidden" id="tabPubOrdine">
+      <input type="text" id="searchOrdine" placeholder="🔍 Cerca pilota..."
+        oninput="filterOrdine()" class="pub-search">
+      <div id="ordineCount" class="pub-count">Caricamento...</div>
+      <div id="ordineList">
+        <div class="pub-empty">Caricamento ordine partenza...</div>
       </div>
     </div>
 
     <!-- Tab: Programma -->
-    <div class="pub-tab-content" id="tabPubProgramma" style="display: none; padding: 15px; padding-bottom: 80px;">
-      <h3 style="color: #22c55e; margin-bottom: 15px;">📋 Prove Speciali</h3>
-      <div id="programmaList" style="max-height: calc(100vh - 200px); overflow-y: auto;">
-        <div style="text-align: center; color: #888; padding: 40px;">Caricamento programma...</div>
+    <div class="pub-tab-content hidden" id="tabPubProgramma">
+      <h3 class="pub-section-title">📋 Prove Speciali</h3>
+      <div id="programmaList">
+        <div class="pub-empty">Caricamento programma...</div>
       </div>
     </div>
 
     <!-- Tab: Comunicati e Info Paddock -->
-    <div class="pub-tab-content" id="tabPubComunicati" style="display: none; padding: 15px; padding-bottom: 80px;">
-      <h3 style="color: #3b82f6; margin-bottom: 15px;">📢 Comunicati Ufficiali</h3>
-      <div id="comunicatiPubList" style="max-height: 40vh; overflow-y: auto; margin-bottom: 20px;">
-        <div style="text-align: center; color: #888; padding: 20px;">Caricamento comunicati...</div>
+    <div class="pub-tab-content hidden" id="tabPubComunicati">
+      <h3 class="pub-section-title">📢 Comunicati Ufficiali</h3>
+      <div id="comunicatiPubList">
+        <div class="pub-empty">Caricamento comunicati...</div>
       </div>
-      
-      <h3 style="color: #f59e0b; margin-bottom: 15px; margin-top: 20px;">🏕️ Info Paddock</h3>
-      <div id="paddockPubList" style="max-height: 40vh; overflow-y: auto;">
-        <div style="text-align: center; color: #888; padding: 20px;">Caricamento info paddock...</div>
+
+      <h3 class="pub-section-title">🏕️ Info Paddock</h3>
+      <div id="paddockPubList">
+        <div class="pub-empty">Caricamento info paddock...</div>
       </div>
     </div>
 
     <!-- Tab: GPS Piloti -->
-    <div class="pub-tab-content" id="tabPubGps" style="display: none; padding: 15px; padding-bottom: 80px;">
-      <h3 style="color: #a855f7; margin-bottom: 15px;">📍 GPS Piloti</h3>
-      <div style="margin-bottom: 15px;">
-        <input type="text" id="searchGps" placeholder="🔍 Cerca pilota..." 
-          oninput="filterGpsPub()"
-          style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 14px;">
-      </div>
-      <div id="gpsCount" style="font-size: 12px; color: #888; margin-bottom: 10px;">Caricamento...</div>
-      <div id="gpsPubList" style="max-height: calc(100vh - 280px); overflow-y: auto;">
-        <div style="text-align: center; color: #888; padding: 40px;">Caricamento posizioni GPS...</div>
+    <div class="pub-tab-content hidden" id="tabPubGps">
+      <h3 class="pub-section-title">📍 GPS Piloti</h3>
+      <input type="text" id="searchGps" placeholder="🔍 Cerca pilota..."
+        oninput="filterGpsPub()" class="pub-search">
+      <div id="gpsCount" class="pub-count">Caricamento...</div>
+      <div id="gpsPubList">
+        <div class="pub-empty">Caricamento posizioni GPS...</div>
       </div>
     </div>
 
-    <!-- Footer -->
-    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: #059669; padding: 10px; text-align: center; font-size: 12px; color: white;">
+    <div class="pub-footer">
       🏕️ Vista Paddock • <span id="publicLastUpdate">--</span>
     </div>
   </div>
@@ -4259,57 +4925,46 @@
       });
       
       if (dati.length === 0) {
-        container.innerHTML = '<div style="text-align: center; color: #888; padding: 20px;">Nessun risultato</div>';
+        container.innerHTML = '<div class="pub-empty">Nessun risultato</div>';
         return;
       }
-      
-      let html = `<table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-        <thead>
-          <tr style="background: #374151; color: #fff;">
-            <th style="padding: 8px; text-align: center;">Pos</th>
-            <th style="padding: 8px; text-align: center;">#</th>
-            <th style="padding: 8px; text-align: left;">Pilota</th>
-            <th style="padding: 8px; text-align: center;">PS</th>
-            <th style="padding: 8px; text-align: right;">Tempo</th>
-          </tr>
-        </thead>
-        <tbody>`;
-      
+
       const tempoLeader = dati[0]?.tempoSec || 0;
-      
-      dati.forEach((p, idx) => {
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+      container.innerHTML = dati.map((p, idx) => {
+        const pos = idx + 1;
         const gap = idx === 0 ? '' : `+${(p.tempoSec - tempoLeader).toFixed(1)}s`;
         const isMe = currentUser.pilota && p.num == currentUser.pilota.numero;
-        
-        html += `<tr style="border-bottom: 1px solid #374151; ${isMe ? 'background: rgba(255,255,255,0.1);' : ''}">
-          <td style="padding: 6px; text-align: center; font-weight: bold;">${idx + 1}</td>
-          <td style="padding: 6px; text-align: center; color: #fbbf24;">${p.num}</td>
-          <td style="padding: 6px;">${p.cognome} ${p.nome?.charAt(0) || ''}<br><span style="color: #9ca3af; font-size: 10px;">${p.classe || ''} • ${p.team || ''}</span></td>
-          <td style="padding: 6px; text-align: center; color: #22c55e;">${p.psCompletate}</td>
-          <td style="padding: 6px; text-align: right; font-family: monospace;">${p.totale || '--'}<br><span style="color: #888; font-size: 10px;">${gap}</span></td>
-        </tr>`;
-      });
-      
-      html += '</tbody></table>';
-      container.innerHTML = html;
+        const podio = pos <= 3 ? `podio-${pos}` : '';
+        return `
+          <div class="class-row ${podio} ${isMe ? 'me' : ''}">
+            <div class="class-pos">${pos}°</div>
+            <div class="class-num">${esc(p.num)}</div>
+            <div>
+              <div class="class-name">${esc(p.cognome)} ${p.nome?.charAt(0) || ''}</div>
+              <div class="class-meta">${esc(p.classe || '')}${p.team ? ' • ' + esc(p.team) : ''}</div>
+              <span class="class-ps">${p.psCompletate} PS</span>
+            </div>
+            <div class="class-right">
+              <div class="class-tempo">${esc(p.totale || '--')}</div>
+              ${gap ? `<div class="class-gap">${gap}</div>` : ''}
+            </div>
+          </div>`;
+      }).join('');
     }
 
     // ==================== CHAT 23: CLASSIFICA SQUADRE ====================
     function setVistaClassifica(vista) {
       vistaClassifica = vista;
-      // Aggiorna stile bottoni toggle
-      document.getElementById('toggleClassi').style.background = vista === 'classi' ? '#fbbf24' : '#374151';
-      document.getElementById('toggleClassi').style.color = vista === 'classi' ? '#1a1a2e' : '#9ca3af';
-      document.getElementById('toggleMotoClub').style.background = vista === 'motoclub' ? '#fbbf24' : '#374151';
-      document.getElementById('toggleMotoClub').style.color = vista === 'motoclub' ? '#1a1a2e' : '#9ca3af';
-      document.getElementById('toggleSquadre').style.background = vista === 'squadre' ? '#fbbf24' : '#374151';
-      document.getElementById('toggleSquadre').style.color = vista === 'squadre' ? '#1a1a2e' : '#9ca3af';
-      
-      // Mostra/nascondi filtri e tabelle
+      document.getElementById('toggleClassi').classList.toggle('active', vista === 'classi');
+      document.getElementById('toggleMotoClub').classList.toggle('active', vista === 'motoclub');
+      document.getElementById('toggleSquadre').classList.toggle('active', vista === 'squadre');
+
       const filtri = document.getElementById('filtriClassifica');
       const tabIndiv = document.getElementById('tabellaClassifica');
       const tabSquadre = document.getElementById('tabellaClassificaSquadre');
-      
+
       if (vista === 'squadre') {
         filtri.style.display = 'none';
         tabIndiv.style.display = 'none';
@@ -4319,7 +4974,6 @@
         filtri.style.display = 'flex';
         tabIndiv.style.display = 'block';
         tabSquadre.style.display = 'none';
-        // Aggiorna filtro visibile
         document.getElementById('filtroClasse').style.display = vista === 'classi' ? 'block' : 'none';
         document.getElementById('filtroTeam').style.display = vista === 'motoclub' ? 'block' : 'none';
         renderClassificaGenerale();
@@ -4424,39 +5078,49 @@
         return a.migliorPosAss - b.migliorPosAss;
       });
       
-      // Step 6: Render con colonne ottimizzate
-      let html = `<table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-        <thead>
-          <tr style="background: #374151; color: #fff;">
-            <th style="padding: 6px; text-align: center; width: 35px;">Pos</th>
-            <th style="padding: 6px; text-align: left; width: 90px;">MotoClub</th>
-            <th style="padding: 6px; text-align: center; width: 40px;">Pt</th>
-            <th style="padding: 6px; text-align: left;">Piloti (Top 3)</th>
-          </tr>
-        </thead>
-        <tbody>`;
-      
-      squadre.forEach((sq, idx) => {
+      // Step 6: Render come card mobile-first
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
+
+      container.innerHTML = squadre.map((sq, idx) => {
         const pos = idx + 1;
-        const bgColor = pos <= 3 ? (pos === 1 ? 'rgba(255,215,0,0.2)' : pos === 2 ? 'rgba(192,192,192,0.2)' : 'rgba(205,127,50,0.2)') : (pos % 2 === 0 ? 'rgba(55,65,81,0.3)' : 'transparent');
-        
-        // Piloti: bianco se porta punti, rosso se classe non costituita
-        const pilotiStr = sq.piloti.map(p => {
-          const colore = p.classeCostituta ? '#fff' : '#ef4444';
-          const puntiStr = p.classeCostituta ? `(${p.punti}pt)` : '(0pt)';
-          return `<span style="color: ${colore};">#${p.num} ${p.cognome} ${p.classe || ''} ${puntiStr}</span>`;
-        }).join('<br>');
-        
-        html += `<tr style="background: ${bgColor}; border-bottom: 1px solid #374151;">
-          <td style="padding: 6px; text-align: center; font-weight: bold; color: ${pos <= 3 ? '#fbbf24' : '#fff'};">${pos}</td>
-          <td style="padding: 6px; color: #fff; font-weight: bold; font-size: 10px; word-break: break-word;">${sq.motoclub}</td>
-          <td style="padding: 6px; text-align: center; color: #4ade80; font-weight: bold;">${sq.totPunti}</td>
-          <td style="padding: 6px; font-size: 11px; line-height: 1.4;">${pilotiStr}</td>
-        </tr>`;
-      });
-      
-      html += '</tbody></table>';
-      container.innerHTML = html;
+        const podio = pos <= 3 ? `podio-${pos}` : '';
+        const rankHtml = pos <= 3
+          ? `<div class="team-medal">${medals[pos]}</div>`
+          : `<div class="team-rank">${pos}°</div>`;
+
+        const pilotiCostituti = sq.piloti.filter(p => p.classeCostituta).length;
+        const nPiloti = sq.piloti.length;
+
+        const pilotiRows = sq.piloti.map(p => {
+          const excluded = !p.classeCostituta;
+          const ptLabel = excluded ? '0pt' : `${p.punti}pt`;
+          return `
+            <div class="team-pilota-row">
+              <div class="team-pilota-num">#${esc(p.num)}</div>
+              <div class="team-pilota-name ${excluded ? 'excluded' : ''}">
+                ${esc(p.cognome)}<span class="team-pilota-classe">${esc(p.classe || '')}${excluded ? ' · non costituita' : ''}</span>
+              </div>
+              <div class="team-pilota-pt ${excluded ? 'zero' : ''}">${ptLabel}</div>
+            </div>`;
+        }).join('');
+
+        return `
+          <div class="team-card ${podio}">
+            <div class="team-head">
+              ${rankHtml}
+              <div class="team-info">
+                <div class="team-name">${esc(sq.motoclub)}</div>
+                <div class="team-sub">${pilotiCostituti}/${nPiloti} piloti a punti</div>
+              </div>
+              <div class="team-score">
+                <div class="team-score-value">${sq.totPunti}</div>
+                <div class="team-score-label">Punti</div>
+              </div>
+            </div>
+            <div class="team-body">${pilotiRows}</div>
+          </div>`;
+      }).join('');
     }
 
     // ==================== CHAT 22: CONFRONTA PILOTI ====================
@@ -6363,25 +7027,20 @@
 
     function showPublicTab(tab) {
       currentPublicTab = tab;
-      
-      // Aggiorna bottoni
-      document.getElementById('btnPubIscritti').style.background = tab === 'iscritti' ? '#059669' : '#1e293b';
-      document.getElementById('btnPubIscritti').style.color = tab === 'iscritti' ? 'white' : '#9ca3af';
-      document.getElementById('btnPubOrdine').style.background = tab === 'ordine' ? '#059669' : '#1e293b';
-      document.getElementById('btnPubOrdine').style.color = tab === 'ordine' ? 'white' : '#9ca3af';
-      document.getElementById('btnPubProgramma').style.background = tab === 'programma' ? '#059669' : '#1e293b';
-      document.getElementById('btnPubProgramma').style.color = tab === 'programma' ? 'white' : '#9ca3af';
-      document.getElementById('btnPubComunicati').style.background = tab === 'comunicati' ? '#059669' : '#1e293b';
-      document.getElementById('btnPubComunicati').style.color = tab === 'comunicati' ? 'white' : '#9ca3af';
-      document.getElementById('btnPubGps').style.background = tab === 'gps' ? '#059669' : '#1e293b';
-      document.getElementById('btnPubGps').style.color = tab === 'gps' ? 'white' : '#9ca3af';
-      
-      // Mostra/nascondi contenuto
-      document.getElementById('tabPubIscritti').style.display = tab === 'iscritti' ? 'block' : 'none';
-      document.getElementById('tabPubOrdine').style.display = tab === 'ordine' ? 'block' : 'none';
-      document.getElementById('tabPubProgramma').style.display = tab === 'programma' ? 'block' : 'none';
-      document.getElementById('tabPubComunicati').style.display = tab === 'comunicati' ? 'block' : 'none';
-      document.getElementById('tabPubGps').style.display = tab === 'gps' ? 'block' : 'none';
+      const map = {
+        iscritti: { btn: 'btnPubIscritti', content: 'tabPubIscritti' },
+        ordine: { btn: 'btnPubOrdine', content: 'tabPubOrdine' },
+        programma: { btn: 'btnPubProgramma', content: 'tabPubProgramma' },
+        comunicati: { btn: 'btnPubComunicati', content: 'tabPubComunicati' },
+        gps: { btn: 'btnPubGps', content: 'tabPubGps' }
+      };
+      for (const [key, ids] of Object.entries(map)) {
+        const active = key === tab;
+        const btn = document.getElementById(ids.btn);
+        const content = document.getElementById(ids.content);
+        if (btn) btn.classList.toggle('active', active);
+        if (content) content.classList.toggle('hidden', !active);
+      }
     }
 
     async function loadPublicData() {
@@ -6420,28 +7079,23 @@
 
     function renderIscritti(piloti) {
       const container = document.getElementById('iscrittiList');
-      
+
       if (!piloti || piloti.length === 0) {
-        container.innerHTML = '<div style="text-align: center; color: #888; padding: 20px;">Nessun iscritto trovato</div>';
+        container.innerHTML = '<div class="pub-empty">Nessun iscritto trovato</div>';
         return;
       }
-      
-      let html = '';
-      piloti.forEach(p => {
-        html += `
-          <div style="background: #1e293b; border-radius: 10px; padding: 12px 15px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;">
-            <div style="background: #3b82f6; color: white; font-weight: bold; padding: 8px 12px; border-radius: 8px; min-width: 50px; text-align: center;">
-              ${p.numero}
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: bold; color: white;">${p.cognome} ${p.nome}</div>
-              <div style="font-size: 12px; color: #9ca3af;">${p.classe || ''} • ${p.moto || ''}</div>
-              <div style="font-size: 11px; color: #6b7280;">${p.team || ''}</div>
-            </div>
-          </div>`;
-      });
-      
-      container.innerHTML = html;
+
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      container.innerHTML = piloti.map(p => `
+        <div class="pilot-row">
+          <div class="row-num blue">${esc(p.numero)}</div>
+          <div class="row-main">
+            <div class="row-name">${esc(p.cognome)} ${esc(p.nome)}</div>
+            <div class="row-meta">${esc(p.classe || '')}${p.moto ? ' • ' + esc(p.moto) : ''}</div>
+            ${p.team ? `<div class="row-sub">${esc(p.team)}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
     }
 
     function filterIscritti() {
@@ -6481,30 +7135,23 @@
 
     function renderOrdine(partenze) {
       const container = document.getElementById('ordineList');
-      
+
       if (!partenze || partenze.length === 0) {
-        container.innerHTML = '<div style="text-align: center; color: #888; padding: 20px;">Ordine partenza non ancora disponibile</div>';
+        container.innerHTML = '<div class="pub-empty">Ordine partenza non ancora disponibile</div>';
         return;
       }
-      
-      let html = '';
-      partenze.forEach(p => {
-        html += `
-          <div style="background: #1e293b; border-radius: 10px; padding: 12px 15px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;">
-            <div style="background: #059669; color: white; font-weight: bold; padding: 8px 12px; border-radius: 8px; min-width: 60px; text-align: center; font-size: 16px;">
-              ${p.orario}
-            </div>
-            <div style="background: #374151; color: white; font-weight: bold; padding: 8px 10px; border-radius: 6px; min-width: 45px; text-align: center;">
-              ${p.numero}
-            </div>
-            <div style="flex: 1;">
-              <div style="font-weight: bold; color: white;">${p.cognome} ${p.nome}</div>
-              <div style="font-size: 12px; color: #9ca3af;">${p.classe || ''}</div>
-            </div>
-          </div>`;
-      });
-      
-      container.innerHTML = html;
+
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      container.innerHTML = partenze.map(p => `
+        <div class="pilot-row">
+          <div class="row-time">${esc(p.orario || '--')}</div>
+          <div class="row-num neutral">${esc(p.numero)}</div>
+          <div class="row-main">
+            <div class="row-name">${esc(p.cognome)} ${esc(p.nome)}</div>
+            <div class="row-meta">${esc(p.classe || '')}</div>
+          </div>
+        </div>
+      `).join('');
     }
 
     function filterOrdine() {
@@ -6645,35 +7292,30 @@
     
     function renderGpsPubList(posizioni) {
       const container = document.getElementById('gpsPubList');
-      
-      let html = '';
-      posizioni.forEach(p => {
+      if (!posizioni || posizioni.length === 0) {
+        container.innerHTML = '<div class="pub-empty">Nessuna posizione GPS disponibile</div>';
+        return;
+      }
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+      container.innerHTML = posizioni.map(p => {
         const tempo = p.aggiornato ? new Date(p.aggiornato).toLocaleTimeString('it-IT') : '--';
         const lat = p.lat != null ? parseFloat(p.lat).toFixed(5) : '--';
         const lon = p.lon != null ? parseFloat(p.lon).toFixed(5) : '--';
-        const mapsUrl = (p.lat != null && p.lon != null) ? `https://www.google.com/maps?q=${p.lat},${p.lon}` : '#';
-        
-        html += `
-          <div style="background: #1e293b; border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <div style="font-weight: bold; color: white;">
-                #${p.numero} ${p.cognome || ''} ${p.nome || ''}
-              </div>
-              <div style="font-size: 12px; color: #9ca3af;">
-                ${p.classe || ''} • ${p.gara || ''}
-              </div>
-              <div style="font-size: 11px; color: white;">
-                📍 ${lat}, ${lon} • ⏱️ ${tempo}
-              </div>
+        const hasCoords = p.lat != null && p.lon != null;
+        const mapsUrl = hasCoords ? `https://www.google.com/maps?q=${p.lat},${p.lon}` : '#';
+
+        return `
+          <div class="pilot-row">
+            <div class="row-num" style="background: #a855f7;">${esc(p.numero)}</div>
+            <div class="row-main">
+              <div class="row-name">${esc(p.cognome || '')} ${esc(p.nome || '')}</div>
+              <div class="row-meta">${esc(p.classe || '')}${p.gara ? ' • ' + esc(p.gara) : ''}</div>
+              <div class="row-sub">📍 ${lat}, ${lon} • ⏱️ ${tempo}</div>
             </div>
-            <a href="${mapsUrl}" target="_blank" 
-              style="background: #a855f7; color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; text-decoration: none;">
-              🗺️ Mappa
-            </a>
+            ${hasCoords ? `<a href="${mapsUrl}" target="_blank" class="row-action" style="color:#a855f7; border-color:#a855f7;">🗺️ Mappa</a>` : ''}
           </div>`;
-      });
-      
-      container.innerHTML = html;
+      }).join('');
     }
     
     function filterGpsPub() {

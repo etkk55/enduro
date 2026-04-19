@@ -1,0 +1,5 @@
+.netlify
+.vercel
+.DS_Store
+*.BACKUP*
+*.backup*

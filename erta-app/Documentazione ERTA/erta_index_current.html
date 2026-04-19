@@ -1,0 +1,3676 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>ERTA - Enduro Race Timing Assistant</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ==================== SPLASH SCREEN ==================== */
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      z-index: 1000;
+      padding: 20px;
+      padding-top: 40px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    .banner-container {
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 15px;
+      animation: fadeInUp 0.8s ease-out;
+      flex-shrink: 0;
+    }
+
+    .splash-banner {
+      width: 100%;
+      height: auto;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    .logo-container {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .logo-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    .logo-title {
+      font-size: 48px;
+      font-weight: 900;
+      color: #e94560;
+      text-shadow: 0 0 30px rgba(233, 69, 96, 0.5);
+      letter-spacing: 8px;
+    }
+
+    .logo-subtitle {
+      font-size: 14px;
+      color: #a0a0a0;
+      letter-spacing: 4px;
+      margin-top: 10px;
+    }
+
+    .features-list {
+      text-align: left;
+      margin: 15px 20px;
+      padding: 15px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      border-left: 4px solid #e94560;
+      animation: fadeInUp 0.8s ease-out 0.3s both;
+      flex-shrink: 0;
+    }
+
+    .features-list p {
+      font-size: 13px;
+      color: #ccc;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .features-list ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .features-list li {
+      padding: 5px 0;
+      font-size: 13px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .features-list li::before {
+      content: "";
+    }
+
+    .start-btn {
+      background: linear-gradient(135deg, #e94560 0%, #c73659 100%);
+      color: #fff;
+      border: none;
+      padding: 20px 50px;
+      font-size: 20px;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 10px 40px rgba(233, 69, 96, 0.4);
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.8s ease-out 0.6s both, glow 2s infinite;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 50px rgba(233, 69, 96, 0.6);
+    }
+
+    .start-btn:active {
+      transform: translateY(0);
+    }
+
+    /* ==================== LOGIN SCREEN ==================== */
+    #login {
+      display: none;
+      padding: 20px;
+      min-height: 100vh;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .login-header h1 {
+      font-size: 32px;
+      color: #e94560;
+      margin-bottom: 10px;
+    }
+
+    .login-header p {
+      color: #a0a0a0;
+      font-size: 14px;
+    }
+
+    .login-form {
+      background: rgba(255,255,255,0.05);
+      padding: 30px 20px;
+      border-radius: 20px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      color: #a0a0a0;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 15px 20px;
+      font-size: 18px;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #e94560;
+    }
+
+    .form-group input::placeholder {
+      color: #666;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+
+    .login-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #e94560 0%, #c73659 100%);
+      color: #fff;
+      border: none;
+      padding: 18px;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: all 0.3s;
+    }
+
+    .login-btn:hover {
+      opacity: 0.9;
+    }
+
+    .login-btn:disabled {
+      background: #444;
+      cursor: not-allowed;
+    }
+
+    .login-error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+      display: none;
+    }
+
+    /* ==================== MAIN APP ==================== */
+    #app {
+      display: none;
+      min-height: 100vh;
+      padding-bottom: 70px;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, #e94560 0%, #c73659 100%);
+      padding: 20px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .pilot-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .pilot-number {
+      background: #fff;
+      color: #e94560;
+      font-size: 28px;
+      font-weight: 900;
+      padding: 8px 15px;
+      border-radius: 8px;
+    }
+
+    .pilot-details h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .pilot-details p {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.2);
+      border: none;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* Tab Navigation */
+    .tab-nav {
+      display: flex;
+      background: rgba(0,0,0,0.3);
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 15px;
+      background: transparent;
+      border: none;
+      color: #a0a0a0;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s;
+    }
+
+    .tab-btn.active {
+      color: #e94560;
+      background: rgba(233, 69, 96, 0.1);
+    }
+
+    .tab-btn .icon {
+      font-size: 24px;
+    }
+
+    .tab-badge {
+      position: absolute;
+      top: 5px;
+      right: calc(50% - 25px);
+      background: #ef4444;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Comunicati */
+    .comunicato-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-left: 4px solid #e94560;
+    }
+
+    .comunicato-card.new {
+      border-left-color: #4ade80;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .comunicato-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .comunicato-numero {
+      background: #e94560;
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .comunicato-ora {
+      color: #a0a0a0;
+      font-size: 12px;
+    }
+
+    .comunicato-testo {
+      color: #fff;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .comunicato-pdf {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      padding: 8px 15px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .no-comunicati {
+      text-align: center;
+      padding: 50px 20px;
+      color: #a0a0a0;
+    }
+
+    .no-comunicati .icon {
+      font-size: 60px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    /* I Miei Tempi */
+    .position-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .position-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .position-card.highlight {
+      background: linear-gradient(135deg, rgba(233, 69, 96, 0.2) 0%, rgba(199, 54, 89, 0.2) 100%);
+      border: 1px solid rgba(233, 69, 96, 0.3);
+    }
+
+    .position-card .label {
+      font-size: 11px;
+      color: #a0a0a0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .position-card .value {
+      font-size: 32px;
+      font-weight: 900;
+      color: #fff;
+      margin: 5px 0;
+    }
+
+    .position-card .sub {
+      font-size: 12px;
+      color: #a0a0a0;
+    }
+
+    .tempo-totale {
+      background: linear-gradient(135deg, #e94560 0%, #c73659 100%);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .tempo-totale .label {
+      font-size: 12px;
+      opacity: 0.8;
+      text-transform: uppercase;
+    }
+
+    .tempo-totale .value {
+      font-size: 36px;
+      font-weight: 900;
+    }
+
+    .tempo-totale .gap {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-top: 5px;
+    }
+
+    .prove-list {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .prova-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .prova-item:last-child {
+      border-bottom: none;
+    }
+
+    .prova-nome {
+      font-size: 13px;
+      color: #a0a0a0;
+    }
+
+    .prova-nome strong {
+      color: #fff;
+      display: block;
+      font-size: 14px;
+    }
+
+    .prova-tempo {
+      font-family: 'Courier New', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: #4ade80;
+    }
+
+    /* Notification Popup */
+    .notification-popup {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+      color: #fff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      z-index: 2000;
+      display: none;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    .notification-popup h3 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .notification-popup p {
+      font-size: 14px;
+      opacity: 0.95;
+    }
+
+    .notification-popup .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* Loading Spinner */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 50px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: #e94560;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    /* Last Update */
+    .last-update {
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+      padding: 10px;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 10px 40px rgba(233, 69, 96, 0.4); }
+      50% { box-shadow: 0 10px 60px rgba(233, 69, 96, 0.6); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ==================== TAB SEGNALA ==================== */
+    .sos-container {
+      text-align: center;
+      padding: 30px 20px;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(185, 28, 28, 0.1) 100%);
+      border-radius: 20px;
+      margin-bottom: 20px;
+      border: 2px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .sos-btn {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      border: 4px solid #fff;
+      font-size: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 40px rgba(239, 68, 68, 0.5);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sos-btn:active {
+      transform: scale(0.95);
+    }
+
+    .sos-btn.pressing {
+      animation: sosPulse 0.5s infinite;
+    }
+
+    .sos-label {
+      margin-top: 15px;
+      color: #ef4444;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .sos-progress {
+      height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px;
+      margin-top: 15px;
+      overflow: hidden;
+    }
+
+    .sos-progress.active::after {
+      content: '';
+      display: block;
+      height: 100%;
+      background: #ef4444;
+      animation: sosProgress 3s linear forwards;
+    }
+
+    @keyframes sosPulse {
+      0%, 100% { box-shadow: 0 10px 40px rgba(239, 68, 68, 0.5); }
+      50% { box-shadow: 0 10px 60px rgba(239, 68, 68, 0.8); }
+    }
+
+    @keyframes sosProgress {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+
+    .segnala-form {
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .segnala-form h4 {
+      color: #fff;
+      margin-bottom: 15px;
+    }
+
+    .tipo-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .tipo-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    .tipo-option:has(input:checked) {
+      background: rgba(233, 69, 96, 0.2);
+      border: 1px solid #e94560;
+      color: #fff;
+    }
+
+    .tipo-option input {
+      display: none;
+    }
+
+    .segnala-form textarea {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      font-size: 14px;
+      resize: none;
+      margin-bottom: 10px;
+    }
+
+    .segnala-form textarea:focus {
+      outline: none;
+      border-color: #e94560;
+    }
+
+    .gps-status {
+      font-size: 12px;
+      color: #a0a0a0;
+      margin-bottom: 15px;
+      padding: 10px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+    }
+
+    .gps-status.success {
+      color: #4ade80;
+    }
+
+    .gps-status.error {
+      color: #ef4444;
+    }
+
+    .invia-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #e94560 0%, #c73659 100%);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .invia-btn:disabled {
+      background: #444;
+      cursor: not-allowed;
+    }
+
+    .messaggi-inviati {
+      background: rgba(255,255,255,0.03);
+      border-radius: 15px;
+      padding: 15px;
+    }
+
+    .messaggi-inviati h4 {
+      color: #a0a0a0;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .msg-inviato {
+      background: rgba(255,255,255,0.05);
+      padding: 10px 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border-left: 3px solid #e94560;
+    }
+
+    .msg-inviato.sos {
+      border-left-color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .msg-inviato .header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #a0a0a0;
+      margin-bottom: 5px;
+    }
+
+    .msg-inviato .testo {
+      color: #fff;
+      font-size: 13px;
+    }
+
+    /* SOS Popup di conferma */
+    .sos-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+    }
+
+    .sos-popup-content {
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 300px;
+      animation: zoomIn 0.3s ease-out;
+    }
+
+    .sos-popup-content h2 {
+      font-size: 60px;
+      margin-bottom: 10px;
+    }
+
+    .sos-popup-content p {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .sos-popup-content .gps-info {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-bottom: 20px;
+    }
+
+    .sos-popup-content button {
+      padding: 15px 40px;
+      font-size: 16px;
+      border: 2px solid #fff;
+      background: transparent;
+      color: #fff;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+
+    /* ==================== TAB SQUADRA ==================== */
+    .squadra-header {
+      text-align: center;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .squadra-header h3 {
+      font-size: 24px;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .squadra-header p {
+      color: #a0a0a0;
+      font-size: 14px;
+    }
+
+    .crea-squadra-form {
+      background: rgba(255,255,255,0.05);
+      padding: 20px;
+      border-radius: 15px;
+    }
+
+    .crea-squadra-form .form-group {
+      margin-bottom: 20px;
+    }
+
+    .crea-squadra-form label {
+      display: block;
+      font-size: 13px;
+      color: #a0a0a0;
+      margin-bottom: 8px;
+    }
+
+    .crea-squadra-form input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .crea-squadra-form input:focus {
+      outline: none;
+      border-color: #e94560;
+    }
+
+    .crea-squadra-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .crea-squadra-btn:hover {
+      opacity: 0.9;
+    }
+
+    .squadra-info {
+      background: linear-gradient(135deg, #e94560 0%, #c73659 100%);
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .squadra-info h3 {
+      font-size: 22px;
+      margin-bottom: 5px;
+    }
+
+    .squadra-info p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .squadra-classifica {
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+
+    .membro-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .membro-row:last-child {
+      border-bottom: none;
+    }
+
+    .membro-row.me {
+      background: rgba(233, 69, 96, 0.15);
+    }
+
+    .membro-posizione {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: #e94560;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin-right: 12px;
+    }
+
+    .membro-posizione.gold { background: linear-gradient(135deg, #ffd700 0%, #ffb800 100%); color: #000; }
+    .membro-posizione.silver { background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%); color: #000; }
+    .membro-posizione.bronze { background: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%); }
+
+    .membro-info {
+      flex: 1;
+    }
+
+    .membro-info .nome {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .membro-info .numero-classe {
+      font-size: 11px;
+      color: #a0a0a0;
+    }
+
+    .membro-tempo {
+      text-align: right;
+    }
+
+    .membro-tempo .tempo {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: #4ade80;
+    }
+
+    .membro-tempo .gap {
+      font-size: 11px;
+      color: #f87171;
+    }
+
+    .membro-tempo .pos-assoluta {
+      font-size: 10px;
+      color: #a0a0a0;
+    }
+
+    .squadra-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    .squadra-actions button {
+      flex: 1;
+      min-width: 100px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .add-membro-btn {
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .refresh-btn {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .elimina-squadra-btn {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .add-membro-form {
+      background: rgba(255,255,255,0.05);
+      padding: 15px;
+      border-radius: 10px;
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .add-membro-form input {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .add-membro-form button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .add-membro-form button:first-of-type {
+      background: #4ade80;
+      color: #fff;
+    }
+
+    .add-membro-form button:last-of-type {
+      background: #666;
+      color: #fff;
+    }
+
+    /* Ritirati */
+    .membro-row.ritirato {
+      opacity: 0.7;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .ritirato-badge {
+      display: inline-block;
+      background: #ef4444;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 3px;
+    }
+
+    .ritirato-tempo {
+      color: #f87171 !important;
+      text-decoration: line-through;
+    }
+
+    /* Classifica header */
+    .classifica-header {
+      background: linear-gradient(135deg, #e94560 0%, #c73659 100%);
+      padding: 10px 15px;
+      font-weight: 700;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    /* Tabella confronto PS */
+    .ps-table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ps-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      min-width: 400px;
+    }
+
+    .ps-table th {
+      background: rgba(233, 69, 96, 0.3);
+      padding: 8px 4px;
+      text-align: center;
+      font-weight: 600;
+      border-bottom: 2px solid rgba(255,255,255,0.1);
+    }
+
+    .ps-table th small {
+      display: block;
+      font-weight: 400;
+      opacity: 0.7;
+      font-size: 9px;
+    }
+
+    .ps-table td {
+      padding: 8px 4px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-family: 'Courier New', monospace;
+    }
+
+    .ps-table .pilota-cell {
+      text-align: left;
+      font-family: inherit;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .ps-table .me-row {
+      background: rgba(233, 69, 96, 0.15);
+    }
+
+    .ps-table .ritirato-row {
+      opacity: 0.6;
+    }
+
+    .ps-table .miglior-tempo {
+      background: rgba(74, 222, 128, 0.3);
+      color: #4ade80;
+      font-weight: 700;
+    }
+
+    .ps-table .no-tempo {
+      color: #666;
+    }
+
+    /* Legenda */
+    .ps-legenda {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px;
+      font-size: 11px;
+      color: #a0a0a0;
+    }
+
+    .ps-legenda .leg-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ps-legenda .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .ps-legenda .dot.gold {
+      background: #4ade80;
+    }
+
+    .ps-legenda .dot.red {
+      background: #ef4444;
+    }
+
+    /* Grafici Squadra */
+    .grafici-squadra {
+      margin-top: 20px;
+    }
+
+    .grafico-container {
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .grafico-container h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .grafico-container canvas {
+      max-height: 250px;
+    }
+
+    .grafico-subtitle {
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- ==================== SPLASH SCREEN ==================== -->
+  <div id="splash">
+    <div class="banner-container">
+      <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
+    </div>
+
+    <div class="features-list">
+      <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
+      <ul>
+        <li>📢 Messaggi ufficiali e segnalazioni</li>
+        <li>📊 Dati sulle tue performance</li>
+        <li>🏆 Confronto con avversari</li>
+        <li>📍 Posizioni guadagnate o perse</li>
+        <li>🔔 Notifiche popup e suoneria</li>
+      </ul>
+    </div>
+
+    <button class="start-btn" onclick="showLogin()">
+      🔥 ACCENDI IL MOTORE
+    </button>
+  </div>
+
+  <!-- ==================== LOGIN SCREEN ==================== -->
+  <div id="login">
+    <div class="login-header">
+      <h1>🏁 ACCESSO GARA</h1>
+      <p>Inserisci i dati ricevuti alle verifiche</p>
+    </div>
+
+    <div class="login-form">
+      <div class="login-error" id="loginError"></div>
+
+      <div class="form-group">
+        <label>Codice Gara</label>
+        <input type="text" id="codiceGara" placeholder="es. VENE001" maxlength="10" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label>Numero Pilota</label>
+        <input type="text" id="numeroPilota" placeholder="es. 101" maxlength="10" autocomplete="off" style="text-transform: uppercase;">
+        <!-- v2024.12.19.2 -->
+      </div>
+
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">
+        ENTRA IN GARA
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN APP ==================== -->
+  <div id="app">
+    <header class="app-header">
+      <button class="logout-btn" onclick="doLogout()">ESCI</button>
+      <div class="pilot-info">
+        <div class="pilot-number" id="pilotNumber">--</div>
+        <div class="pilot-details">
+          <h2 id="pilotName">--</h2>
+          <p id="pilotInfo">--</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Tab: Comunicati -->
+    <div class="tab-content active" id="tabComunicati">
+      <!-- Sub-tab per i 3 tipi di documenti -->
+      <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+        <button onclick="showDocPilotaTab('comunicato')" id="pilotaDocTabCom" 
+          style="flex: 1; padding: 8px 4px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; background: #3b82f6; color: white;">
+          📢 Comunicati
+        </button>
+        <button onclick="showDocPilotaTab('general_info')" id="pilotaDocTabGen"
+          style="flex: 1; padding: 8px 4px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; background: #374151; color: #9ca3af;">
+          📋 General
+        </button>
+        <button onclick="showDocPilotaTab('paddock_info')" id="pilotaDocTabPad"
+          style="flex: 1; padding: 8px 4px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; background: #374151; color: #9ca3af;">
+          🅿️ Paddock
+        </button>
+      </div>
+      
+      <div id="pilotaDocComunicato" style="display: block;">
+        <h3 style="margin-bottom: 10px; color: #3b82f6; font-size: 14px;">📢 Comunicati Direzione Gara</h3>
+        <div id="comunicatiList">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+      
+      <div id="pilotaDocGeneral" style="display: none;">
+        <h3 style="margin-bottom: 10px; color: #22c55e; font-size: 14px;">📋 Informazioni Generali</h3>
+        <div id="generalInfoList">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+      
+      <div id="pilotaDocPaddock" style="display: none;">
+        <h3 style="margin-bottom: 10px; color: #f59e0b; font-size: 14px;">🅿️ Informazioni Paddock</h3>
+        <div id="paddockInfoList">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+      
+      <div class="last-update" id="lastUpdateComunicati">--</div>
+    </div>
+
+    <!-- Tab: Orari Teorici CO (Chat 20) -->
+    <div class="tab-content" id="tabOrari">
+      <h3 style="margin-bottom: 15px; color: #f59e0b; font-size: 16px; text-align: center;">⏰ I Miei Orari Teorici</h3>
+      <div id="orariTeoriciContent">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+      <p style="text-align: center; color: #888; font-size: 12px; margin-top: 15px;">
+        Orari calcolati in base alla tua partenza e ai tempi di trasferimento ufficiali
+      </p>
+      <div class="last-update" id="lastUpdateOrari">--</div>
+    </div>
+
+    <!-- Tab: I Miei Tempi -->
+    <div class="tab-content" id="tabTempi">
+      <div class="position-cards">
+        <div class="position-card highlight">
+          <div class="label">Posizione Assoluta</div>
+          <div class="value" id="posAssoluta">--</div>
+          <div class="sub" id="totPiloti">/ -- piloti</div>
+        </div>
+        <div class="position-card">
+          <div class="label">Posizione Classe</div>
+          <div class="value" id="posClasse">--</div>
+          <div class="sub" id="totClasse">/ -- in classe</div>
+        </div>
+      </div>
+
+      <div class="tempo-totale">
+        <div class="label">Tempo Totale</div>
+        <div class="value" id="tempoTotale">--:--</div>
+        <div class="gap" id="gapPrimo"></div>
+      </div>
+
+      <h4 style="margin-bottom: 10px; color: #a0a0a0;">⏱️ Tempi Prove Speciali</h4>
+      <div class="prove-list" id="proveList">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+      <div class="last-update" id="lastUpdateTempi">--</div>
+    </div>
+
+    <!-- Tab: Segnala (NUOVO) -->
+    <div class="tab-content" id="tabSegnala">
+      <!-- Tasto SOS -->
+      <div class="sos-container">
+        <button class="sos-btn" id="sosBtn" 
+                onmousedown="startSOS()" onmouseup="cancelSOS()" 
+                ontouchstart="startSOS()" ontouchend="cancelSOS()">
+          🆘
+        </button>
+        <p class="sos-label">TIENI PREMUTO 3 SEC PER SOS</p>
+        <div class="sos-progress" id="sosProgress"></div>
+      </div>
+
+      <!-- Form Messaggio -->
+      <div class="segnala-form">
+        <h4>📝 Segnala alla Direzione Gara</h4>
+        
+        <div class="tipo-selector">
+          <label class="tipo-option">
+            <input type="radio" name="tipoMsg" value="assistenza" checked>
+            <span>🔧 Assistenza</span>
+          </label>
+          <label class="tipo-option">
+            <input type="radio" name="tipoMsg" value="pericolo">
+            <span>⚠️ Pericolo</span>
+          </label>
+          <label class="tipo-option">
+            <input type="radio" name="tipoMsg" value="info">
+            <span>ℹ️ Info</span>
+          </label>
+          <label class="tipo-option">
+            <input type="radio" name="tipoMsg" value="altro">
+            <span>💬 Altro</span>
+          </label>
+        </div>
+
+        <textarea id="testoMessaggio" placeholder="Descrivi la tua segnalazione..." rows="3"></textarea>
+
+        <div class="gps-status" id="gpsStatus">
+          📍 GPS: In attesa...
+        </div>
+
+        <button class="invia-btn" onclick="inviaMessaggio()">
+          📤 INVIA SEGNALAZIONE
+        </button>
+      </div>
+
+      <div class="messaggi-inviati" id="messaggiInviati">
+        <h4>📤 I tuoi messaggi inviati</h4>
+        <div id="listaMessaggiInviati"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Squadra -->
+    <div class="tab-content" id="tabSquadra">
+      <!-- Se non ha squadra -->
+      <div id="noSquadra">
+        <div class="squadra-header">
+          <h3>👥 La Mia Squadra</h3>
+          <p>Crea una squadra per confrontare i tempi con i tuoi compagni!</p>
+        </div>
+
+        <div class="crea-squadra-form">
+          <div class="form-group">
+            <label>Nome Squadra</label>
+            <input type="text" id="nomeSquadra" placeholder="es. Team Racing" maxlength="50">
+          </div>
+
+          <div class="form-group">
+            <label>Aggiungi Piloti (numeri separati da virgola)</label>
+            <input type="text" id="membriSquadra" placeholder="es. 42, 73, 88">
+          </div>
+
+          <button class="crea-squadra-btn" onclick="creaSquadra()">
+            🏁 CREA SQUADRA
+          </button>
+        </div>
+      </div>
+
+      <!-- Se ha squadra -->
+      <div id="haSquadra" style="display:none;">
+        <div class="squadra-info">
+          <h3 id="nomeSquadraDisplay">--</h3>
+          <p id="membriCountDisplay">-- membri</p>
+        </div>
+        
+        <!-- Lista membri con possibilità rimozione -->
+        <div id="listaMembriSquadra" style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+        </div>
+
+        <div class="squadra-classifica" id="squadraClassifica">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+
+        <div class="squadra-actions">
+          <button class="add-membro-btn" onclick="mostraAggiungiMembro()">
+            ➕ Aggiungi Pilota
+          </button>
+          <button class="refresh-btn" onclick="caricaClassificaSquadra()">
+            🔄 Aggiorna
+          </button>
+          <button class="elimina-squadra-btn" onclick="eliminaSquadra()">
+            🗑️ Elimina Squadra
+          </button>
+        </div>
+
+        <!-- Form aggiungi membro (nascosto) -->
+        <div id="formAggiungiMembro" class="add-membro-form" style="display:none;">
+          <input type="number" id="nuovoMembro" placeholder="Numero pilota">
+          <button onclick="aggiungiMembro()">Aggiungi</button>
+          <button onclick="nascondiAggiungiMembro()">Annulla</button>
+        </div>
+
+        <!-- Grafici Squadra -->
+        <div class="grafici-squadra" id="graficiSquadra" style="display:none;">
+          <div class="grafico-container">
+            <h4>📈 Andamento Posizioni</h4>
+            <canvas id="chartPosizioni"></canvas>
+          </div>
+          <div class="grafico-container">
+            <h4>⏱️ Scostamenti Tempi PS (rispetto alla mediana)</h4>
+            <p class="grafico-subtitle">Sopra = più veloce della mediana, Sotto = più lento</p>
+            <canvas id="chartTempi"></canvas>
+          </div>
+          <div class="grafico-container">
+            <h4>📊 Differenza Cumulata (rispetto alla mediana)</h4>
+            <p class="grafico-subtitle">Linea in alto = accumula vantaggio, Linea in basso = accumula ritardo</p>
+            <canvas id="chartCumulato"></canvas>
+          </div>
+        </div>
+
+        <div class="last-update" id="lastUpdateSquadra">--</div>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" onclick="showTab('comunicati')" id="btnComunicati">
+        <span class="icon">📢</span>
+        Comunicati
+        <span class="tab-badge" id="badgeComunicati" style="display:none;">0</span>
+      </button>
+      <button class="tab-btn" onclick="showTab('orari')" id="btnOrari">
+        <span class="icon">⏰</span>
+        Orari CO
+      </button>
+      <button class="tab-btn" onclick="showTab('tempi')" id="btnTempi">
+        <span class="icon">⏱️</span>
+        Tempi
+      </button>
+      <button class="tab-btn" onclick="showTab('squadra')" id="btnSquadra">
+        <span class="icon">👥</span>
+        Squadra
+      </button>
+      <button class="tab-btn" onclick="showTab('segnala')" id="btnSegnala">
+        <span class="icon">🆘</span>
+        SOS
+      </button>
+    </nav>
+  </div>
+
+  <!-- ==================== DASHBOARD DdG (Chat 21) ==================== -->
+  <div id="appDdG" style="display: none;">
+    <header class="app-header" style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%);">
+      <button class="logout-btn" onclick="doLogout()">ESCI</button>
+      <div class="pilot-info">
+        <div class="pilot-number" style="background: #1e3a5f;">DdG</div>
+        <div class="pilot-details">
+          <h2>Direzione Gara</h2>
+          <p id="ddgEventoInfo">--</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Tab Documenti -->
+    <div style="padding: 15px;">
+      <div style="display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap;">
+        <button onclick="showDocTab('comunicato')" id="docTabComunicato" class="doc-tab-btn active"
+          style="flex: 1; min-width: 90px; padding: 10px 8px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; background: #3b82f6; color: white;">
+          📢 Comunicati
+        </button>
+        <button onclick="showDocTab('general_info')" id="docTabGeneral" class="doc-tab-btn"
+          style="flex: 1; min-width: 90px; padding: 10px 8px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; background: #374151; color: #9ca3af;">
+          📋 General Info
+        </button>
+        <button onclick="showDocTab('paddock_info')" id="docTabPaddock" class="doc-tab-btn"
+          style="flex: 1; min-width: 90px; padding: 10px 8px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; background: #374151; color: #9ca3af;">
+          🅿️ Paddock Info
+        </button>
+      </div>
+      
+      <!-- Contenuto Tab: COMUNICATI -->
+      <div id="docContentComunicato" class="doc-content" style="display: block;">
+        <div style="background: #1e3a5f; border: 1px solid #3b82f6; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
+          <textarea id="nuovoComunicatoTesto" placeholder="Scrivi il testo del comunicato..." 
+            style="width: 100%; min-height: 80px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; padding: 10px; font-size: 14px; resize: vertical; box-sizing: border-box;"></textarea>
+          
+          <!-- Upload PDF -->
+          <div style="margin-top: 10px;">
+            <input type="file" id="pdfComunicato" accept="application/pdf" style="display: none;" onchange="onPdfSelected('comunicato')">
+            <div id="pdfPreviewComunicato" style="display: none; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; margin-bottom: 10px;">
+              <span id="pdfNameComunicato" style="color: #60a5fa;"></span>
+              <button onclick="removePdf('comunicato')" style="background: #dc2626; color: white; border: none; padding: 2px 8px; border-radius: 4px; margin-left: 10px; cursor: pointer;">✕</button>
+            </div>
+            <button type="button" onclick="document.getElementById('pdfComunicato').click()" 
+              style="background: #475569; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+              📎 Allega PDF
+            </button>
+          </div>
+          
+          <div id="selezioneGareComunicato" style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+            <p style="color: #94a3b8; font-size: 12px; margin-bottom: 8px;">📨 Invia a:</p>
+            <div id="checkboxGareComunicato" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+          </div>
+          
+          <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+            <button onclick="inviaNuovoDocumento('comunicato')" id="btnInviaComunicato"
+              style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+              📤 Pubblica
+            </button>
+          </div>
+        </div>
+        <div id="ddgComunicati" style="max-height: 250px; overflow-y: auto;">
+          <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
+        </div>
+      </div>
+      
+      <!-- Contenuto Tab: GENERAL INFO -->
+      <div id="docContentGeneral" class="doc-content" style="display: none;">
+        <div style="background: #1e4d3a; border: 1px solid #22c55e; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
+          <textarea id="nuovoGeneralTesto" placeholder="Scrivi informazioni generali..." 
+            style="width: 100%; min-height: 80px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; padding: 10px; font-size: 14px; resize: vertical; box-sizing: border-box;"></textarea>
+          
+          <!-- Upload PDF -->
+          <div style="margin-top: 10px;">
+            <input type="file" id="pdfGeneral" accept="application/pdf" style="display: none;" onchange="onPdfSelected('general_info')">
+            <div id="pdfPreviewGeneral" style="display: none; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; margin-bottom: 10px;">
+              <span id="pdfNameGeneral" style="color: #4ade80;"></span>
+              <button onclick="removePdf('general_info')" style="background: #dc2626; color: white; border: none; padding: 2px 8px; border-radius: 4px; margin-left: 10px; cursor: pointer;">✕</button>
+            </div>
+            <button type="button" onclick="document.getElementById('pdfGeneral').click()" 
+              style="background: #475569; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+              📎 Allega PDF
+            </button>
+          </div>
+          
+          <div style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+            <p style="color: #94a3b8; font-size: 12px; margin-bottom: 8px;">📨 Invia a:</p>
+            <div id="checkboxGareGeneral" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+          </div>
+          
+          <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+            <button onclick="inviaNuovoDocumento('general_info')" id="btnInviaGeneral"
+              style="background: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+              📤 Pubblica
+            </button>
+          </div>
+        </div>
+        <div id="ddgGeneral" style="max-height: 250px; overflow-y: auto;">
+          <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
+        </div>
+      </div>
+      
+      <!-- Contenuto Tab: PADDOCK INFO -->
+      <div id="docContentPaddock" class="doc-content" style="display: none;">
+        <div style="background: #4d3a1e; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
+          <textarea id="nuovoPaddockTesto" placeholder="Scrivi informazioni paddock..." 
+            style="width: 100%; min-height: 80px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; padding: 10px; font-size: 14px; resize: vertical; box-sizing: border-box;"></textarea>
+          
+          <!-- Upload PDF -->
+          <div style="margin-top: 10px;">
+            <input type="file" id="pdfPaddock" accept="application/pdf" style="display: none;" onchange="onPdfSelected('paddock_info')">
+            <div id="pdfPreviewPaddock" style="display: none; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; margin-bottom: 10px;">
+              <span id="pdfNamePaddock" style="color: #fbbf24;"></span>
+              <button onclick="removePdf('paddock_info')" style="background: #dc2626; color: white; border: none; padding: 2px 8px; border-radius: 4px; margin-left: 10px; cursor: pointer;">✕</button>
+            </div>
+            <button type="button" onclick="document.getElementById('pdfPaddock').click()" 
+              style="background: #475569; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+              📎 Allega PDF
+            </button>
+          </div>
+          
+          <div style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+            <p style="color: #94a3b8; font-size: 12px; margin-bottom: 8px;">📨 Invia a:</p>
+            <div id="checkboxGarePaddock" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+          </div>
+          
+          <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+            <button onclick="inviaNuovoDocumento('paddock_info')" id="btnInviaPaddock"
+              style="background: #f59e0b; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+              📤 Pubblica
+            </button>
+          </div>
+        </div>
+        <div id="ddgPaddock" style="max-height: 250px; overflow-y: auto;">
+          <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRITICO: Segnale Perso (telefono rotto/spento) -->
+    <div style="padding: 15px;">
+      <h3 style="color: #dc2626; margin-bottom: 15px;">📵 Segnale GPS Perso</h3>
+      <div id="ddgSegnalePerso">
+        <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
+      </div>
+    </div>
+
+    <!-- Allarmi Piloti Fermi -->
+    <div style="padding: 0 15px 15px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="color: #f97316;">⚠️ Piloti Fermi</h3>
+        <button onclick="loadDdGData()" style="background: #3b82f6; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 12px;">
+          🔄 Aggiorna
+        </button>
+      </div>
+      <div id="ddgPilotiFermi">
+        <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
+      </div>
+    </div>
+
+    <!-- SOS Attivi -->
+    <div style="padding: 0 15px 15px;">
+      <h3 style="color: #ef4444; margin-bottom: 15px;">🆘 SOS Attivi</h3>
+      <div id="ddgSosAttivi">
+        <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
+      </div>
+    </div>
+
+    <!-- Posizioni GPS Piloti -->
+    <div style="padding: 0 15px 100px;">
+      <h3 style="color: #4ade80; margin-bottom: 15px;">📍 Posizioni Piloti GPS</h3>
+      <div id="ddgPosizioniGPS" style="max-height: 300px; overflow-y: auto;">
+        <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
+      </div>
+    </div>
+
+    <!-- Footer info -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a2e; padding: 10px; text-align: center; font-size: 12px; color: #888;">
+      Auto-aggiornamento ogni 30 secondi • <span id="ddgLastUpdate">--</span>
+    </div>
+  </div>
+
+  <!-- Notification Popup -->
+  <div class="notification-popup" id="notificationPopup">
+    <button class="close-btn" onclick="closeNotification()">×</button>
+    <h3>📢 Nuovo Comunicato!</h3>
+    <p id="notificationText">--</p>
+  </div>
+
+  <!-- SOS Popup Conferma -->
+  <div class="sos-popup" id="sosPopup">
+    <div class="sos-popup-content">
+      <h2>🆘</h2>
+      <p>SOS INVIATO!</p>
+      <div class="gps-info" id="sosGpsInfo">📍 Posizione inviata</div>
+      <button onclick="chiudiSosPopup()">OK</button>
+    </div>
+  </div>
+
+  <!-- Audio per notifiche -->
+  <audio id="notificationSound" preload="auto">
+    <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2Onp+al4yFgX59foKHj5GQi4eCfXx8fYGFiImIhYJ/fX19foGEhoeGhIKAfn5+f4GDhYWFg4KAf39/gIGChYWFhIOBgIB/gIGCg4SEhIOCgYCAf4GBgoODg4ODgoGBgICAgYGCgoKCgoKBgYGAgIGBgoKCgoKCgYGBgIGBgYKCgoKCgYGBgYCBgYGCgoKCgoGBgYGAgYGBgoKCgoKBgYGBgIGBgYKCgoKCgYGBgYCBgYGCgoKCgoGBgYGAgYGBgoKCgoKBgYGBgA==" type="audio/wav">
+  </audio>
+
+  <script>
+    // ==================== CONFIGURAZIONE ====================
+    const API_BASE = 'https://daring-eagerness-production-34de.up.railway.app';
+    const POLLING_INTERVAL = 30000; // 30 secondi
+
+    // ==================== STATE ====================
+    let currentUser = null;
+    let isDdG = false; // NUOVO Chat 21
+    let eventiCollegati = []; // Lista eventi fratelli per DdG multi-evento
+    let lastComunicatoTimestamp = null;
+    let comunicatiCount = 0;
+    let pollingTimer = null;
+
+    // NUOVO: GPS e SOS
+    let currentGPS = { lat: null, lon: null };
+    let sosTimer = null;
+    let sosStartTime = null;
+    const SOS_HOLD_TIME = 3000; // 3 secondi
+
+    // NUOVO Chat 21: Tracking GPS continuo
+    let gpsTrackingInterval = null;
+    let gpsFrequenza = 30; // default 30 secondi
+    let gpsWatchId = null;
+
+    // NUOVO: Squadra
+    let currentSquadra = null;
+    
+    // NUOVO: Grafici
+    let chartPosizioni = null;
+    let chartTempi = null;
+    let chartCumulato = null;
+
+    // ==================== NAVIGATION ====================
+    function showLogin() {
+      document.getElementById('splash').style.display = 'none';
+      document.getElementById('login').style.display = 'flex';
+      document.getElementById('codiceGara').focus();
+    }
+
+    function showApp() {
+      document.getElementById('splash').style.display = 'none';
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      startPolling();
+    }
+
+    function showTab(tab) {
+      // Update buttons
+      document.getElementById('btnComunicati').classList.toggle('active', tab === 'comunicati');
+      document.getElementById('btnOrari').classList.toggle('active', tab === 'orari');
+      document.getElementById('btnTempi').classList.toggle('active', tab === 'tempi');
+      document.getElementById('btnSquadra').classList.toggle('active', tab === 'squadra');
+      document.getElementById('btnSegnala').classList.toggle('active', tab === 'segnala');
+      
+      // Update content
+      document.getElementById('tabComunicati').classList.toggle('active', tab === 'comunicati');
+      document.getElementById('tabOrari').classList.toggle('active', tab === 'orari');
+      document.getElementById('tabTempi').classList.toggle('active', tab === 'tempi');
+      document.getElementById('tabSquadra').classList.toggle('active', tab === 'squadra');
+      document.getElementById('tabSegnala').classList.toggle('active', tab === 'segnala');
+
+      // Load data
+      if (tab === 'comunicati') {
+        loadComunicati();
+      } else if (tab === 'orari') {
+        loadOrariTeorici();
+      } else if (tab === 'tempi') {
+        loadTempi();
+      } else if (tab === 'squadra') {
+        loadSquadra();
+      } else if (tab === 'segnala') {
+        getGPSPosition();
+      }
+    }
+
+    // ==================== ORARI TEORICI (Chat 20) ====================
+    async function loadOrariTeorici() {
+      const container = document.getElementById('orariTeoriciContent');
+      const updateEl = document.getElementById('lastUpdateOrari');
+      
+      if (!currentUser || !currentUser.codice || !currentUser.pilota) {
+        container.innerHTML = '<div style="text-align: center; color: #888; padding: 20px;">Effettua il login per vedere i tuoi orari</div>';
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/app/orari-teorici/${currentUser.codice}/${currentUser.pilota.numero}`);
+        const data = await res.json();
+        
+        if (!data.success) {
+          container.innerHTML = `<div style="text-align: center; color: #f59e0b; padding: 20px;">⚠️ ${data.error || 'Orari non disponibili'}</div>`;
+          return;
+        }
+        
+        if (!data.orari_configurati) {
+          container.innerHTML = `<div style="text-align: center; color: #888; padding: 20px;">📋 Orari teorici non ancora configurati dalla Direzione Gara</div>`;
+          return;
+        }
+        
+        const orari = data.orari;
+        const checkpoints = data.checkpoint_attivi || {};
+        
+        let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+        
+        // Partenza
+        if (orari.partenza) {
+          html += `
+            <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%); border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 12px; color: #94a3b8; text-transform: uppercase;">🏁 Partenza</div>
+                <div style="font-size: 11px; color: #64748b;">Orario assegnato</div>
+              </div>
+              <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">${orari.partenza}</div>
+            </div>`;
+        }
+        
+        // CO1-CO7
+        const coLabels = ['CO1', 'CO2', 'CO3', 'CO4', 'CO5', 'CO6', 'CO7'];
+        const coKeys = ['co1', 'co2', 'co3', 'co4', 'co5', 'co6', 'co7'];
+        
+        coKeys.forEach((key, idx) => {
+          if (orari[key] && checkpoints[key]) {
+            html += `
+              <div style="background: rgba(249, 158, 11, 0.1); border: 1px solid #f59e0b; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 12px; color: #fbbf24; text-transform: uppercase;">⏰ ${coLabels[idx]}</div>
+                  <div style="font-size: 11px; color: #64748b;">Controllo Orario</div>
+                </div>
+                <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">${orari[key]}</div>
+              </div>`;
+          }
+        });
+        
+        // Arrivo
+        if (orari.arrivo) {
+          html += `
+            <div style="background: linear-gradient(135deg, #14532d 0%, #166534 100%); border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 12px; color: #86efac; text-transform: uppercase;">🏁 Arrivo</div>
+                <div style="font-size: 11px; color: #64748b;">Orario teorico finale</div>
+              </div>
+              <div style="font-size: 28px; font-weight: bold; color: #22c55e;">${orari.arrivo}</div>
+            </div>`;
+        }
+        
+        html += '</div>';
+        container.innerHTML = html;
+        updateEl.textContent = `Aggiornato: ${new Date().toLocaleTimeString('it-IT')}`;
+        
+      } catch (err) {
+        console.error('Errore caricamento orari:', err);
+        container.innerHTML = '<div style="text-align: center; color: #ef4444; padding: 20px;">❌ Errore caricamento orari</div>';
+      }
+    }
+
+    // ==================== LOGIN ====================
+    async function doLogin() {
+      const codice = document.getElementById('codiceGara').value.trim().toUpperCase();
+      const numero = document.getElementById('numeroPilota').value.trim();
+      const errorDiv = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
+
+      if (!codice || !numero) {
+        errorDiv.textContent = 'Inserisci codice gara e numero pilota';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'ACCESSO IN CORSO...';
+      errorDiv.style.display = 'none';
+
+      try {
+        const response = await fetch(`${API_BASE}/api/app/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ codice_accesso: codice, numero_pilota: numero.toUpperCase() })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          currentUser = {
+            codice: codice,
+            numero: numero,
+            pilota: data.pilota,
+            evento: data.evento
+          };
+          
+          // NUOVO Chat 21: Gestione DdG
+          isDdG = data.isDdG || false;
+
+          // Salva in localStorage
+          localStorage.setItem('erta_user', JSON.stringify({ ...currentUser, isDdG }));
+
+          // Imposta frequenza GPS dall'evento
+          gpsFrequenza = data.evento.gps_frequenza || 30;
+
+          if (isDdG) {
+            // Mostra dashboard DdG
+            document.getElementById('ddgEventoInfo').textContent = data.evento.nome;
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('appDdG').style.display = 'block';
+            loadDdGData();
+            startDdGPolling();
+          } else {
+            // Aggiorna UI pilota
+            document.getElementById('pilotNumber').textContent = data.pilota.numero;
+            document.getElementById('pilotName').textContent = `${data.pilota.cognome} ${data.pilota.nome}`;
+            document.getElementById('pilotInfo').textContent = `${data.pilota.classe} • ${data.pilota.moto || ''}`;
+
+            showApp();
+            loadComunicati();
+            loadTempi();
+            
+            // Avvia tracking GPS solo per piloti
+            avviaTrackingGPS();
+          }
+        } else {
+          errorDiv.textContent = data.error || 'Accesso non riuscito';
+          errorDiv.style.display = 'block';
+        }
+      } catch (err) {
+        errorDiv.textContent = 'Errore di connessione. Riprova.';
+        errorDiv.style.display = 'block';
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'ENTRA IN GARA';
+    }
+
+    function doLogout() {
+      if (confirm('Vuoi uscire dalla gara?')) {
+        stopPolling();
+        stopDdGPolling(); // NUOVO Chat 21
+        fermaTrackingGPS();
+        currentUser = null;
+        isDdG = false;
+        localStorage.removeItem('erta_user');
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('appDdG').style.display = 'none';
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('splash').style.display = 'flex';
+      }
+    }
+
+    // ==================== COMUNICATI ====================
+    let currentPilotaDocTab = 'comunicato';
+    
+    function showDocPilotaTab(tipo) {
+      currentPilotaDocTab = tipo;
+      
+      // Aggiorna bottoni
+      document.getElementById('pilotaDocTabCom').style.background = tipo === 'comunicato' ? '#3b82f6' : '#374151';
+      document.getElementById('pilotaDocTabCom').style.color = tipo === 'comunicato' ? 'white' : '#9ca3af';
+      document.getElementById('pilotaDocTabGen').style.background = tipo === 'general_info' ? '#22c55e' : '#374151';
+      document.getElementById('pilotaDocTabGen').style.color = tipo === 'general_info' ? 'white' : '#9ca3af';
+      document.getElementById('pilotaDocTabPad').style.background = tipo === 'paddock_info' ? '#f59e0b' : '#374151';
+      document.getElementById('pilotaDocTabPad').style.color = tipo === 'paddock_info' ? 'white' : '#9ca3af';
+      
+      // Mostra contenuto
+      document.getElementById('pilotaDocComunicato').style.display = tipo === 'comunicato' ? 'block' : 'none';
+      document.getElementById('pilotaDocGeneral').style.display = tipo === 'general_info' ? 'block' : 'none';
+      document.getElementById('pilotaDocPaddock').style.display = tipo === 'paddock_info' ? 'block' : 'none';
+    }
+    
+    async function loadComunicati() {
+      if (!currentUser) return;
+
+      try {
+        // Carica tutti e 3 i tipi di documenti
+        const tipi = ['comunicato', 'general_info', 'paddock_info'];
+        const containers = {
+          'comunicato': 'comunicatiList',
+          'general_info': 'generalInfoList',
+          'paddock_info': 'paddockInfoList'
+        };
+        const colors = {
+          'comunicato': { bg: '#1e3a5f', border: '#3b82f6', text: '#60a5fa', prefix: 'COM' },
+          'general_info': { bg: '#1e4d3a', border: '#22c55e', text: '#4ade80', prefix: 'GEN' },
+          'paddock_info': { bg: '#4d3a1e', border: '#f59e0b', text: '#fbbf24', prefix: 'PAD' }
+        };
+        
+        for (const tipo of tipi) {
+          const response = await fetch(`${API_BASE}/api/app/comunicati/${currentUser.codice}?tipo=${tipo}`);
+          const data = await response.json();
+          
+          if (data.success) {
+            renderDocumentiPilota(tipo, data.comunicati || [], containers[tipo], colors[tipo]);
+          }
+        }
+        
+        document.getElementById('lastUpdateComunicati').textContent = 
+          `Ultimo aggiornamento: ${new Date().toLocaleTimeString('it-IT')}`;
+
+      } catch (err) {
+        console.error('Errore caricamento documenti:', err);
+      }
+    }
+    
+    function renderDocumentiPilota(tipo, documenti, containerId, colori) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      if (documenti.length === 0) {
+        container.innerHTML = `
+          <div class="no-comunicati">
+            <div class="icon">📭</div>
+            <p>Nessun documento</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = documenti.map(c => `
+        <div class="comunicato-card" style="background: ${colori.bg}; border-color: ${colori.border};">
+          <div class="comunicato-header">
+            <span class="comunicato-numero" style="color: ${colori.text};">${colori.prefix} #${c.numero}</span>
+            <span class="comunicato-ora">${c.ora || ''} ${c.data || ''}</span>
+          </div>
+          <div class="comunicato-testo">${c.testo || ''}</div>
+          ${c.ha_pdf ? `<a class="comunicato-pdf" onclick="openAllegato('${c.id}', '${c.pdf_nome || ''}')" style="color: ${colori.text};">📎 Apri Allegato</a>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function renderComunicati(comunicati) {
+      renderDocumentiPilota('comunicato', comunicati, 'comunicatiList', { bg: '#1e3a5f', border: '#3b82f6', text: '#60a5fa', prefix: 'COM' });
+    }
+
+    async function openAllegato(id, nome) {
+      try {
+        const response = await fetch(`${API_BASE}/api/app/comunicati/${currentUser.codice}/pdf/${id}`);
+        const data = await response.json();
+        
+        if (data.success && data.pdf_base64) {
+          // Determina il tipo MIME dal nome file
+          const fileName = data.nome || nome || 'allegato';
+          const ext = fileName.split('.').pop().toLowerCase();
+          let mimeType = 'application/pdf';
+          
+          if (ext === 'jpg' || ext === 'jpeg') mimeType = 'image/jpeg';
+          else if (ext === 'png') mimeType = 'image/png';
+          else if (ext === 'gif') mimeType = 'image/gif';
+          else if (ext === 'webp') mimeType = 'image/webp';
+          else if (ext === 'pdf') mimeType = 'application/pdf';
+          
+          // Crea blob e apri in nuova finestra
+          const byteCharacters = atob(data.pdf_base64);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: mimeType });
+          const blobUrl = URL.createObjectURL(blob);
+          
+          // Apri in nuova finestra/tab
+          window.open(blobUrl, '_blank');
+        } else {
+          alert('Allegato non disponibile');
+        }
+      } catch (err) {
+        console.error('Errore apertura allegato:', err);
+        alert('Errore apertura allegato');
+      }
+    }
+
+    // ==================== I MIEI TEMPI ====================
+    async function loadTempi() {
+      if (!currentUser) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/api/app/miei-tempi/${currentUser.codice}/${currentUser.numero}`);
+        const data = await response.json();
+
+        if (data.success) {
+          document.getElementById('posAssoluta').textContent = data.posizione_assoluta + '°';
+          document.getElementById('totPiloti').textContent = `/ ${data.totale_piloti} piloti`;
+          document.getElementById('posClasse').textContent = data.posizione_classe + '°';
+          document.getElementById('totClasse').textContent = `/ ${data.totale_classe} in ${currentUser.pilota.classe}`;
+          document.getElementById('tempoTotale').textContent = data.tempo_totale || '--:--';
+          document.getElementById('gapPrimo').textContent = data.gap_primo ? `Gap dal 1°: ${data.gap_primo}` : '';
+
+          // Prove
+          const proveContainer = document.getElementById('proveList');
+          if (data.prove && data.prove.length > 0) {
+            proveContainer.innerHTML = data.prove.map(p => `
+              <div class="prova-item">
+                <div class="prova-nome">
+                  <strong>PS${p.ps}</strong>
+                  ${p.nome || ''}
+                </div>
+                <div class="prova-tempo">${p.tempo || '--'}</div>
+              </div>
+            `).join('');
+          } else {
+            proveContainer.innerHTML = '<div class="no-comunicati"><p>Nessun tempo registrato</p></div>';
+          }
+
+          document.getElementById('lastUpdateTempi').textContent = 
+            `Ultimo aggiornamento: ${new Date().toLocaleTimeString('it-IT')}`;
+        }
+      } catch (err) {
+        console.error('Errore caricamento tempi:', err);
+      }
+    }
+
+    // ==================== NOTIFICATIONS ====================
+
+    // ==================== SOS E MESSAGGI ====================
+    
+    // Acquisizione GPS
+    function getGPSPosition() {
+      const statusEl = document.getElementById('gpsStatus');
+      statusEl.textContent = '📍 GPS: Acquisizione in corso...';
+      statusEl.className = 'gps-status';
+      
+      if (!navigator.geolocation) {
+        statusEl.textContent = '📍 GPS: Non disponibile su questo dispositivo';
+        statusEl.className = 'gps-status error';
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          currentGPS.lat = position.coords.latitude;
+          currentGPS.lon = position.coords.longitude;
+          statusEl.textContent = `📍 GPS: ${currentGPS.lat.toFixed(5)}, ${currentGPS.lon.toFixed(5)}`;
+          statusEl.className = 'gps-status success';
+        },
+        (error) => {
+          console.error('Errore GPS:', error);
+          statusEl.textContent = '📍 GPS: Errore acquisizione posizione';
+          statusEl.className = 'gps-status error';
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+    
+    // ==================== TRACKING GPS CONTINUO (Chat 21) ====================
+    function avviaTrackingGPS() {
+      if (!navigator.geolocation) {
+        console.log('GPS non disponibile');
+        return;
+      }
+      
+      const statusEl = document.getElementById('gpsStatus');
+      
+      // Usa watchPosition per tracking continuo
+      gpsWatchId = navigator.geolocation.watchPosition(
+        (position) => {
+          currentGPS.lat = position.coords.latitude;
+          currentGPS.lon = position.coords.longitude;
+          
+          // Aggiorna UI con posizione corrente
+          if (statusEl) {
+            statusEl.textContent = `📍 GPS: ${currentGPS.lat.toFixed(5)}, ${currentGPS.lon.toFixed(5)}`;
+            statusEl.className = 'gps-status success';
+          }
+        },
+        (error) => {
+          console.error('Errore GPS watch:', error);
+          if (statusEl) {
+            statusEl.textContent = '📍 GPS: Errore posizione';
+            statusEl.className = 'gps-status error';
+          }
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
+      );
+      
+      // Invia posizione iniziale
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          currentGPS.lat = position.coords.latitude;
+          currentGPS.lon = position.coords.longitude;
+          inviaPosizioneGPS();
+          console.log('GPS attivo, invio ogni', gpsFrequenza, 'secondi');
+        },
+        (err) => console.error('Errore posizione iniziale:', err),
+        { enableHighAccuracy: true }
+      );
+      
+      // Avvia intervallo per INVIO al server (ogni gpsFrequenza secondi)
+      gpsTrackingInterval = setInterval(() => {
+        if (currentGPS.lat && currentGPS.lon) {
+          inviaPosizioneGPS();
+        }
+      }, gpsFrequenza * 1000);
+    }
+    
+    function fermaTrackingGPS() {
+      if (gpsTrackingInterval) {
+        clearInterval(gpsTrackingInterval);
+        gpsTrackingInterval = null;
+        console.log('Tracking GPS fermato');
+      }
+      if (gpsWatchId) {
+        navigator.geolocation.clearWatch(gpsWatchId);
+        gpsWatchId = null;
+      }
+    }
+    
+    async function inviaPosizioneGPS() {
+      if (!currentUser || !currentGPS.lat || !currentGPS.lon) return;
+      
+      const statusEl = document.getElementById('gpsStatus');
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/app/posizione`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            codice_accesso: currentUser.codice,
+            numero_pilota: currentUser.numero,
+            lat: currentGPS.lat,
+            lon: currentGPS.lon
+          })
+        });
+        
+        if (res.ok) {
+          // Feedback visivo brevissimo
+          if (statusEl) {
+            statusEl.textContent = `📍 Inviato: ${currentGPS.lat.toFixed(5)}, ${currentGPS.lon.toFixed(5)}`;
+          }
+          console.log('✅ Posizione inviata:', currentGPS.lat.toFixed(5), currentGPS.lon.toFixed(5));
+        }
+      } catch (err) {
+        console.error('Errore invio posizione:', err);
+      }
+    }
+    
+    // SOS - Pressione inizia
+    function startSOS() {
+      sosStartTime = Date.now();
+      const btn = document.getElementById('sosBtn');
+      const progress = document.getElementById('sosProgress');
+      
+      btn.classList.add('pressing');
+      progress.classList.add('active');
+      
+      // Vibrazione feedback
+      if (navigator.vibrate) navigator.vibrate(100);
+      
+      sosTimer = setTimeout(() => {
+        inviareSOS();
+      }, SOS_HOLD_TIME);
+    }
+    
+    // SOS - Pressione annullata
+    function cancelSOS() {
+      if (sosTimer) {
+        clearTimeout(sosTimer);
+        sosTimer = null;
+      }
+      
+      const btn = document.getElementById('sosBtn');
+      const progress = document.getElementById('sosProgress');
+      
+      btn.classList.remove('pressing');
+      progress.classList.remove('active');
+    }
+    
+    // SOS - Invia emergenza
+    async function inviareSOS() {
+      cancelSOS();
+      
+      // Vibrazione lunga
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
+      
+      // Acquisci GPS se non disponibile
+      if (!currentGPS.lat) {
+        await new Promise(resolve => {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              currentGPS.lat = pos.coords.latitude;
+              currentGPS.lon = pos.coords.longitude;
+              resolve();
+            },
+            () => resolve(),
+            { enableHighAccuracy: true, timeout: 5000 }
+          );
+        });
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE}/api/app/sos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            codice_accesso: currentUser.codice,
+            numero_pilota: currentUser.numero,
+            testo: 'EMERGENZA SOS',
+            gps_lat: currentGPS.lat,
+            gps_lon: currentGPS.lon
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Mostra popup conferma
+          document.getElementById('sosGpsInfo').textContent = 
+            currentGPS.lat ? `📍 ${currentGPS.lat.toFixed(5)}, ${currentGPS.lon.toFixed(5)}` : '📍 GPS non disponibile';
+          document.getElementById('sosPopup').style.display = 'flex';
+        } else {
+          alert('Errore invio SOS: ' + (data.error || 'Riprova'));
+        }
+      } catch (err) {
+        console.error('Errore SOS:', err);
+        alert('Errore di connessione. Riprova.');
+      }
+    }
+    
+    function chiudiSosPopup() {
+      document.getElementById('sosPopup').style.display = 'none';
+    }
+    
+    // Invia messaggio normale
+    async function inviaMessaggio() {
+      const tipo = document.querySelector('input[name="tipoMsg"]:checked')?.value || 'altro';
+      const testo = document.getElementById('testoMessaggio').value.trim();
+      
+      if (!testo) {
+        alert('Inserisci un messaggio');
+        return;
+      }
+      
+      const btn = document.querySelector('.invia-btn');
+      btn.disabled = true;
+      btn.textContent = 'INVIO IN CORSO...';
+      
+      try {
+        const response = await fetch(`${API_BASE}/api/app/messaggio`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            codice_accesso: currentUser.codice,
+            numero_pilota: currentUser.numero,
+            tipo: tipo,
+            testo: testo,
+            gps_lat: currentGPS.lat,
+            gps_lon: currentGPS.lon
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          document.getElementById('testoMessaggio').value = '';
+          alert('✅ Messaggio inviato alla Direzione Gara');
+          
+          // Aggiungi alla lista inviati
+          aggiungiMessaggioInviato(tipo, testo);
+        } else {
+          alert('Errore: ' + (data.error || 'Riprova'));
+        }
+      } catch (err) {
+        console.error('Errore invio:', err);
+        alert('Errore di connessione');
+      }
+      
+      btn.disabled = false;
+      btn.textContent = '📤 INVIA SEGNALAZIONE';
+    }
+    
+    function aggiungiMessaggioInviato(tipo, testo) {
+      const container = document.getElementById('listaMessaggiInviati');
+      const tipoLabel = {
+        'assistenza': '🔧 Assistenza',
+        'pericolo': '⚠️ Pericolo',
+        'info': 'ℹ️ Info',
+        'altro': '💬 Altro',
+        'sos': '🆘 SOS'
+      };
+      
+      const html = `
+        <div class="msg-inviato ${tipo === 'sos' ? 'sos' : ''}">
+          <div class="header">
+            <span>${tipoLabel[tipo] || tipo}</span>
+            <span>${new Date().toLocaleTimeString('it-IT')}</span>
+          </div>
+          <div class="testo">${testo}</div>
+        </div>
+      `;
+      
+      container.insertAdjacentHTML('afterbegin', html);
+    }
+
+    // ==================== SQUADRA ====================
+    
+    async function loadSquadra() {
+      if (!currentUser) return;
+      
+      try {
+        const response = await fetch(`${API_BASE}/api/app/squadra/${currentUser.codice}/${currentUser.numero}`);
+        const data = await response.json();
+        
+        if (data.success && data.squadra) {
+          currentSquadra = data.squadra;
+          mostraSquadra();
+          caricaClassificaSquadra();
+        } else {
+          currentSquadra = null;
+          mostraNoSquadra();
+        }
+      } catch (err) {
+        console.error('Errore caricamento squadra:', err);
+        mostraNoSquadra();
+      }
+    }
+    
+    function mostraNoSquadra() {
+      document.getElementById('noSquadra').style.display = 'block';
+      document.getElementById('haSquadra').style.display = 'none';
+    }
+    
+    function mostraSquadra() {
+      document.getElementById('noSquadra').style.display = 'none';
+      document.getElementById('haSquadra').style.display = 'block';
+      
+      if (currentSquadra) {
+        document.getElementById('nomeSquadraDisplay').textContent = '👥 ' + currentSquadra.nome_squadra;
+        document.getElementById('membriCountDisplay').textContent = currentSquadra.membri.length + ' membri';
+        
+        // Mostra lista membri con bottone rimuovi (solo se sei il creatore)
+        const isCreatore = currentSquadra.creatore_numero == currentUser.numero;
+        const listaMembri = document.getElementById('listaMembriSquadra');
+        
+        if (currentSquadra.piloti && currentSquadra.piloti.length > 0) {
+          listaMembri.innerHTML = currentSquadra.piloti.map(p => {
+            const isMe = p.numero_gara == currentUser.numero;
+            const isCreatorePilota = p.numero_gara == currentSquadra.creatore_numero;
+            const canRemove = isCreatore && !isCreatorePilota;
+            
+            return `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <span style="color: ${isMe ? '#4ade80' : '#fff'};">
+                  #${p.numero_gara} ${p.cognome} ${p.nome} ${isMe ? '(TU)' : ''} ${isCreatorePilota ? '👑' : ''}
+                </span>
+                ${canRemove ? `<button onclick="rimuoviMembro(${p.numero_gara})" style="background: #dc2626; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">✕</button>` : ''}
+              </div>
+            `;
+          }).join('');
+        } else {
+          listaMembri.innerHTML = '<p style="color: #888; text-align: center;">Caricamento membri...</p>';
+        }
+      }
+    }
+    
+    async function rimuoviMembro(numeroPilota) {
+      if (!currentSquadra) return;
+      
+      if (!confirm(`Rimuovere il pilota #${numeroPilota} dalla squadra?`)) return;
+      
+      try {
+        const response = await fetch(`${API_BASE}/api/app/squadra/${currentSquadra.id}/rimuovi`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ numero_pilota: numeroPilota })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('✅ Membro rimosso');
+          loadSquadra(); // Ricarica squadra
+        } else {
+          alert('❌ ' + (data.error || 'Errore'));
+        }
+      } catch (err) {
+        console.error('Errore rimozione membro:', err);
+        alert('❌ Errore di connessione');
+      }
+    }
+    
+    async function creaSquadra() {
+      const nome = document.getElementById('nomeSquadra').value.trim();
+      const membriInput = document.getElementById('membriSquadra').value.trim();
+      
+      if (!nome) {
+        alert('Inserisci un nome per la squadra');
+        return;
+      }
+      
+      // Parsing membri
+      let membri = [];
+      if (membriInput) {
+        membri = membriInput.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE}/api/app/squadra`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            codice_accesso: currentUser.codice,
+            numero_pilota: currentUser.numero,
+            nome_squadra: nome,
+            membri: membri
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          currentSquadra = data.squadra;
+          document.getElementById('nomeSquadra').value = '';
+          document.getElementById('membriSquadra').value = '';
+          mostraSquadra();
+          caricaClassificaSquadra();
+          alert('✅ Squadra creata!');
+        } else {
+          alert('Errore: ' + (data.error || 'Riprova'));
+        }
+      } catch (err) {
+        console.error('Errore creazione squadra:', err);
+        alert('Errore di connessione');
+      }
+    }
+    
+    async function caricaClassificaSquadra() {
+      if (!currentSquadra) return;
+      
+      const container = document.getElementById('squadraClassifica');
+      container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+      
+      try {
+        const response = await fetch(`${API_BASE}/api/app/classifica-squadra/${currentSquadra.id}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          renderClassificaSquadra(data);
+          document.getElementById('lastUpdateSquadra').textContent = 
+            'Ultimo aggiornamento: ' + new Date().toLocaleTimeString('it-IT');
+        }
+      } catch (err) {
+        console.error('Errore classifica squadra:', err);
+        container.innerHTML = '<p style="text-align:center;color:#a0a0a0;padding:20px;">Errore caricamento</p>';
+      }
+    }
+    
+    function renderClassificaSquadra(data) {
+      const container = document.getElementById('squadraClassifica');
+      const classifica = data.classifica;
+      const prove = data.prove || [];
+      
+      if (!classifica || classifica.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#a0a0a0;padding:20px;">Nessun tempo registrato</p>';
+        return;
+      }
+      
+      // Sezione 1: Classifica generale
+      let html = '<div class="classifica-header">🏆 CLASSIFICA SQUADRA</div>';
+      
+      html += classifica.map(m => {
+        const posClass = m.posizione_squadra === 1 ? 'gold' : m.posizione_squadra === 2 ? 'silver' : m.posizione_squadra === 3 ? 'bronze' : '';
+        const isMe = m.numero_gara == currentUser.numero;
+        const ritiratoClass = m.ritirato ? 'ritirato' : '';
+        
+        return `
+          <div class="membro-row ${isMe ? 'me' : ''} ${ritiratoClass}">
+            <div class="membro-posizione ${posClass}">${m.posizione_squadra}°</div>
+            <div class="membro-info">
+              <div class="nome">${m.cognome} ${m.nome} ${isMe ? '(TU)' : ''}</div>
+              <div class="numero-classe">#${m.numero_gara} • ${m.classe}</div>
+              ${m.ritirato ? `<div class="ritirato-badge">RIT (${m.prove_completate}/${m.prove_totali} PS)</div>` : ''}
+            </div>
+            <div class="membro-tempo">
+              <div class="tempo ${m.ritirato ? 'ritirato-tempo' : ''}">${m.tempo_formattato}</div>
+              <div class="gap">${m.gap}</div>
+              <div class="pos-assoluta">${m.posizione_assoluta}° assoluto</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      // Sezione 2: Confronto PS
+      if (prove.length > 0) {
+        html += '<div class="classifica-header" style="margin-top:20px;">⏱️ CONFRONTO PROVE SPECIALI</div>';
+        html += '<div class="ps-table-container"><table class="ps-table">';
+        
+        // Header
+        html += '<thead><tr><th>Pilota</th>';
+        prove.forEach(ps => {
+          const nomeBreve = ps.nome.length > 8 ? ps.nome.substring(0, 8) + '…' : ps.nome;
+          html += `<th title="${ps.nome}">PS${ps.numero}<br><small>${nomeBreve}</small></th>`;
+        });
+        html += '</tr></thead>';
+        
+        // Body
+        html += '<tbody>';
+        classifica.forEach(m => {
+          const isMe = m.numero_gara == currentUser.numero;
+          html += `<tr class="${isMe ? 'me-row' : ''} ${m.ritirato ? 'ritirato-row' : ''}">`;
+          html += `<td class="pilota-cell">#${m.numero_gara} ${m.cognome.substring(0,8)}</td>`;
+          
+          prove.forEach(ps => {
+            const psData = m.tempi_ps[ps.numero];
+            if (psData && psData.tempo !== '--') {
+              const miglClass = psData.migliore ? 'miglior-tempo' : '';
+              html += `<td class="${miglClass}">${psData.tempo}</td>`;
+            } else {
+              html += `<td class="no-tempo">--</td>`;
+            }
+          });
+          
+          html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+        
+        // Legenda
+        html += `<div class="ps-legenda">
+          <span class="leg-item"><span class="dot gold"></span> Miglior tempo PS</span>
+          <span class="leg-item"><span class="dot red"></span> Ritirato</span>
+        </div>`;
+      }
+      
+      container.innerHTML = html;
+      
+      // Renderizza grafici
+      if (prove.length > 0 && classifica.length > 1) {
+        renderGraficiSquadra(data);
+      }
+    }
+    
+    function renderGraficiSquadra(data) {
+      const classifica = data.classifica;
+      const prove = data.prove;
+      
+      document.getElementById('graficiSquadra').style.display = 'block';
+      
+      // Colori per ogni pilota (stessi di La Mia Gara)
+      const colori = [
+        '#e94560', '#4ade80', '#3b82f6', '#f59e0b', '#8b5cf6', 
+        '#ec4899', '#14b8a6', '#f97316'
+      ];
+      
+      // Labels (prove)
+      const labels = prove.map(p => `PS${p.numero}`);
+      
+      // ==================== GRAFICO 1: POSIZIONI NELLA SQUADRA ====================
+      // Per ogni PS, calcola la posizione di ogni membro nella squadra
+      const datasetsPosizioni = classifica.map((m, idx) => {
+        const posizioni = [];
+        
+        prove.forEach(ps => {
+          // Raccogli tempi di tutti i membri per questa PS
+          const tempiPS = classifica
+            .filter(p => p.tempi_ps[ps.numero] && p.tempi_ps[ps.numero].tempo_raw)
+            .map(p => ({ num: p.numero_gara, tempo: p.tempi_ps[ps.numero].tempo_raw }))
+            .sort((a, b) => a.tempo - b.tempo);
+          
+          const pos = tempiPS.findIndex(t => t.num === m.numero_gara);
+          posizioni.push(pos >= 0 ? pos + 1 : null);
+        });
+        
+        const isMe = m.numero_gara == currentUser.numero;
+        
+        return {
+          label: `#${m.numero_gara} ${m.cognome.substring(0, 6)}`,
+          data: posizioni,
+          borderColor: isMe ? '#fff' : colori[idx % colori.length],
+          backgroundColor: isMe ? '#fff' : colori[idx % colori.length],
+          borderWidth: isMe ? 3 : 2,
+          pointRadius: isMe ? 5 : 3,
+          tension: 0.3
+        };
+      });
+      
+      if (chartPosizioni) chartPosizioni.destroy();
+      
+      const ctxPos = document.getElementById('chartPosizioni').getContext('2d');
+      chartPosizioni = new Chart(ctxPos, {
+        type: 'line',
+        data: { labels, datasets: datasetsPosizioni },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { 
+              reverse: true, 
+              min: 1,
+              ticks: { color: '#a0a0a0', stepSize: 1 },
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              title: { display: true, text: 'Posizione', color: '#a0a0a0' }
+            },
+            x: { 
+              ticks: { color: '#a0a0a0' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            }
+          },
+          plugins: {
+            legend: { 
+              labels: { color: '#fff', boxWidth: 15, font: { size: 10 } },
+              position: 'bottom'
+            }
+          }
+        }
+      });
+      
+      // ==================== CALCOLA SCOSTAMENTI DALLA MEDIANA ====================
+      // Per ogni PS, calcola la mediana dei tempi e lo scostamento di ogni pilota
+      const scostamentiPerPilota = {};
+      classifica.forEach(m => { scostamentiPerPilota[m.numero_gara] = []; });
+      
+      prove.forEach(ps => {
+        // Raccogli tutti i tempi per questa PS
+        const tempiPS = classifica
+          .filter(p => p.tempi_ps[ps.numero] && p.tempi_ps[ps.numero].tempo_raw)
+          .map(p => p.tempi_ps[ps.numero].tempo_raw)
+          .sort((a, b) => a - b);
+        
+        // Calcola mediana
+        let mediana = null;
+        if (tempiPS.length > 0) {
+          const mid = Math.floor(tempiPS.length / 2);
+          mediana = tempiPS.length % 2 !== 0 
+            ? tempiPS[mid] 
+            : (tempiPS[mid - 1] + tempiPS[mid]) / 2;
+        }
+        
+        // Calcola scostamento per ogni pilota
+        classifica.forEach(m => {
+          if (m.tempi_ps[ps.numero] && m.tempi_ps[ps.numero].tempo_raw && mediana) {
+            const scostamento = m.tempi_ps[ps.numero].tempo_raw - mediana;
+            scostamentiPerPilota[m.numero_gara].push(parseFloat(scostamento.toFixed(2)));
+          } else {
+            scostamentiPerPilota[m.numero_gara].push(null);
+          }
+        });
+      });
+      
+      // ==================== GRAFICO 2: SCOSTAMENTI DALLA MEDIANA ====================
+      const datasetsScostamenti = classifica.map((m, idx) => {
+        const isMe = m.numero_gara == currentUser.numero;
+        
+        return {
+          label: `#${m.numero_gara} ${m.cognome.substring(0, 6)}`,
+          data: scostamentiPerPilota[m.numero_gara],
+          borderColor: isMe ? '#fff' : colori[idx % colori.length],
+          backgroundColor: isMe ? 'rgba(255,255,255,0.2)' : colori[idx % colori.length] + '33',
+          borderWidth: isMe ? 3 : 2,
+          pointRadius: isMe ? 5 : 3,
+          tension: 0.3
+        };
+      });
+      
+      if (chartTempi) chartTempi.destroy();
+      
+      const ctxTempi = document.getElementById('chartTempi').getContext('2d');
+      chartTempi = new Chart(ctxTempi, {
+        type: 'line',
+        data: { labels, datasets: datasetsScostamenti },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { 
+              reverse: true,
+              ticks: { 
+                color: '#a0a0a0',
+                callback: (v) => v > 0 ? `+${v.toFixed(1)}s` : `${v.toFixed(1)}s`
+              },
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              title: { display: true, text: 'Scostamento (s)', color: '#a0a0a0' }
+            },
+            x: { 
+              ticks: { color: '#a0a0a0' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            }
+          },
+          plugins: {
+            legend: { 
+              labels: { color: '#fff', boxWidth: 15, font: { size: 10 } },
+              position: 'bottom'
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const v = ctx.raw;
+                  if (v === null) return '';
+                  return `${ctx.dataset.label}: ${v > 0 ? '+' : ''}${v.toFixed(2)}s`;
+                }
+              }
+            }
+          }
+        }
+      });
+      
+      // ==================== GRAFICO 3: SCOSTAMENTO CUMULATO ====================
+      const datasetsCumulato = classifica.map((m, idx) => {
+        let cumulato = 0;
+        const scostamentiCumulati = scostamentiPerPilota[m.numero_gara].map(scost => {
+          if (scost !== null) {
+            cumulato += scost;
+            return parseFloat(cumulato.toFixed(2));
+          }
+          return null;
+        });
+        
+        const isMe = m.numero_gara == currentUser.numero;
+        
+        return {
+          label: `#${m.numero_gara} ${m.cognome.substring(0, 6)}`,
+          data: scostamentiCumulati,
+          borderColor: isMe ? '#fff' : colori[idx % colori.length],
+          backgroundColor: isMe ? 'rgba(255,255,255,0.1)' : 'transparent',
+          borderWidth: isMe ? 3 : 2,
+          pointRadius: isMe ? 5 : 3,
+          fill: isMe,
+          tension: 0.3
+        };
+      });
+      
+      if (chartCumulato) chartCumulato.destroy();
+      
+      const ctxCum = document.getElementById('chartCumulato').getContext('2d');
+      chartCumulato = new Chart(ctxCum, {
+        type: 'line',
+        data: { labels, datasets: datasetsCumulato },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { 
+              reverse: true,
+              ticks: { 
+                color: '#a0a0a0',
+                callback: (v) => v > 0 ? `+${v.toFixed(0)}s` : `${v.toFixed(0)}s`
+              },
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              title: { display: true, text: 'Cumulato (s)', color: '#a0a0a0' }
+            },
+            x: { 
+              ticks: { color: '#a0a0a0' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            }
+          },
+          plugins: {
+            legend: { 
+              labels: { color: '#fff', boxWidth: 15, font: { size: 10 } },
+              position: 'bottom'
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const v = ctx.raw;
+                  if (v === null) return '';
+                  return `${ctx.dataset.label}: ${v > 0 ? '+' : ''}${v.toFixed(1)}s`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    function mostraAggiungiMembro() {
+      document.getElementById('formAggiungiMembro').style.display = 'flex';
+    }
+    
+    function nascondiAggiungiMembro() {
+      document.getElementById('formAggiungiMembro').style.display = 'none';
+      document.getElementById('nuovoMembro').value = '';
+    }
+    
+    async function aggiungiMembro() {
+      const numero = parseInt(document.getElementById('nuovoMembro').value);
+      
+      if (!numero) {
+        alert('Inserisci un numero pilota valido');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE}/api/app/squadra/${currentSquadra.id}/aggiungi`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ numero_pilota: numero })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          currentSquadra = data.squadra;
+          nascondiAggiungiMembro();
+          mostraSquadra();
+          caricaClassificaSquadra();
+          alert('✅ Pilota aggiunto!');
+        } else {
+          alert('Errore: ' + (data.error || 'Riprova'));
+        }
+      } catch (err) {
+        console.error('Errore aggiunta membro:', err);
+        alert('Errore di connessione');
+      }
+    }
+    
+    async function eliminaSquadra() {
+      if (!confirm('Sei sicuro di voler eliminare la squadra?')) return;
+      
+      try {
+        const response = await fetch(`${API_BASE}/api/app/squadra/${currentSquadra.id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ numero_pilota: currentUser.numero })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          currentSquadra = null;
+          mostraNoSquadra();
+          alert('Squadra eliminata');
+        } else {
+          alert('Errore: ' + (data.error || 'Solo il creatore può eliminare la squadra'));
+        }
+      } catch (err) {
+        console.error('Errore eliminazione squadra:', err);
+        alert('Errore di connessione');
+      }
+    }
+
+    function showNotification(comunicato) {
+      const popup = document.getElementById('notificationPopup');
+      document.getElementById('notificationText').textContent = comunicato.testo || 'Nuovo comunicato dalla Direzione Gara';
+      popup.style.display = 'block';
+
+      // Auto-hide after 10 seconds
+      setTimeout(() => {
+        popup.style.display = 'none';
+      }, 10000);
+    }
+
+    function closeNotification() {
+      document.getElementById('notificationPopup').style.display = 'none';
+    }
+
+    function playNotificationSound() {
+      try {
+        document.getElementById('notificationSound').play();
+      } catch (e) {
+        // Ignore audio errors
+      }
+    }
+
+    // ==================== POLLING ====================
+    function startPolling() {
+      stopPolling();
+      pollingTimer = setInterval(() => {
+        loadComunicati();
+      }, POLLING_INTERVAL);
+    }
+
+    function stopPolling() {
+      if (pollingTimer) {
+        clearInterval(pollingTimer);
+        pollingTimer = null;
+      }
+    }
+
+    // ==================== DASHBOARD DdG (Chat 21) ====================
+    let ddgPollingInterval = null;
+    let currentDocTab = 'comunicato';
+    
+    function showDocTab(tipo) {
+      currentDocTab = tipo;
+      
+      // Aggiorna bottoni
+      document.getElementById('docTabComunicato').style.background = tipo === 'comunicato' ? '#3b82f6' : '#374151';
+      document.getElementById('docTabComunicato').style.color = tipo === 'comunicato' ? 'white' : '#9ca3af';
+      document.getElementById('docTabGeneral').style.background = tipo === 'general_info' ? '#22c55e' : '#374151';
+      document.getElementById('docTabGeneral').style.color = tipo === 'general_info' ? 'white' : '#9ca3af';
+      document.getElementById('docTabPaddock').style.background = tipo === 'paddock_info' ? '#f59e0b' : '#374151';
+      document.getElementById('docTabPaddock').style.color = tipo === 'paddock_info' ? 'white' : '#9ca3af';
+      
+      // Mostra contenuto
+      document.getElementById('docContentComunicato').style.display = tipo === 'comunicato' ? 'block' : 'none';
+      document.getElementById('docContentGeneral').style.display = tipo === 'general_info' ? 'block' : 'none';
+      document.getElementById('docContentPaddock').style.display = tipo === 'paddock_info' ? 'block' : 'none';
+    }
+    
+    function startDdGPolling() {
+      if (ddgPollingInterval) clearInterval(ddgPollingInterval);
+      ddgPollingInterval = setInterval(loadDdGData, 30000);
+    }
+    
+    function stopDdGPolling() {
+      if (ddgPollingInterval) {
+        clearInterval(ddgPollingInterval);
+        ddgPollingInterval = null;
+      }
+    }
+    
+    async function loadDdGData() {
+      if (!currentUser || !isDdG) return;
+      
+      // Carica i 3 tipi di documenti
+      try {
+        // Comunicati
+        const resCom = await fetch(`${API_BASE}/api/app/comunicati/${currentUser.codice}?tipo=comunicato`);
+        const dataCom = await resCom.json();
+        if (dataCom.success) {
+          renderDocumentiDdG('comunicato', dataCom.comunicati || []);
+        }
+        
+        // General Info
+        const resGen = await fetch(`${API_BASE}/api/app/comunicati/${currentUser.codice}?tipo=general_info`);
+        const dataGen = await resGen.json();
+        if (dataGen.success) {
+          renderDocumentiDdG('general_info', dataGen.comunicati || []);
+        }
+        
+        // Paddock Info
+        const resPad = await fetch(`${API_BASE}/api/app/comunicati/${currentUser.codice}?tipo=paddock_info`);
+        const dataPad = await resPad.json();
+        if (dataPad.success) {
+          renderDocumentiDdG('paddock_info', dataPad.comunicati || []);
+        }
+      } catch (err) {
+        console.error('Errore caricamento documenti:', err);
+      }
+      
+      // Carica dati MULTI-EVENTO (tutti gli eventi fratelli 303-x)
+      try {
+        const resMulti = await fetch(`${API_BASE}/api/ddg/multi/${currentUser.evento.codice_gara}`);
+        const dataMulti = await resMulti.json();
+        
+        if (dataMulti.success) {
+          // Salva eventi collegati
+          eventiCollegati = dataMulti.eventi || [];
+          
+          // Popola checkbox gare per tutti i tipi di documenti
+          popolaCheckboxGareDocumenti();
+          
+          // Mostra quanti eventi sono monitorati
+          if (dataMulti.eventi && dataMulti.eventi.length > 1) {
+            const eventiNomi = dataMulti.eventi.map(e => e.codice_gara).join(', ');
+            document.getElementById('ddgEventoInfo').textContent = `${currentUser.evento.nome} (+ ${dataMulti.eventi.length - 1} gare collegate: ${eventiNomi})`;
+          }
+          
+          renderSosAttiviMulti(dataMulti.sos || []);
+          renderPilotiFermiMulti(dataMulti.piloti_fermi || []);
+          renderSegnalePersoMulti(dataMulti.piloti_segnale_perso || []);
+          renderPosizioniGPSMulti(dataMulti.posizioni || []);
+        }
+      } catch (err) {
+        console.error('Errore dati multi-evento:', err);
+        // Fallback ai dati singolo evento
+        try {
+          const resFermi = await fetch(`${API_BASE}/api/eventi/${currentUser.evento.id}/piloti-fermi`);
+          const dataFermi = await resFermi.json();
+          if (dataFermi.success) {
+            renderPilotiFermi(dataFermi.piloti_fermi || []);
+            renderSegnalePerso(dataFermi.piloti_segnale_perso || []);
+          }
+        } catch (e) { console.error(e); }
+        
+        try {
+          const resSos = await fetch(`${API_BASE}/api/messaggi-piloti/${currentUser.evento.codice_gara}`);
+          const dataSos = await resSos.json();
+          if (dataSos.success) {
+            const sosAttivi = dataSos.messaggi.filter(m => m.tipo === 'sos' && !m.letto);
+            renderSosAttivi(sosAttivi);
+          }
+        } catch (e) { console.error(e); }
+        
+        try {
+          const resPos = await fetch(`${API_BASE}/api/eventi/${currentUser.evento.id}/posizioni-piloti`);
+          const dataPos = await resPos.json();
+          if (dataPos.success) {
+            renderPosizioniGPS(dataPos.posizioni || []);
+          }
+        } catch (e) { console.error(e); }
+      }
+      
+      // Aggiorna timestamp
+      document.getElementById('ddgLastUpdate').textContent = new Date().toLocaleTimeString('it-IT');
+    }
+    
+    // ========== RENDER MULTI-EVENTO ==========
+    
+    function renderSosAttiviMulti(sos) {
+      const container = document.getElementById('ddgSosAttivi');
+      if (!container) return;
+      
+      if (sos.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #4ade80; padding: 15px; background: rgba(74,222,128,0.1); border-radius: 8px;">✅ Nessun SOS attivo</div>';
+        return;
+      }
+      
+      // Suona allarme
+      playNotificationSound();
+      
+      container.innerHTML = sos.map(s => `
+        <div style="background: #3d0f0f; border: 2px solid #ef4444; border-radius: 8px; padding: 12px; margin-bottom: 10px; animation: pulse 2s infinite;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: bold; color: #ef4444; font-size: 16px;">🆘 #${s.numero_pilota} ${s.nome_pilota || ''}</div>
+              <div style="color: #fca5a5; font-size: 12px;">${s.codice_gara} • ${s.messaggio || 'EMERGENZA SOS'}</div>
+              <div style="color: #888; font-size: 11px;">${new Date(s.created_at).toLocaleTimeString('it-IT')}</div>
+            </div>
+            ${s.lat && s.lon ? `<a href="https://www.google.com/maps?q=${s.lat},${s.lon}" target="_blank" 
+               style="background: #ef4444; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+              📍 Mappa
+            </a>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function renderPilotiFermiMulti(piloti) {
+      const container = document.getElementById('ddgPilotiFermi');
+      if (!container) return;
+      
+      if (piloti.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #4ade80; padding: 15px; background: rgba(74,222,128,0.1); border-radius: 8px;">✅ Nessun pilota fermo</div>';
+        return;
+      }
+      
+      container.innerHTML = piloti.map(p => `
+        <div style="background: #3d2607; border: 1px solid #f97316; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: bold; color: #fb923c; font-size: 16px;">⚠️ #${p.numero_pilota}</div>
+              <div style="color: #fdba74; font-size: 12px;">${p.codice_gara} • Movimento: ${p.movimento_totale}m</div>
+            </div>
+            <a href="https://www.google.com/maps?q=${p.lat},${p.lon}" target="_blank" 
+               style="background: #f97316; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+              📍 Mappa
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function renderSegnalePersoMulti(piloti) {
+      const container = document.getElementById('ddgSegnalePerso');
+      if (!container) return;
+      
+      if (piloti.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #4ade80; padding: 15px; background: rgba(74,222,128,0.1); border-radius: 8px;">✅ Tutti i segnali attivi</div>';
+        return;
+      }
+      
+      // Suona allarme
+      playNotificationSound();
+      
+      container.innerHTML = piloti.map(p => `
+        <div style="background: #3d0f0f; border: 2px solid #dc2626; border-radius: 8px; padding: 12px; margin-bottom: 10px; animation: pulse 2s infinite;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: bold; color: #ef4444; font-size: 16px;">📵 #${p.numero_pilota}</div>
+              <div style="color: #fca5a5; font-size: 14px;">${p.codice_gara} • Segnale perso da ${p.minuti_senza_segnale} min!</div>
+            </div>
+            <a href="https://www.google.com/maps?q=${p.lat},${p.lon}" target="_blank" 
+               style="background: #dc2626; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+              📍 Ultima pos.
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function renderPosizioniGPSMulti(posizioni) {
+      const container = document.getElementById('ddgPosizioniGPS');
+      if (!container) return;
+      
+      if (posizioni.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #888; padding: 15px;">Nessuna posizione GPS</div>';
+        return;
+      }
+      
+      // Ordina per codice_gara e poi per tempo
+      posizioni.sort((a, b) => {
+        if (a.codice_gara !== b.codice_gara) return a.codice_gara.localeCompare(b.codice_gara);
+        return a.minuti_fa - b.minuti_fa;
+      });
+      
+      container.innerHTML = posizioni.map(p => `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div>
+            <span style="color: #4ade80; font-weight: bold;">#${p.numero_pilota}</span>
+            <span style="color: #888; font-size: 11px; margin-left: 8px;">${p.codice_gara}</span>
+            <span style="color: #888; font-size: 12px; margin-left: 8px;">${p.minuti_fa}m fa</span>
+          </div>
+          <a href="https://www.google.com/maps?q=${p.lat},${p.lon}" target="_blank" style="color: #60a5fa; font-size: 12px;">
+            ${parseFloat(p.lat).toFixed(4)}, ${parseFloat(p.lon).toFixed(4)} →
+          </a>
+        </div>
+      `).join('');
+    }
+    
+    function popolaCheckboxGareDocumenti() {
+      const containers = ['checkboxGareComunicato', 'checkboxGareGeneral', 'checkboxGarePaddock'];
+      const colors = ['#3b82f6', '#22c55e', '#f59e0b'];
+      
+      containers.forEach((containerId, index) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        if (eventiCollegati.length === 0) {
+          container.innerHTML = `
+            <label style="display: flex; align-items: center; gap: 6px; color: #e2e8f0; font-size: 13px;">
+              <input type="checkbox" name="garaDoc${index}" value="${currentUser.codice}" checked 
+                     style="width: 18px; height: 18px; accent-color: ${colors[index]};">
+              ${currentUser.codice}
+            </label>
+          `;
+          return;
+        }
+        
+        container.innerHTML = eventiCollegati.map(e => `
+          <label style="display: flex; align-items: center; gap: 6px; color: #e2e8f0; font-size: 13px; padding: 4px 8px; background: rgba(0,0,0,0.2); border-radius: 4px;">
+            <input type="checkbox" name="garaDoc${index}" value="${e.codice_gara}" checked 
+                   style="width: 18px; height: 18px; accent-color: ${colors[index]};">
+            ${e.codice_gara}
+          </label>
+        `).join('');
+      });
+    }
+    
+    // Storage per i PDF caricati
+    let pdfData = {
+      comunicato: { base64: null, nome: null },
+      general_info: { base64: null, nome: null },
+      paddock_info: { base64: null, nome: null }
+    };
+    
+    function onPdfSelected(tipo) {
+      const inputIds = {
+        'comunicato': 'pdfComunicato',
+        'general_info': 'pdfGeneral',
+        'paddock_info': 'pdfPaddock'
+      };
+      const previewIds = {
+        'comunicato': 'pdfPreviewComunicato',
+        'general_info': 'pdfPreviewGeneral',
+        'paddock_info': 'pdfPreviewPaddock'
+      };
+      const nameIds = {
+        'comunicato': 'pdfNameComunicato',
+        'general_info': 'pdfNameGeneral',
+        'paddock_info': 'pdfNamePaddock'
+      };
+      
+      const input = document.getElementById(inputIds[tipo]);
+      const file = input.files[0];
+      
+      if (!file) return;
+      
+      if (file.type !== 'application/pdf') {
+        alert('Solo file PDF sono ammessi');
+        input.value = '';
+        return;
+      }
+      
+      if (file.size > 10 * 1024 * 1024) {
+        alert('PDF troppo grande (max 10MB)');
+        input.value = '';
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        pdfData[tipo] = {
+          base64: e.target.result.split(',')[1],
+          nome: file.name
+        };
+        document.getElementById(previewIds[tipo]).style.display = 'block';
+        document.getElementById(nameIds[tipo]).textContent = '📄 ' + file.name;
+      };
+      reader.readAsDataURL(file);
+    }
+    
+    function removePdf(tipo) {
+      const inputIds = {
+        'comunicato': 'pdfComunicato',
+        'general_info': 'pdfGeneral',
+        'paddock_info': 'pdfPaddock'
+      };
+      const previewIds = {
+        'comunicato': 'pdfPreviewComunicato',
+        'general_info': 'pdfPreviewGeneral',
+        'paddock_info': 'pdfPreviewPaddock'
+      };
+      
+      pdfData[tipo] = { base64: null, nome: null };
+      document.getElementById(inputIds[tipo]).value = '';
+      document.getElementById(previewIds[tipo]).style.display = 'none';
+    }
+    
+    async function inviaNuovoDocumento(tipo) {
+      const textareaIds = {
+        'comunicato': 'nuovoComunicatoTesto',
+        'general_info': 'nuovoGeneralTesto',
+        'paddock_info': 'nuovoPaddockTesto'
+      };
+      const btnIds = {
+        'comunicato': 'btnInviaComunicato',
+        'general_info': 'btnInviaGeneral',
+        'paddock_info': 'btnInviaPaddock'
+      };
+      const checkboxNames = {
+        'comunicato': 'garaDoc0',
+        'general_info': 'garaDoc1',
+        'paddock_info': 'garaDoc2'
+      };
+      const labels = {
+        'comunicato': 'Comunicato',
+        'general_info': 'General Info',
+        'paddock_info': 'Paddock Info'
+      };
+      
+      const testo = document.getElementById(textareaIds[tipo]).value.trim();
+      const btn = document.getElementById(btnIds[tipo]);
+      
+      if (!testo) {
+        alert(`Inserisci il testo del ${labels[tipo]}`);
+        return;
+      }
+      
+      const checkboxes = document.querySelectorAll(`input[name="${checkboxNames[tipo]}"]:checked`);
+      const gareSelezionate = Array.from(checkboxes).map(cb => cb.value);
+      
+      if (gareSelezionate.length === 0) {
+        alert('Seleziona almeno una gara destinataria');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = '⏳ Invio...';
+      
+      try {
+        let successi = 0;
+        let errori = [];
+        
+        for (const codiceGara of gareSelezionate) {
+          try {
+            const body = {
+              codice_gara: codiceGara,
+              testo: testo,
+              tipo: tipo
+            };
+            
+            // Aggiungi PDF se presente
+            if (pdfData[tipo].base64) {
+              body.pdf_allegato = pdfData[tipo].base64;
+              body.pdf_nome = pdfData[tipo].nome;
+            }
+            
+            const response = await fetch(`${API_BASE}/api/comunicati`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body)
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+              successi++;
+            } else {
+              errori.push(codiceGara);
+            }
+          } catch (e) {
+            errori.push(codiceGara);
+          }
+        }
+        
+        if (successi > 0) {
+          document.getElementById(textareaIds[tipo]).value = '';
+          removePdf(tipo); // Rimuovi PDF dopo invio
+          if (errori.length > 0) {
+            alert(`✅ ${labels[tipo]} inviato a ${successi} gare.\n⚠️ Errore per: ${errori.join(', ')}`);
+          } else {
+            alert(`✅ ${labels[tipo]} inviato a ${successi} ${successi === 1 ? 'gara' : 'gare'}!`);
+          }
+          loadDdGData();
+        } else {
+          alert(`❌ Errore invio ${labels[tipo]}`);
+        }
+      } catch (err) {
+        console.error('Errore invio documento:', err);
+        alert('❌ Errore di connessione');
+      }
+      
+      btn.disabled = false;
+      btn.textContent = '📤 Pubblica';
+    }
+    
+    function renderDocumentiDdG(tipo, documenti) {
+      const containerIds = {
+        'comunicato': 'ddgComunicati',
+        'general_info': 'ddgGeneral',
+        'paddock_info': 'ddgPaddock'
+      };
+      const colors = {
+        'comunicato': { bg: '#1e3a5f', border: '#3b82f6', text: '#60a5fa' },
+        'general_info': { bg: '#1e4d3a', border: '#22c55e', text: '#4ade80' },
+        'paddock_info': { bg: '#4d3a1e', border: '#f59e0b', text: '#fbbf24' }
+      };
+      const prefixes = {
+        'comunicato': 'COM',
+        'general_info': 'GEN',
+        'paddock_info': 'PAD'
+      };
+      
+      const container = document.getElementById(containerIds[tipo]);
+      if (!container) return;
+      
+      const col = colors[tipo];
+      const prefix = prefixes[tipo];
+      
+      if (documenti.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: #888; padding: 15px; background: rgba(59,130,246,0.1); border-radius: 8px;">📭 Nessun documento</div>`;
+        return;
+      }
+      
+      container.innerHTML = documenti.map(c => `
+        <div style="background: ${col.bg}; border: 1px solid ${col.border}; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: bold; color: ${col.text};">${prefix} #${c.numero}</span>
+            <span style="color: #94a3b8; font-size: 12px;">${c.ora || ''} ${c.data || ''}</span>
+          </div>
+          <div style="color: #e2e8f0; font-size: 14px; line-height: 1.4;">${c.testo || ''}</div>
+          ${c.ha_pdf ? `<a href="#" onclick="openAllegato('${c.id}', '${c.pdf_nome || ''}'); return false;" style="display: inline-block; margin-top: 8px; color: ${col.text}; font-size: 12px;">📎 Apri Allegato</a>` : ''}
+        </div>
+      `).join('');
+    }
+    
+    function renderSegnalePerso(piloti) {
+      const container = document.getElementById('ddgSegnalePerso');
+      if (!container) return;
+      
+      if (piloti.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #4ade80; padding: 15px; background: rgba(74,222,128,0.1); border-radius: 8px;">✅ Tutti i segnali attivi</div>';
+        return;
+      }
+      
+      container.innerHTML = piloti.map(p => `
+        <div style="background: #3d0f0f; border: 2px solid #dc2626; border-radius: 8px; padding: 12px; margin-bottom: 10px; animation: pulse 2s infinite;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: bold; color: #ef4444; font-size: 16px;">📵 #${p.numero_pilota}</div>
+              <div style="color: #fca5a5; font-size: 14px;">Segnale perso da ${p.minuti_senza_segnale} min!</div>
+            </div>
+            <a href="https://www.google.com/maps?q=${p.lat},${p.lon}" target="_blank" 
+               style="background: #dc2626; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+              📍 Ultima pos.
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function renderPilotiFermi(piloti) {
+      const container = document.getElementById('ddgPilotiFermi');
+      if (piloti.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #4ade80; padding: 15px; background: rgba(74,222,128,0.1); border-radius: 8px;">✅ Nessun pilota fermo</div>';
+        return;
+      }
+      
+      container.innerHTML = piloti.map(p => `
+        <div style="background: #2d1f0f; border: 1px solid #f97316; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: bold; color: #f97316;">#${p.numero_pilota}</div>
+              <div style="color: #fbbf24; font-size: 14px;">Fermo da ${p.minuti_fermo} min</div>
+            </div>
+            <a href="https://www.google.com/maps?q=${p.lat},${p.lon}" target="_blank" 
+               style="background: #3b82f6; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+              📍 Mappa
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function renderSosAttivi(sos) {
+      const container = document.getElementById('ddgSosAttivi');
+      if (sos.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #4ade80; padding: 15px; background: rgba(74,222,128,0.1); border-radius: 8px;">✅ Nessun SOS attivo</div>';
+        return;
+      }
+      
+      container.innerHTML = sos.map(s => `
+        <div style="background: #2d0f0f; border: 2px solid #ef4444; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div>
+              <div style="font-weight: bold; color: #ef4444; font-size: 16px;">🆘 #${s.numero_pilota} ${s.cognome} ${s.nome}</div>
+              <div style="color: #fca5a5; font-size: 13px; margin-top: 5px;">${s.testo || 'SOS Emergenza'}</div>
+              <div style="color: #888; font-size: 11px; margin-top: 5px;">${new Date(s.created_at).toLocaleTimeString('it-IT')}</div>
+            </div>
+            ${s.gps_lat && s.gps_lon ? `
+              <a href="https://www.google.com/maps?q=${s.gps_lat},${s.gps_lon}" target="_blank" 
+                 style="background: #ef4444; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+                📍 Mappa
+              </a>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function renderPosizioniGPS(posizioni) {
+      const container = document.getElementById('ddgPosizioniGPS');
+      if (posizioni.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #888; padding: 15px;">Nessuna posizione GPS</div>';
+        return;
+      }
+      
+      container.innerHTML = posizioni.map(p => {
+        const minAgo = Math.floor((Date.now() - new Date(p.created_at).getTime()) / 60000);
+        const timeAgo = minAgo < 1 ? 'ora' : minAgo < 60 ? `${minAgo}m fa` : `${Math.floor(minAgo/60)}h fa`;
+        return `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #333;">
+            <div>
+              <span style="color: #4ade80; font-weight: bold;">#${p.numero_pilota}</span>
+              <span style="color: #888; font-size: 12px; margin-left: 10px;">${timeAgo}</span>
+            </div>
+            <a href="https://www.google.com/maps?q=${p.lat},${p.lon}" target="_blank" 
+               style="color: #60a5fa; text-decoration: none; font-size: 12px;">
+              ${parseFloat(p.lat).toFixed(4)}, ${parseFloat(p.lon).toFixed(4)} →
+            </a>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==================== INIT ====================
+    window.onload = function() {
+      // Check for saved session
+      const savedUser = localStorage.getItem('erta_user');
+      if (savedUser) {
+        try {
+          const parsed = JSON.parse(savedUser);
+          currentUser = parsed;
+          isDdG = parsed.isDdG || false;
+          
+          // Imposta frequenza GPS (default 30 se non presente)
+          gpsFrequenza = currentUser.evento?.gps_frequenza || 30;
+          
+          if (isDdG) {
+            // Ripristina dashboard DdG
+            document.getElementById('ddgEventoInfo').textContent = currentUser.evento?.nome || '';
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('appDdG').style.display = 'block';
+            loadDdGData();
+            startDdGPolling();
+          } else {
+            // Ripristina app pilota
+            document.getElementById('pilotNumber').textContent = currentUser.pilota.numero;
+            document.getElementById('pilotName').textContent = `${currentUser.pilota.cognome} ${currentUser.pilota.nome}`;
+            document.getElementById('pilotInfo').textContent = `${currentUser.pilota.classe} • ${currentUser.pilota.moto || ''}`;
+            showApp();
+            loadComunicati();
+            loadTempi();
+            
+            // Avvia tracking GPS
+            avviaTrackingGPS();
+          }
+        } catch (e) {
+          localStorage.removeItem('erta_user');
+        }
+      }
+
+      // Handle Enter key on login form
+      document.getElementById('numeroPilota').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') doLogin();
+      });
+      document.getElementById('codiceGara').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') document.getElementById('numeroPilota').focus();
+      });
+
+      // Register service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed'));
+      }
+    };
+  </script>
+</body>
+</html>

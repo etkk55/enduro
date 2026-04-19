@@ -1,0 +1,5 @@
+DOCUMENTAZIONE/
+Documentazione ERTA/
+*.BACKUP*
+*.backup*
+.DS_Store

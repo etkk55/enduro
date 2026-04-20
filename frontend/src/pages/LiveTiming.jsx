@@ -1548,18 +1548,31 @@ export default function LiveTiming() {
           <h2 className="text-heading-2 text-content-primary">Prove Speciali</h2>
           
           {/* p35: Filtri CL e Moto - spostati qui */}
+          {(() => {
+            // Calcola totali attuali per determinare se c'è un filtro parziale
+            const totClassi = new Set((currentSnapshot?.classifica || []).map(p => p.classe).filter(Boolean)).size;
+            const totMoto = new Set((currentSnapshot?.classifica || []).map(p => p.moto).filter(Boolean)).size;
+            const filtroClassePartial = filtroClasse.size > 0 && filtroClasse.size < totClassi;
+            const filtroMotoPartial = filtroMoto.size > 0 && filtroMoto.size < totMoto;
+            return (
           <div className="flex gap-3">
             {/* Filtro Classe */}
             <div className="relative">
               <button
                 onClick={() => { setShowClasseFilter(!showClasseFilter); setShowMotoFilter(false); }}
-                className={`px-5 py-3 border-3 rounded-xl font-bold text-lg flex items-center gap-2 transition-all ${
-                  filtroClasse.size > 0 
-                    ? 'border-purple-600 bg-purple-500 text-white shadow-lg' 
+                className={`relative px-5 py-3 border-3 rounded-xl font-bold text-lg flex items-center gap-2 transition-all ${
+                  filtroClassePartial
+                    ? 'border-purple-600 bg-purple-500 text-white shadow-lg ring-2 ring-purple-300 ring-offset-2'
+                    : filtroClasse.size > 0
+                    ? 'border-purple-400 bg-purple-100 text-purple-700 hover:bg-purple-200'
                     : 'border-purple-400 bg-purple-100 text-purple-700 hover:bg-purple-200'
                 }`}
+                title={filtroClassePartial ? `Filtro attivo: ${filtroClasse.size}/${totClassi} classi selezionate` : 'Tutte le classi'}
               >
-                🏷️ CL {filtroClasse.size > 0 ? `(${filtroClasse.size})` : '▼'}
+                🏷️ CL {filtroClassePartial ? `${filtroClasse.size}/${totClassi}` : `(${totClassi || filtroClasse.size})`}
+                {filtroClassePartial && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-rose-500 border-2 border-white shadow" aria-label="Filtro attivo"></span>
+                )}
               </button>
               {showClasseFilter && (
                 <div className="absolute top-full right-0 mt-2 bg-white border-3 border-purple-300 rounded-xl shadow-2xl z-50 min-w-[160px] max-h-[350px] overflow-y-auto">
@@ -1591,13 +1604,17 @@ export default function LiveTiming() {
             <div className="relative">
               <button
                 onClick={() => { setShowMotoFilter(!showMotoFilter); setShowClasseFilter(false); }}
-                className={`px-5 py-3 border-3 rounded-xl font-bold text-lg flex items-center gap-2 transition-all ${
-                  filtroMoto.size > 0 
-                    ? 'border-green-600 bg-green-500 text-white shadow-lg' 
+                className={`relative px-5 py-3 border-3 rounded-xl font-bold text-lg flex items-center gap-2 transition-all ${
+                  filtroMotoPartial
+                    ? 'border-green-600 bg-green-500 text-white shadow-lg ring-2 ring-green-300 ring-offset-2'
                     : 'border-green-400 bg-green-100 text-green-700 hover:bg-green-200'
                 }`}
+                title={filtroMotoPartial ? `Filtro attivo: ${filtroMoto.size}/${totMoto} moto selezionate` : 'Tutte le moto'}
               >
-                🏍️ Moto {filtroMoto.size > 0 ? `(${filtroMoto.size})` : '▼'}
+                🏍️ Moto {filtroMotoPartial ? `${filtroMoto.size}/${totMoto}` : `(${totMoto || filtroMoto.size})`}
+                {filtroMotoPartial && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-rose-500 border-2 border-white shadow" aria-label="Filtro attivo"></span>
+                )}
               </button>
               {showMotoFilter && (
                 <div className="absolute top-full right-0 mt-2 bg-white border-3 border-green-300 rounded-xl shadow-2xl z-50 min-w-[180px] max-h-[350px] overflow-y-auto">
@@ -1625,6 +1642,8 @@ export default function LiveTiming() {
               )}
             </div>
           </div>
+            );
+          })()}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
           {replayData.prove.map((prova, idx) => {
@@ -1710,9 +1729,51 @@ export default function LiveTiming() {
         {/* TAB CLASSIFICA */}
         {activeTab === 'classifica' && (
           <>
+            {(() => {
+              const totClassi = new Set(currentSnapshot.classifica.map(p => p.classe).filter(Boolean)).size;
+              const totMoto = new Set(currentSnapshot.classifica.map(p => p.moto).filter(Boolean)).size;
+              const fcPartial = filtroClasse.size > 0 && filtroClasse.size < totClassi;
+              const fmPartial = filtroMoto.size > 0 && filtroMoto.size < totMoto;
+              const anyFilter = fcPartial || fmPartial;
+              return anyFilter ? (
+                <div className="bg-amber-50 border-b-2 border-amber-400 px-6 py-3 flex items-center gap-3 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                    <strong className="text-amber-900">Filtro attivo</strong>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    {fcPartial && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-200 text-purple-900 text-sm font-semibold border border-purple-400">
+                        🏷️ Classi: {filtroClasse.size}/{totClassi}
+                      </span>
+                    )}
+                    {fmPartial && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-200 text-green-900 text-sm font-semibold border border-green-400">
+                        🏍️ Moto: {filtroMoto.size}/{totMoto}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => {
+                      setFiltroClasse(new Set(currentSnapshot.classifica.map(p => p.classe).filter(Boolean)));
+                      setFiltroMoto(new Set(currentSnapshot.classifica.map(p => p.moto).filter(Boolean)));
+                    }}
+                    className="ml-auto px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                  >
+                    Mostra tutti
+                  </button>
+                </div>
+              ) : null;
+            })()}
             <div className="bg-gray-100 px-6 py-4 border-b">
               <h2 className="text-5xl font-bold text-gray-800">
-                Classifica {filtroClasse.size > 0 || filtroMoto.size > 0 ? 'Filtrata' : 'Live'}
+                Classifica {(() => {
+                  const totClassi = new Set(currentSnapshot.classifica.map(p => p.classe).filter(Boolean)).size;
+                  const totMoto = new Set(currentSnapshot.classifica.map(p => p.moto).filter(Boolean)).size;
+                  const fcPartial = filtroClasse.size > 0 && filtroClasse.size < totClassi;
+                  const fmPartial = filtroMoto.size > 0 && filtroMoto.size < totMoto;
+                  return (fcPartial || fmPartial) ? 'Filtrata' : 'Live';
+                })()}
               </h2>
               <p className="text-xl text-gray-600 mt-1">
                 {filtroClasse.size > 0 || filtroMoto.size > 0

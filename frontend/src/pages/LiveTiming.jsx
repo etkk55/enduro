@@ -293,19 +293,26 @@ export default function LiveTiming() {
   const [showClasseFilter, setShowClasseFilter] = useState(false);
   const [showMotoFilter, setShowMotoFilter] = useState(false);
   
-  // p36 FIX: Inizializza filtri con TUTTE le classi/moto quando i dati arrivano
+  // FIX bug: al cambio evento azzera i filtri, così il successivo effect
+  // li ripopola con classi/moto della NUOVA gara. Senza questo, i filtri
+  // della gara precedente persistono e possono non matchare nessun pilota
+  // della nuova gara (es. cambiando da Minienduro a Epoca-Training → 0 piloti).
+  useEffect(() => {
+    setFiltroClasse(new Set());
+    setFiltroMoto(new Set());
+  }, [eventoSelezionato]);
+
+  // Inizializza filtri con TUTTE le classi/moto quando i dati della gara arrivano
   useEffect(() => {
     if (replayData?.snapshots?.length > 0) {
       const lastSnapshot = replayData.snapshots[replayData.snapshots.length - 1];
       const classifica = lastSnapshot?.classifica || [];
-      
-      // Popola filtroClasse con tutte le classi (solo se vuoto)
+
       const tutteClassi = new Set(classifica.map(p => p.classe).filter(Boolean));
       if (filtroClasse.size === 0 && tutteClassi.size > 0) {
         setFiltroClasse(tutteClassi);
       }
-      
-      // Popola filtroMoto con tutte le moto (solo se vuoto)
+
       const tutteMoto = new Set(classifica.map(p => p.moto).filter(Boolean));
       if (filtroMoto.size === 0 && tutteMoto.size > 0) {
         setFiltroMoto(tutteMoto);

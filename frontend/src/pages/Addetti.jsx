@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { API_BASE } from '../services/api';
-import { Users, Plus, Trash2, RefreshCw, QrCode, Printer, X, Phone, MapPin, Stethoscope, Flag, Route as RouteIcon, Hardhat } from 'lucide-react';
+import { Users, Plus, Trash2, RefreshCw, QrCode, Printer, X, Phone, MapPin, Stethoscope, Flag, Route as RouteIcon, HardHat } from 'lucide-react';
 
 // URL base dell'app ERTA (PWA pilota/addetto)
 const ERTA_URL = 'https://enduro-erta.vercel.app';
@@ -9,7 +9,7 @@ const RUOLI = [
   { value: 'medico', label: '🩺 Medico di Gara', icon: Stethoscope, color: 'rose' },
   { value: 'resp_ps', label: '🏁 Responsabile PS', icon: Flag, color: 'amber' },
   { value: 'resp_trasf', label: '🛣️ Responsabile Trasferimenti', icon: RouteIcon, color: 'blue' },
-  { value: 'addetto', label: '👷 Addetto', icon: Hardhat, color: 'gray' }
+  { value: 'addetto', label: '👷 Addetto', icon: HardHat, color: 'gray' }
 ];
 
 function ruoloInfo(ruolo) {

@@ -10592,19 +10592,42 @@
       if (cruscotto && !cruscotto.classList.contains('active')) {
         showDdgTab('cruscotto');
       }
-      // Mappa filter → data-sec (msg=messaggi, fermi, gps, all)
       document.querySelectorAll('.ddg-filter').forEach(b => {
         b.classList.toggle('active', b.dataset.filter === filter);
       });
-      const map = { sos: 'msg', msg: 'msg', fermi: 'fermi', gps: 'gps' };
-      const targetSec = map[filter] || null;
-      document.querySelectorAll('.ddg-feed-sec').forEach(sec => {
-        if (filter === 'all' || !targetSec) {
-          sec.classList.remove('hidden');
-        } else {
-          sec.classList.toggle('hidden', sec.dataset.sec !== targetSec);
-        }
+
+      // SOS è un filtro speciale: mostra solo la sezione msg, ma dentro
+      // filtra le card per tipo=sos (le altre vengono nascoste)
+      const msgSec = document.querySelector('.ddg-feed-sec[data-sec="msg"]');
+      const fermiSec = document.querySelector('.ddg-feed-sec[data-sec="fermi"]');
+      const gpsSec = document.querySelector('.ddg-feed-sec[data-sec="gps"]');
+
+      const showAll = filter === 'all';
+      if (msgSec) msgSec.classList.toggle('hidden', !(showAll || filter === 'msg' || filter === 'sos'));
+      if (fermiSec) fermiSec.classList.toggle('hidden', !(showAll || filter === 'fermi'));
+      if (gpsSec) gpsSec.classList.toggle('hidden', !(showAll || filter === 'gps'));
+
+      // Aggiorna titolo sezione messaggi + filtro card per-tipo
+      const msgTitle = document.querySelector('.ddg-feed-sec[data-sec="msg"] .ddg-sec-title');
+      if (msgTitle) {
+        const base = filter === 'sos' ? '🆘 SOS attivi' : '💬 Messaggi piloti';
+        const countId = 'ddgSecCountMsg';
+        msgTitle.innerHTML = `${base} <span class="ddg-sec-count" id="${countId}">0</span>`;
+      }
+      const cards = document.querySelectorAll('.ddg-msg-card');
+      let visibleMsg = 0;
+      cards.forEach(c => {
+        const isSOS = c.dataset.tipo === 'sos';
+        const show = (filter !== 'sos') || isSOS;
+        c.style.display = show ? '' : 'none';
+        if (show) visibleMsg++;
       });
+      const secCountEl = document.getElementById('ddgSecCountMsg');
+      if (secCountEl) {
+        secCountEl.textContent = (filter === 'sos')
+          ? visibleMsg
+          : (window._ddgCounts?.msg || 0);
+      }
     }
     window.ddgFilterFeed = ddgFilterFeed;
 
@@ -11055,7 +11078,7 @@
         const nomePilota = [m.cognome, m.nome].filter(Boolean).join(' ');
         
         return `
-        <div style="background: ${config.bg}; border: 2px solid ${config.border}; border-radius: 8px; padding: 12px; margin-bottom: 10px; ${opacita} ${animazione}" data-msg-id="${m.id}">
+        <div class="ddg-msg-card" data-tipo="${m.tipo}" style="background: ${config.bg}; border: 2px solid ${config.border}; border-radius: 8px; padding: 12px; margin-bottom: 10px; ${opacita} ${animazione}" data-msg-id="${m.id}">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
             <div>
               <div style="font-weight: bold; color: ${config.color}; font-size: 16px;">

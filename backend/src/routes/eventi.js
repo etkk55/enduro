@@ -214,6 +214,37 @@ router.patch('/api/eventi/:id/codice-accesso', async (req, res, next) => {
   }
 });
 
+// Aggiorna SOLO parametri FICR (anno, equipe, manifestazione, categoria)
+// Usato per migrare eventi legacy creati prima dell'introduzione dei campi FICR
+router.patch('/api/eventi/:id/ficr-params', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { ficr_anno, ficr_codice_equipe, ficr_manifestazione, ficr_categoria } = req.body;
+    const result = await pool.query(
+      `UPDATE eventi SET
+        ficr_anno = COALESCE($1, ficr_anno),
+        ficr_codice_equipe = COALESCE($2, ficr_codice_equipe),
+        ficr_manifestazione = COALESCE($3, ficr_manifestazione),
+        ficr_categoria = COALESCE($4, ficr_categoria)
+      WHERE id = $5 RETURNING *`,
+      [
+        ficr_anno != null ? parseInt(ficr_anno) : null,
+        ficr_codice_equipe != null ? parseInt(ficr_codice_equipe) : null,
+        ficr_manifestazione != null ? parseInt(ficr_manifestazione) : null,
+        ficr_categoria != null ? parseInt(ficr_categoria) : null,
+        id
+      ]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Evento non trovato' });
+    }
+    res.json({ success: true, evento: result.rows[0] });
+  } catch (err) {
+    console.error('[PATCH /api/eventi/:id/ficr-params] Error:', err.message);
+    next(err);
+  }
+});
+
 // Aggiorna parametri paddock e GPS
 router.patch('/api/eventi/:id/parametri-gps', async (req, res, next) => {
   try {

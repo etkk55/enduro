@@ -428,8 +428,41 @@ export default function SetupGaraFicr() {
       
       const codiciEsistenti = eventiEsistenti.map(ev => ev.codice_gara);
       const codiciNuovi = codiciDaCreare.filter(c => !codiciEsistenti.includes(c));
-      
-      let eventiFinali = [...eventiEsistenti];
+
+      // FIX gare legacy: eventi esistenti senza parametri FICR vanno aggiornati.
+      // Altrimenti l'import successivo fallisce con "Parametri FICR non configurati".
+      // Deduce ficr_categoria dal suffisso di codice_gara ("${manif}-${cat}" → cat).
+      const eventiLegacy = eventiEsistenti.filter(ev =>
+        !ev.ficr_codice_equipe || !ev.ficr_manifestazione || !ev.ficr_anno
+      );
+      const eventiMigrati = [];
+      for (const ev of eventiLegacy) {
+        const parts = (ev.codice_gara || '').split('-');
+        const categoria = parts.length >= 2 ? parseInt(parts[parts.length - 1]) : null;
+        try {
+          const patchRes = await fetch(`${API_BASE}/api/eventi/${ev.id}/ficr-params`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ficr_anno: anno,
+              ficr_codice_equipe: garaSelezionata.equipe,
+              ficr_manifestazione: garaSelezionata.manifestazione,
+              ficr_categoria: categoria
+            })
+          });
+          const patchData = await patchRes.json();
+          if (patchData.success && patchData.evento) {
+            eventiMigrati.push(patchData.evento);
+          }
+        } catch (e) {
+          console.error('Errore migrazione ficr-params per evento', ev.id, e);
+        }
+      }
+      // Sostituisci eventi esistenti migrati con la versione aggiornata
+      const eventiMigratiMap = new Map(eventiMigrati.map(e => [e.id, e]));
+      const eventiEsistentiAggiornati = eventiEsistenti.map(e => eventiMigratiMap.get(e.id) || e);
+
+      let eventiFinali = [...eventiEsistentiAggiornati];
       
       // 3. Crea solo quelli nuovi (se ce ne sono)
       if (codiciNuovi.length > 0) {

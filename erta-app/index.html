@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.1.04</title>
+  <title>ERTA v1.1.05</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5167,7 +5167,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.04</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.05</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -5190,7 +5190,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.1.04</div>
+    <div class="login-version">ERTA · v1.1.05</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -5687,8 +5687,8 @@
             </select>
           </div>
           <div style="display:flex;gap:8px;margin-top:16px;">
-            <button type="button" class="altro-logout" onclick="chiudiFormAddetto()" style="flex:1;background:var(--bg-surface-2);color:var(--text-secondary);">Annulla</button>
-            <button type="submit" class="ddg-btn brand" id="btnSalvaAddetto" style="flex:2;">Crea e mostra QR</button>
+            <button type="button" data-action="close-addetto-form" class="altro-logout" style="flex:1;background:var(--bg-surface-2);color:var(--text-secondary);">Annulla</button>
+            <button type="submit" data-action="submit-addetto" class="ddg-btn brand" id="btnSalvaAddetto" style="flex:2;">Crea e mostra QR</button>
           </div>
         </form>
       </div>
@@ -5708,8 +5708,8 @@
         </p>
         <p id="qrAddettoUrl" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-tertiary);background:var(--bg-surface-2);padding:8px;border-radius:var(--r-sm);word-break:break-all;margin-bottom:14px;"></p>
         <div style="display:flex;gap:8px;">
-          <button onclick="chiudiQrAddetto()" class="ddg-btn" style="flex:1;background:var(--brand-500);">Fatto</button>
-          <button onclick="rigeneraQrAddettoCorrente()" class="ddg-btn" style="background:var(--bg-surface-2);color:var(--text-secondary);border:1px solid var(--border-default);">🔄</button>
+          <button type="button" data-action="close-qr" class="ddg-btn" style="flex:1;background:var(--brand-500);">Fatto</button>
+          <button type="button" data-action="regen-qr" class="ddg-btn" style="background:var(--bg-surface-2);color:var(--text-secondary);border:1px solid var(--border-default);">🔄</button>
         </div>
       </div>
     </div>
@@ -5994,7 +5994,7 @@
           <summary><span class="ico">👷</span>Team Addetti<span class="caret">▶</span></summary>
           <div class="body">
             <p class="ddg-help">Medici, responsabili e addetti al percorso. Usa "Nuovo addetto" durante il briefing per generare il QR che l'addetto scansionerà col proprio telefono.</p>
-            <button type="button" onclick="event.stopPropagation(); mostraFormNuovoAddetto();" class="ddg-btn brand" style="width:100%; margin-bottom:14px; padding:14px; font-size:15px; min-height:48px;">
+            <button type="button" data-action="new-addetto" class="ddg-btn brand" style="width:100%; margin-bottom:14px; padding:14px; font-size:15px; min-height:48px;">
               ➕ Nuovo addetto · Genera QR
             </button>
             <div id="ddgAddettiList"><div class="ddg-empty">Caricamento…</div></div>
@@ -11212,7 +11212,7 @@
               <div class="ddg-addetto-ruolo">${ruoloLbl} ${settore} ${online}</div>
             </div>
             <div class="ddg-addetto-actions">
-              <button class="ddg-addetto-btn qr" onclick="event.stopPropagation(); mostraQrAddettoById('${a.id}')">📱 QR</button>
+              <button type="button" class="ddg-addetto-btn qr" data-action="show-qr" data-addetto-id="${a.id}">📱 QR</button>
               ${callBtn}
               ${mapBtn}
             </div>
@@ -11223,6 +11223,34 @@
     // ============ Creazione addetto da ERTA DdG (briefing sul campo) ============
     let _qrAddettoCorrente = null;
     const ERTA_BASE_URL = 'https://enduro-erta.vercel.app';
+
+    // Event delegation globale per i bottoni addetti (robusto contro CSP/cache/inline-onclick)
+    document.addEventListener('click', function(e) {
+      const el = e.target.closest('[data-action]');
+      if (!el) return;
+      const action = el.dataset.action;
+      if (action === 'new-addetto') {
+        e.preventDefault();
+        e.stopPropagation();
+        mostraFormNuovoAddetto();
+      } else if (action === 'show-qr') {
+        e.preventDefault();
+        e.stopPropagation();
+        mostraQrAddettoById(el.dataset.addettoId);
+      } else if (action === 'close-addetto-form') {
+        e.preventDefault();
+        chiudiFormAddetto();
+      } else if (action === 'submit-addetto') {
+        e.preventDefault();
+        creaAddettoDaErta();
+      } else if (action === 'close-qr') {
+        e.preventDefault();
+        chiudiQrAddetto();
+      } else if (action === 'regen-qr') {
+        e.preventDefault();
+        rigeneraQrAddettoCorrente();
+      }
+    });
 
     function mostraFormNuovoAddetto() {
       if (typeof haptic === 'function') haptic(10);
@@ -11786,10 +11814,13 @@
         altro: { icon: '💬', color: '#a855f7', bg: '#3d1f5c', border: '#a855f7', label: 'ALTRO' }
       };
       
-      // Suona allarme se ci sono SOS o pericoli non letti
+      // Suona allarme SOLO per SOS/pericoli non letti MAI suonati prima (dedup)
+      window._ddgAlertedIds = window._ddgAlertedIds || new Set();
       const urgenti = ordinati.filter(m => (m.tipo === 'sos' || m.tipo === 'pericolo') && !m.letto);
-      if (urgenti.length > 0) {
+      const urgentiNuovi = urgenti.filter(m => !window._ddgAlertedIds.has(String(m.id)));
+      if (urgentiNuovi.length > 0) {
         playNotificationSound();
+        urgentiNuovi.forEach(m => window._ddgAlertedIds.add(String(m.id)));
       }
       
       container.innerHTML = ordinati.map(m => {
@@ -11984,14 +12015,19 @@ ${mapsLink}`;
     function renderSosAttiviMulti(sos) {
       const container = document.getElementById('ddgSosAttivi');
       if (!container) return;
-      
+
       if (sos.length === 0) {
         container.innerHTML = '<div style="text-align: center; color: #4ade80; padding: 15px; background: rgba(74,222,128,0.1); border-radius: 8px;">✅ Nessun SOS attivo</div>';
         return;
       }
-      
-      // Suona allarme
-      playNotificationSound();
+
+      // Suona allarme SOLO per SOS mai visti prima (dedup)
+      window._ddgAlertedIds = window._ddgAlertedIds || new Set();
+      const sosNuovi = sos.filter(s => !window._ddgAlertedIds.has(String(s.id)));
+      if (sosNuovi.length > 0) {
+        playNotificationSound();
+        sosNuovi.forEach(s => window._ddgAlertedIds.add(String(s.id)));
+      }
       
       container.innerHTML = sos.map(s => `
         <div style="background: #3d0f0f; border: 2px solid #ef4444; border-radius: 8px; padding: 12px; margin-bottom: 10px; animation: pulse 2s infinite;">
@@ -12109,10 +12145,18 @@ ${mapsLink}`;
         container.innerHTML = '<div class="ddg-empty">✅ Tutti i segnali attivi</div>';
         return;
       }
-      
-      // Suona allarme
-      playNotificationSound();
-      
+
+      // Suona allarme SOLO per piloti mai segnalati prima (dedup)
+      window._ddgAlertedIds = window._ddgAlertedIds || new Set();
+      const persiNuovi = visibili.filter(p => {
+        const key = 'perso_' + p.codice_gara + '_' + p.numero_pilota;
+        return !window._ddgAlertedIds.has(key);
+      });
+      if (persiNuovi.length > 0) {
+        playNotificationSound();
+        persiNuovi.forEach(p => window._ddgAlertedIds.add('perso_' + p.codice_gara + '_' + p.numero_pilota));
+      }
+
       container.innerHTML = visibili.map(p => `
         <div style="background: #3d0f0f; border: 2px solid #dc2626; border-radius: 8px; padding: 12px; margin-bottom: 10px; animation: pulse 2s infinite;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">

@@ -214,6 +214,52 @@ router.patch('/api/eventi/:id/codice-accesso', async (req, res, next) => {
   }
 });
 
+// GET tracciato GPX dell'evento
+router.get('/api/eventi/:id/tracciato', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'SELECT id, tracciato_geojson, tracciato_nome, tracciato_updated_at FROM eventi WHERE id = $1',
+      [id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Evento non trovato' });
+    res.json(result.rows[0]);
+  } catch (err) { next(err); }
+});
+
+// PATCH salva tracciato GPX parsato come GeoJSON
+router.patch('/api/eventi/:id/tracciato', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { tracciato_geojson, tracciato_nome } = req.body;
+    if (!tracciato_geojson) {
+      return res.status(400).json({ error: 'tracciato_geojson mancante' });
+    }
+    const result = await pool.query(
+      `UPDATE eventi SET
+        tracciato_geojson = $1::jsonb,
+        tracciato_nome = $2,
+        tracciato_updated_at = CURRENT_TIMESTAMP
+      WHERE id = $3 RETURNING id, tracciato_nome, tracciato_updated_at`,
+      [JSON.stringify(tracciato_geojson), tracciato_nome || null, id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Evento non trovato' });
+    res.json({ success: true, ...result.rows[0] });
+  } catch (err) { next(err); }
+});
+
+// DELETE rimuovi tracciato
+router.delete('/api/eventi/:id/tracciato', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await pool.query(
+      `UPDATE eventi SET tracciato_geojson = NULL, tracciato_nome = NULL, tracciato_updated_at = NULL WHERE id = $1`,
+      [id]
+    );
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
 // Aggiorna SOLO parametri FICR (anno, equipe, manifestazione, categoria)
 // Usato per migrare eventi legacy creati prima dell'introduzione dei campi FICR
 router.patch('/api/eventi/:id/ficr-params', async (req, res, next) => {

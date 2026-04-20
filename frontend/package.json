@@ -1,7 +1,7 @@
 {
   "name": "enduro-frontend",
   "private": true,
-  "version": "1.1.00",
+  "version": "1.2.00",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tmcw/togeojson": "^7.1.2",
     "axios": "^1.13.2",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.553.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

@@ -237,6 +237,14 @@ async function runMigrations() {
       CREATE INDEX IF NOT EXISTS idx_push_subs_ruolo ON push_subscriptions(ruolo);
     `);
 
+    // Tracciato GPX per evento (GeoJSON LineString)
+    await client.query(`
+      ALTER TABLE eventi
+      ADD COLUMN IF NOT EXISTS tracciato_geojson JSONB,
+      ADD COLUMN IF NOT EXISTS tracciato_nome VARCHAR(200),
+      ADD COLUMN IF NOT EXISTS tracciato_updated_at TIMESTAMP;
+    `);
+
     // Aggiunge id_addetto a push_subscriptions per notifiche mirate ai marshalls
     await client.query(`
       ALTER TABLE push_subscriptions

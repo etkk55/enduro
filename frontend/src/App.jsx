@@ -3,7 +3,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import {
   LayoutDashboard, Calendar, Users, Settings, Radio, Activity, User,
   MessageSquare, Bell, Download, LifeBuoy, Flag, Clock, Trophy, X,
-  LifeBuoy as SafetyIcon
+  LifeBuoy as SafetyIcon, MapPin
 } from 'lucide-react';
 import ErrorBoundary from './components/ErrorBoundary';
 import Sidebar from './components/Sidebar';
@@ -30,6 +30,7 @@ const Help = lazy(() => import('./pages/Help'));
 const MessaggiPiloti = lazy(() => import('./pages/MessaggiPiloti'));
 const SetupGaraFicr = lazy(() => import('./pages/SetupGaraFicr'));
 const Addetti = lazy(() => import('./pages/Addetti'));
+const Mappa = lazy(() => import('./pages/Mappa'));
 
 function PageLoader() {
   return (
@@ -51,6 +52,7 @@ const NAV_GROUPS = [
     items: [
       { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
       { to: '/live', icon: Radio, label: 'Live Timing' },
+      { to: '/mappa', icon: MapPin, label: 'Mappa Tracciato' },
     ],
   },
   {
@@ -184,7 +186,7 @@ function AppLayout({ children, onOpenPalette }) {
           collapsed={collapsed}
           footer={(isCollapsed) => (
             <div className={cn('text-xs text-content-tertiary font-mono', isCollapsed ? 'text-center' : 'px-2')}>
-              v1.1.01
+              v1.2.00
             </div>
           )}
         />
@@ -264,6 +266,7 @@ export default function App() {
               <Route path="/messaggi-piloti" element={<MessaggiPiloti />} />
               <Route path="/setup-gara" element={<SetupGaraFicr />} />
               <Route path="/addetti" element={<Addetti />} />
+              <Route path="/mappa" element={<Mappa />} />
               <Route path="/import-ficr" element={<ImportFicr />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

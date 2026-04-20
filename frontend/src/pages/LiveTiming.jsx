@@ -1359,6 +1359,9 @@ export default function LiveTiming() {
   }
 
   if (!replayData || !replayData.snapshots || replayData.snapshots.length === 0) {
+    const nProve = replayData?.prove?.length || 0;
+    const nPiloti = replayData?.piloti?.length || 0;
+    const eventoObj = eventi.find(e => e.id === eventoSelezionato);
     return (
       <div className="flex items-center justify-center min-h-[70vh] px-4">
         <div className="text-center max-w-md w-full">
@@ -1366,7 +1369,16 @@ export default function LiveTiming() {
             <AlertTriangle className="w-6 h-6" />
           </div>
           <h2 className="text-heading-1 mb-1">Nessun dato per questa gara</h2>
-          <p className="text-content-secondary text-sm mb-5">Seleziona un'altra gara o recupera i tempi dalla FICR.</p>
+          <p className="text-content-secondary text-sm mb-2">
+            {eventoObj && <>Gara selezionata: <strong>{eventoObj.codice_gara}</strong> · {eventoObj.nome_evento}<br /></>}
+            {nProve === 0
+              ? <>⚠️ <strong>Nessuna prova speciale</strong> configurata per questa gara.</>
+              : nPiloti === 0
+                ? <>⚠️ <strong>Nessun pilota</strong> iscritto · {nProve} prove presenti.</>
+                : <>{nPiloti} piloti, {nProve} prove, ma nessun tempo registrato.</>
+            }
+          </p>
+          <p className="text-content-tertiary text-xs mb-5">Prova a recuperare i dati dalla FICR oppure seleziona un'altra gara.</p>
           <div className="flex flex-col sm:flex-row gap-2 items-center justify-center">
             <select
               value={eventoSelezionato}
@@ -1374,7 +1386,7 @@ export default function LiveTiming() {
               className="h-9 px-3 pr-8 rounded-md border border-border bg-surface text-sm font-medium cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 20 20%22%3E%3Cpath stroke=%22%2394A3B8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.5%22 d=%22m6 8 4 4 4-4%22/%3E%3C/svg%3E')] bg-no-repeat bg-[length:1.25rem] bg-[right_0.5rem_center] focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 min-w-[200px]"
             >
               {eventi.map(evento => (
-                <option key={evento.id} value={evento.id}>{evento.nome_evento}</option>
+                <option key={evento.id} value={evento.id}>{evento.codice_gara} · {evento.nome_evento}</option>
               ))}
             </select>
             <button
@@ -1433,7 +1445,7 @@ export default function LiveTiming() {
           className="h-9 px-3 pr-8 rounded-md border border-border bg-surface text-content-primary text-sm font-medium cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 20 20%22%3E%3Cpath stroke=%22%2394A3B8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.5%22 d=%22m6 8 4 4 4-4%22/%3E%3C/svg%3E')] bg-no-repeat bg-[length:1.25rem] bg-[right_0.5rem_center] focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 max-w-xs truncate"
         >
           {eventi.map(evento => (
-            <option key={evento.id} value={evento.id}>{evento.nome_evento}</option>
+            <option key={evento.id} value={evento.id}>{evento.codice_gara} · {evento.nome_evento}</option>
           ))}
         </select>
 

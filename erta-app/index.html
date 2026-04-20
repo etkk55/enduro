@@ -1872,6 +1872,130 @@
     }
     .ps-chip.none { color: var(--text-disabled); font-weight: 500; }
 
+    /* ==================== APP ADDETTO ==================== */
+    #appAddetto {
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--bg-base);
+      padding-bottom: calc(20px + var(--safe-bottom));
+    }
+    .addetto-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: linear-gradient(135deg, var(--danger), #991b1b);
+      color: #fff;
+      padding: calc(var(--safe-top) + 12px) 14px 14px;
+      box-shadow: var(--shadow-md);
+    }
+    .addetto-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .addetto-icon {
+      font-size: 28px;
+      width: 44px;
+      height: 44px;
+      border-radius: var(--r-md);
+      background: rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .addetto-info { flex: 1; min-width: 0; }
+    .addetto-info .nome {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .addetto-info .ruolo {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .addetto-exit {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: var(--r-pill);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      min-height: 36px;
+    }
+    .addetto-evento {
+      font-size: 13px;
+      opacity: 0.85;
+      letter-spacing: 0.02em;
+    }
+    .addetto-main {
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .addetto-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      padding: 16px;
+    }
+    .addetto-card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+    .addetto-gps-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--success);
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      padding: 10px 12px;
+      border-radius: var(--r-md);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .addetto-help {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      line-height: 1.5;
+      margin: 0;
+    }
+    .addetto-tips {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .addetto-tips li {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      padding: 6px 0 6px 22px;
+      position: relative;
+    }
+    .addetto-tips li::before {
+      content: '✓';
+      position: absolute;
+      left: 6px;
+      color: var(--success);
+      font-weight: 800;
+    }
+
     /* ==================== DASHBOARD DdG (redesigned) ==================== */
     #appDdG {
       min-height: 100vh;
@@ -5706,6 +5830,44 @@
   </div>
 
   <!-- ==================== PUBLIC APP (Chat 22) ==================== -->
+  <!-- ==================== APP ADDETTO ==================== -->
+  <div id="appAddetto" style="display: none;">
+    <header class="addetto-topbar">
+      <div class="addetto-brand">
+        <div class="addetto-icon" id="addettoIcon">👷</div>
+        <div class="addetto-info">
+          <div class="nome" id="addettoNome">—</div>
+          <div class="ruolo" id="addettoRuolo">—</div>
+        </div>
+        <button class="addetto-exit" onclick="logoutAddetto()">ESCI</button>
+      </div>
+      <div class="addetto-evento" id="addettoEvento">—</div>
+    </header>
+
+    <main class="addetto-main">
+      <section class="addetto-card">
+        <h3>📡 Stato connessione</h3>
+        <div class="addetto-gps-status" id="addettoGpsStatus">Acquisizione GPS…</div>
+        <p class="addetto-help">La tua posizione viene inviata alla Direzione Gara ogni 30 secondi per permettere un intervento rapido in caso di emergenza.</p>
+      </section>
+
+      <section class="addetto-card">
+        <h3>💬 Comunicazioni</h3>
+        <p class="addetto-help">In caso di emergenza riceverai una notifica push con la posizione del pilota e i dettagli dell'allarme. Per contattare la DdG usa il telefono della Direzione Gara.</p>
+        <div id="addettoAlertsList"></div>
+      </section>
+
+      <section class="addetto-card">
+        <h3>ℹ️ Istruzioni</h3>
+        <ul class="addetto-tips">
+          <li>Tieni l'app aperta per ricevere gli allarmi in tempo reale</li>
+          <li>Se ricevi un SOS, conferma la presa in carico via telefono con la DdG</li>
+          <li>In caso di problemi con questa app, usa il numero di emergenza della DdG</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
   <div id="appPublic" style="display: none;">
     <header class="pub-header">
       <button type="button" onclick="doLogout()" class="pub-logout">ESCI</button>
@@ -12534,8 +12696,151 @@ ${mapsLink}`;
       }
     }
 
+    // ==================== FLUSSO ADDETTO (QR code registration) ====================
+    let currentAddetto = null; // { id, ruolo, nome, cognome, telefono, id_ps, nome_ps, id_evento, ... }
+    let isAddetto = false;
+    let addettoGpsInterval = null;
+
+    async function loginAddettoConToken(token) {
+      try {
+        const res = await fetch(`${API_BASE}/api/addetti/login-token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Token non valido');
+
+        currentAddetto = data.addetto;
+        isAddetto = true;
+        const evento = data.evento;
+
+        // Salva sessione
+        localStorage.setItem('erta_addetto', JSON.stringify({
+          addetto: currentAddetto,
+          evento: evento,
+          token: token
+        }));
+        // Rimuove eventuali sessioni pilota/ddg/pubblico precedenti
+        localStorage.removeItem('erta_user');
+
+        showAppAddetto(evento);
+        return true;
+      } catch (err) {
+        console.error('Login addetto fallito:', err);
+        alert('Accesso fallito: ' + err.message);
+        return false;
+      }
+    }
+
+    function showAppAddetto(evento) {
+      document.getElementById('splash').style.display = 'none';
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('appDdG').style.display = 'none';
+      document.getElementById('appPublic').style.display = 'none';
+      document.getElementById('appAddetto').style.display = 'block';
+
+      const a = currentAddetto;
+      const ruoliLabel = {
+        medico: { icon: '🩺', label: 'Medico di Gara' },
+        resp_ps: { icon: '🏁', label: 'Responsabile PS' + (a.nome_ps ? ' · ' + a.nome_ps : '') },
+        resp_trasf: { icon: '🛣️', label: 'Responsabile Trasferimenti' + (a.nome_settore ? ' · ' + a.nome_settore : '') },
+        addetto: { icon: '👷', label: 'Addetto' + (a.nome_settore ? ' · ' + a.nome_settore : '') }
+      };
+      const info = ruoliLabel[a.ruolo] || ruoliLabel.addetto;
+
+      document.getElementById('addettoIcon').textContent = info.icon;
+      document.getElementById('addettoNome').textContent = `${a.nome} ${a.cognome}`;
+      document.getElementById('addettoRuolo').textContent = info.label;
+      document.getElementById('addettoEvento').textContent = evento.nome || '';
+
+      avviaAddettoGpsTracking();
+      initPushNotifications();
+    }
+
+    function avviaAddettoGpsTracking() {
+      if (!navigator.geolocation || !currentAddetto) return;
+
+      // WatchPosition per mantenere GPS caldo; invio ogni 30s (o 10s se in movimento)
+      if (gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
+      gpsWatchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          currentGPS.lat = pos.coords.latitude;
+          currentGPS.lon = pos.coords.longitude;
+          const speed = pos.coords.speed;
+          if (speed != null && speed >= MOTION_SPEED_THRESHOLD) gpsLastMotionAt = Date.now();
+          const statusEl = document.getElementById('addettoGpsStatus');
+          if (statusEl) statusEl.textContent = `📍 ${currentGPS.lat.toFixed(5)}, ${currentGPS.lon.toFixed(5)}`;
+        },
+        (err) => console.error('GPS addetto error:', err),
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
+      );
+
+      // Posizione iniziale
+      navigator.geolocation.getCurrentPosition((pos) => {
+        currentGPS.lat = pos.coords.latitude;
+        currentGPS.lon = pos.coords.longitude;
+        inviaPosizioneAddetto();
+      });
+
+      // Invio periodico
+      if (addettoGpsInterval) clearInterval(addettoGpsInterval);
+      addettoGpsInterval = setInterval(() => {
+        if (currentGPS.lat && currentGPS.lon) inviaPosizioneAddetto();
+      }, 30000);
+    }
+
+    async function inviaPosizioneAddetto() {
+      if (!currentAddetto || !currentGPS.lat || !currentGPS.lon) return;
+      try {
+        await fetch(`${API_BASE}/api/addetti/${currentAddetto.id}/posizione`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lat: currentGPS.lat, lon: currentGPS.lon })
+        });
+      } catch (err) {
+        console.error('Invio posizione addetto fallito:', err);
+      }
+    }
+
+    function logoutAddetto() {
+      if (!confirm('Uscire dalla sessione?')) return;
+      if (addettoGpsInterval) clearInterval(addettoGpsInterval);
+      if (gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
+      localStorage.removeItem('erta_addetto');
+      currentAddetto = null;
+      isAddetto = false;
+      location.reload();
+    }
+    window.logoutAddetto = logoutAddetto;
+
     // ==================== INIT ====================
     window.onload = function() {
+      // Controlla se arriviamo da QR scan (?t=TOKEN)
+      const urlParams = new URLSearchParams(window.location.search);
+      const qrToken = urlParams.get('t');
+      if (qrToken) {
+        // Rimuovi il token dall'URL per non lasciarlo in cronologia/bookmark
+        history.replaceState({}, '', window.location.pathname);
+        loginAddettoConToken(qrToken);
+        return;
+      }
+
+      // Controlla sessione addetto salvata
+      const savedAddetto = localStorage.getItem('erta_addetto');
+      if (savedAddetto) {
+        try {
+          const parsed = JSON.parse(savedAddetto);
+          currentAddetto = parsed.addetto;
+          isAddetto = true;
+          showAppAddetto(parsed.evento);
+          return;
+        } catch (e) {
+          localStorage.removeItem('erta_addetto');
+        }
+      }
+
       // Check for saved session
       const savedUser = localStorage.getItem('erta_user');
       if (savedUser) {

@@ -29,6 +29,7 @@ app.use(require('./src/routes/appMessaging'));
 app.use(require('./src/routes/appSquadre'));
 app.use(require('./src/routes/emergency'));
 app.use(require('./src/routes/tempiSettore'));
+app.use(require('./src/routes/addetti'));
 
 // ==================== ERROR HANDLER ====================
 app.use(errorHandler);

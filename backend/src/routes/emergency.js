@@ -2,6 +2,40 @@ const router = require('express').Router();
 const pool = require('../db/pool');
 const { cercaEventoPerCodice } = require('../helpers/transcodification');
 const { inviaPushADestinatari } = require('../helpers/pushNotifications');
+const { distanza } = require('../helpers/haversine');
+
+// Calcola addetti da contattare per un SOS (medico + resp_trasf + resp_ps + top N più vicini)
+async function calcolaAddettiPerSOS(idEvento, sosLat, sosLon, topN = 3) {
+  const result = await pool.query(
+    `SELECT a.id, a.ruolo, a.nome, a.cognome, a.telefono, a.nome_settore,
+            a.ultima_lat, a.ultima_lon, a.ultima_posizione_at,
+            ps.nome_ps,
+            CASE WHEN a.ultima_posizione_at IS NOT NULL
+                 AND a.ultima_posizione_at > NOW() - INTERVAL '10 minutes'
+                 THEN true ELSE false END AS online
+     FROM addetti a
+     LEFT JOIN prove_speciali ps ON a.id_ps = ps.id
+     WHERE a.id_evento = $1 AND a.attivo = TRUE`,
+    [idEvento]
+  );
+  const addetti = result.rows.map(a => {
+    let dist = null;
+    if (a.ultima_lat != null && a.ultima_lon != null && sosLat != null && sosLon != null) {
+      dist = Math.round(distanza(parseFloat(sosLat), parseFloat(sosLon),
+                                 parseFloat(a.ultima_lat), parseFloat(a.ultima_lon)));
+    }
+    return { ...a, distanza_m: dist };
+  });
+
+  const obbligatori = addetti.filter(a => a.ruolo === 'medico' || a.ruolo === 'resp_trasf' || a.ruolo === 'resp_ps');
+  const generici = addetti
+    .filter(a => a.ruolo === 'addetto' && a.distanza_m != null)
+    .sort((x, y) => x.distanza_m - y.distanza_m)
+    .slice(0, topN);
+  const genericiSenzaGps = addetti.filter(a => a.ruolo === 'addetto' && a.distanza_m == null).slice(0, Math.max(0, topN - generici.length));
+
+  return [...obbligatori, ...generici, ...genericiSenzaGps];
+}
 
 // SOS/EMERGENZA - Pilota invia emergenza
 router.post('/api/app/sos', async (req, res, next) => {
@@ -17,7 +51,8 @@ router.post('/api/app/sos', async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Codice gara non valido' });
     }
 
-    const codice_gara = eventiTrovati[0].codice_gara;
+    const evento = eventiTrovati[0];
+    const codice_gara = evento.codice_gara;
 
     let testoCompleto = testo || 'EMERGENZA SOS';
     if (telefono) testoCompleto += ` | Tel: ${telefono}`;
@@ -30,17 +65,48 @@ router.post('/api/app/sos', async (req, res, next) => {
 
     console.log(`SOS RICEVUTO: Pilota #${numero_pilota} - Gara ${codice_gara} - Tipo: ${tipo_emergenza || 'sos'}`);
 
+    // Routing addetti (attaccato alla risposta per DdG dashboard)
+    let addettiDaContattare = [];
+    try {
+      addettiDaContattare = await calcolaAddettiPerSOS(evento.id, gps_lat, gps_lon);
+    } catch (rErr) {
+      console.log('Routing addetti fallito (non bloccante):', rErr.message);
+    }
+
     try {
       await inviaPushADestinatari(codice_gara, 'ddg', `SOS Pilota #${numero_pilota}`, testoCompleto.substring(0, 100), '/');
     } catch (pushErr) {
       console.log('Push SOS failed (non bloccante):', pushErr.message);
     }
 
-    res.json({ success: true, messaggio: result.rows[0], alert: 'SOS inviato alla Direzione Gara' });
+    res.json({
+      success: true,
+      messaggio: result.rows[0],
+      addetti_contattare: addettiDaContattare,
+      alert: 'SOS inviato alla Direzione Gara'
+    });
   } catch (err) {
     console.error('[POST /api/app/sos] Error:', err.message);
     next(err);
   }
+});
+
+// GET addetti suggeriti per un SOS esistente (per dashboard DdG)
+router.get('/api/sos/:id_messaggio/addetti', async (req, res, next) => {
+  try {
+    const { id_messaggio } = req.params;
+    const msgRes = await pool.query(
+      `SELECT mp.*, e.id as id_evento
+       FROM messaggi_piloti mp
+       JOIN eventi e ON e.codice_gara = mp.codice_gara
+       WHERE mp.id = $1`,
+      [id_messaggio]
+    );
+    if (msgRes.rows.length === 0) return res.status(404).json({ error: 'Messaggio non trovato' });
+    const msg = msgRes.rows[0];
+    const addetti = await calcolaAddettiPerSOS(msg.id_evento, msg.gps_lat, msg.gps_lon);
+    res.json({ success: true, addetti });
+  } catch (err) { next(err); }
 });
 
 // DASHBOARD DDG MULTI-EVENTO

@@ -237,6 +237,32 @@ async function runMigrations() {
       CREATE INDEX IF NOT EXISTS idx_push_subs_ruolo ON push_subscriptions(ruolo);
     `);
 
+    // Addetti al percorso (medico, resp PS, resp trasferimenti, addetti generici)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS addetti (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        id_evento UUID NOT NULL REFERENCES eventi(id) ON DELETE CASCADE,
+        ruolo VARCHAR(20) NOT NULL DEFAULT 'addetto',
+        nome VARCHAR(100) NOT NULL,
+        cognome VARCHAR(100) NOT NULL,
+        telefono VARCHAR(30),
+        id_ps UUID REFERENCES prove_speciali(id) ON DELETE SET NULL,
+        nome_settore VARCHAR(100),
+        token VARCHAR(80) NOT NULL UNIQUE,
+        note TEXT,
+        ultima_lat DECIMAL(10, 8),
+        ultima_lon DECIMAL(11, 8),
+        ultima_posizione_at TIMESTAMP,
+        ultimo_accesso_at TIMESTAMP,
+        attivo BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_addetti_evento ON addetti(id_evento);
+      CREATE INDEX IF NOT EXISTS idx_addetti_ruolo ON addetti(ruolo);
+      CREATE INDEX IF NOT EXISTS idx_addetti_token ON addetti(token);
+    `);
+
     await client.query('COMMIT');
     console.log('[MIGRATIONS] Completate con successo');
   } catch (err) {

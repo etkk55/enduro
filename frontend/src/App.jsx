@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { useState, useEffect, lazy, Suspense } from 'react';
 import {
   LayoutDashboard, Calendar, Users, Settings, Radio, Activity, User,
-  MessageSquare, Bell, Download, LifeBuoy, Flag, Clock, Trophy, X
+  MessageSquare, Bell, Download, LifeBuoy, Flag, Clock, Trophy, X,
+  LifeBuoy as SafetyIcon
 } from 'lucide-react';
 import ErrorBoundary from './components/ErrorBoundary';
 import Sidebar from './components/Sidebar';
@@ -28,6 +29,7 @@ const HelpMiaGara = lazy(() => import('./pages/HelpMiaGara'));
 const Help = lazy(() => import('./pages/Help'));
 const MessaggiPiloti = lazy(() => import('./pages/MessaggiPiloti'));
 const SetupGaraFicr = lazy(() => import('./pages/SetupGaraFicr'));
+const Addetti = lazy(() => import('./pages/Addetti'));
 
 function PageLoader() {
   return (
@@ -73,6 +75,12 @@ const NAV_GROUPS = [
     items: [
       { to: '/comunicati', icon: MessageSquare, label: 'Comunicati' },
       { to: '/messaggi-piloti', icon: Bell, label: 'Messaggi Piloti' },
+    ],
+  },
+  {
+    label: 'Sicurezza',
+    items: [
+      { to: '/addetti', icon: SafetyIcon, label: 'Addetti al Percorso' },
     ],
   },
   {
@@ -247,6 +255,7 @@ export default function App() {
               <Route path="/comunicati" element={<Comunicati />} />
               <Route path="/messaggi-piloti" element={<MessaggiPiloti />} />
               <Route path="/setup-gara" element={<SetupGaraFicr />} />
+              <Route path="/addetti" element={<Addetti />} />
               <Route path="/import-ficr" element={<ImportFicr />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

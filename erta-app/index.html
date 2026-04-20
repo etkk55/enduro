@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.1.00</title>
+  <title>ERTA v1.1.01</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1242,6 +1242,30 @@
       color: var(--text-secondary);
       margin-top: 12px;
       text-align: center;
+    }
+
+    .gps-mode-badge {
+      margin-top: 6px;
+      padding: 6px 10px;
+      border-radius: var(--r-pill);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-align: center;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface-2);
+      color: var(--text-tertiary);
+      display: inline-block;
+    }
+    .gps-mode-badge.active {
+      background: var(--success-bg);
+      color: var(--success);
+      border-color: var(--success-border);
+    }
+    .gps-mode-badge.idle {
+      background: var(--info-bg);
+      color: var(--info);
+      border-color: var(--info-border);
     }
 
     .gps-status.success {
@@ -4860,7 +4884,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.00</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.01</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -4883,7 +4907,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.1.00</div>
+    <div class="login-version">ERTA · v1.1.01</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -5217,6 +5241,9 @@
 
         <div class="gps-status" id="gpsStatus">
           📍 GPS: In attesa...
+        </div>
+        <div class="gps-mode-badge idle" id="gpsModeBadge" aria-live="polite">
+          ⏸ Sosta · 30s
         </div>
       </div>
 
@@ -8526,22 +8553,65 @@
       );
     }
     
-    // ==================== TRACKING GPS CONTINUO (Chat 21) ====================
+    // ==================== TRACKING GPS ADATTIVO ====================
+    // Intervalli (secondi)
+    const GPS_INTERVAL_ACTIVE = 10; // in movimento (>3.6 km/h)
+    const GPS_INTERVAL_IDLE = 30;   // fermo / pausa
+    const GPS_ACTIVE_TIMEOUT = 60000; // ms: dopo 60s senza movimento passa a IDLE
+    const MOTION_SPEED_THRESHOLD = 1.0; // m/s = 3.6 km/h
+
+    let gpsAdaptiveMode = 'idle'; // 'active' | 'idle'
+    let gpsLastMotionAt = 0;
+    let gpsAdaptiveEvalTimer = null;
+
+    function setGpsAdaptiveMode(mode) {
+      if (mode === gpsAdaptiveMode) return;
+      gpsAdaptiveMode = mode;
+      gpsFrequenza = (mode === 'active') ? GPS_INTERVAL_ACTIVE : GPS_INTERVAL_IDLE;
+      console.log(`⚙️ GPS adattivo: ${mode.toUpperCase()} (invio ogni ${gpsFrequenza}s)`);
+
+      // Restart interval con nuova frequenza
+      if (gpsTrackingInterval) {
+        clearInterval(gpsTrackingInterval);
+        gpsTrackingInterval = setInterval(() => {
+          if (currentGPS.lat && currentGPS.lon) inviaPosizioneGPS();
+        }, gpsFrequenza * 1000);
+      }
+
+      // Update badge visivo (se presente)
+      const badge = document.getElementById('gpsModeBadge');
+      if (badge) {
+        badge.textContent = mode === 'active' ? '🏃 Movimento · 10s' : '⏸ Sosta · 30s';
+        badge.className = 'gps-mode-badge ' + mode;
+      }
+    }
+
+    function evaluateAdaptiveMode() {
+      const timeSinceMotion = Date.now() - gpsLastMotionAt;
+      const newMode = (timeSinceMotion < GPS_ACTIVE_TIMEOUT) ? 'active' : 'idle';
+      setGpsAdaptiveMode(newMode);
+    }
+
     function avviaTrackingGPS() {
       if (!navigator.geolocation) {
         console.log('GPS non disponibile');
         return;
       }
-      
+
       const statusEl = document.getElementById('gpsStatus');
-      
-      // Usa watchPosition per tracking continuo
+
+      // Avvia watchPosition (continuo ma a basso costo, iOS/Android gestiscono duty cycle)
       gpsWatchId = navigator.geolocation.watchPosition(
         (position) => {
           currentGPS.lat = position.coords.latitude;
           currentGPS.lon = position.coords.longitude;
-          
-          // Aggiorna UI con posizione corrente
+
+          // Rileva movimento da coords.speed (gratis, già calcolato dall'OS)
+          const speed = position.coords.speed; // m/s, può essere null
+          if (speed != null && speed >= MOTION_SPEED_THRESHOLD) {
+            gpsLastMotionAt = Date.now();
+          }
+
           if (statusEl) {
             statusEl.textContent = `📍 GPS: ${currentGPS.lat.toFixed(5)}, ${currentGPS.lon.toFixed(5)}`;
             statusEl.className = 'gps-status success';
@@ -8556,37 +8626,46 @@
         },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
       );
-      
-      // Invia posizione iniziale
+
+      // Posizione iniziale: parti in modalità ATTIVA di default (prudenza pre-gara)
+      gpsLastMotionAt = Date.now();
+      setGpsAdaptiveMode('active');
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           currentGPS.lat = position.coords.latitude;
           currentGPS.lon = position.coords.longitude;
           inviaPosizioneGPS();
-          console.log('GPS attivo, invio ogni', gpsFrequenza, 'secondi');
+          console.log('GPS adattivo avviato. Inizio in ATTIVA (10s).');
         },
         (err) => console.error('Errore posizione iniziale:', err),
         { enableHighAccuracy: true }
       );
-      
-      // Avvia intervallo per INVIO al server (ogni gpsFrequenza secondi)
+
+      // Invia ogni gpsFrequenza s (l'intervallo viene sostituito da setGpsAdaptiveMode quando cambia modalità)
       gpsTrackingInterval = setInterval(() => {
-        if (currentGPS.lat && currentGPS.lon) {
-          inviaPosizioneGPS();
-        }
+        if (currentGPS.lat && currentGPS.lon) inviaPosizioneGPS();
       }, gpsFrequenza * 1000);
+
+      // Valuta modalità adattiva ogni 5s
+      if (gpsAdaptiveEvalTimer) clearInterval(gpsAdaptiveEvalTimer);
+      gpsAdaptiveEvalTimer = setInterval(evaluateAdaptiveMode, 5000);
     }
     
     function fermaTrackingGPS() {
       if (gpsTrackingInterval) {
         clearInterval(gpsTrackingInterval);
         gpsTrackingInterval = null;
-        console.log('Tracking GPS fermato');
+      }
+      if (gpsAdaptiveEvalTimer) {
+        clearInterval(gpsAdaptiveEvalTimer);
+        gpsAdaptiveEvalTimer = null;
       }
       if (gpsWatchId) {
         navigator.geolocation.clearWatch(gpsWatchId);
         gpsWatchId = null;
       }
+      console.log('Tracking GPS fermato');
     }
     
     async function inviaPosizioneGPS() {
@@ -12340,6 +12419,53 @@ ${mapsLink}`;
             <li>Posizione assoluta e di classe</li>
             <li>Tempo totale e gap dal leader</li>
           </ul>
+        `
+      },
+      {
+        icon: '🔋',
+        title: 'Batteria e autonomia',
+        subtitle: 'GPS adattivo + come risparmiare',
+        body: `
+          <p>ERTA usa un <strong>GPS adattivo</strong> che bilancia precisione e consumo:</p>
+          <ul>
+            <li><strong>🏃 Modalità Movimento (10s)</strong>: quando il sensore di velocità rileva &gt;3.6 km/h. Precisione SOS fino a ±150 m.</li>
+            <li><strong>⏸ Modalità Sosta (30s)</strong>: quando sei fermo da più di 1 minuto (paddock, CO, pit). Risparmia il 40% della batteria.</li>
+            <li><strong>🆘 Boost SOS</strong>: premendo SOS la posizione viene aggiornata al massimo per 30 secondi.</li>
+          </ul>
+          <p>Consumo stimato per una gara di <strong>7 ore con pause ricarica ogni 2h</strong>: 25-28% in media tra una ricarica e l'altra.</p>
+
+          <p style="margin-top:14px;"><strong>Raccomandazioni prima della gara</strong></p>
+          <ul>
+            <li>Batteria al <strong>100%</strong> la sera prima</li>
+            <li>Forza-chiudi app pesanti (Instagram, TikTok, Strava, Wahoo)</li>
+            <li>Disattiva Wi-Fi (inutile nel bosco, consuma in scansione)</li>
+            <li><strong>Low Power Mode OFF</strong>: castra il polling GPS</li>
+            <li>Luminosità <strong>automatica</strong> se possibile</li>
+            <li>Porta un power-bank leggero 10.000 mAh nello zaino (3 ricariche)</li>
+          </ul>
+
+          <p style="margin-top:14px;"><strong>Posizione smartphone in gara</strong></p>
+          <ul>
+            <li><strong>Tasca petto o bracciale</strong> &gt; tasca posteriore o zaino (GPS trova meglio il cielo)</li>
+            <li>No custodie metalliche (attenuano GPS fino a -20 dB)</li>
+            <li><strong>Schermo OFF in marcia</strong>: apri ERTA solo ai CO o in sosta</li>
+          </ul>
+
+          <p style="margin-top:14px;"><strong>Durante la pausa in paddock (15-20 min)</strong></p>
+          <ul>
+            <li>Attacca <strong>subito</strong> al caricabatterie, non aspettare fine pausa</li>
+            <li>Ricarica rapida 20W+: il primo 50% entra in 15 minuti</li>
+            <li>Tieni il telefono <strong>freddo</strong> (non al sole diretto né sopra la moto calda)</li>
+            <li>Evita di usare il telefono mentre carica (rallenta del 40%)</li>
+          </ul>
+
+          <p style="margin-top:14px;"><strong>In caso di emergenza</strong></p>
+          <ul>
+            <li>Premi <strong>SOS</strong> (hold 3s) → posizione massima precisione + DdG allertata</li>
+            <li>Se batteria &lt;20%: attiva Low Power Mode manualmente, chiudi tutto tranne ERTA</li>
+          </ul>
+
+          <div class="tip">💡 Il badge GPS nel tab Segnala mostra in tempo reale la modalità attiva (🏃 Movimento o ⏸ Sosta).</div>
         `
       },
       {

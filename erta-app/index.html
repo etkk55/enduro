@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.1.06</title>
+  <title>ERTA v1.1.07</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5167,7 +5167,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.06</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.07</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -5190,7 +5190,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.1.06</div>
+    <div class="login-version">ERTA · v1.1.07</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -5647,73 +5647,6 @@
     <!-- Floating Action Button SOS (sempre visibile) -->
     <button class="sos-fab" onclick="showTab('segnala')" aria-label="SOS">🆘</button>
 
-    <!-- Sheet nuovo addetto DdG -->
-    <div class="popup-overlay" id="addettoFormSheet" onclick="if(event.target===this)chiudiFormAddetto()">
-      <div class="altro-sheet" onclick="event.stopPropagation()" style="max-width: 500px;">
-        <div class="altro-grip"></div>
-        <h3 style="margin-bottom: 14px; font-size: 16px;">➕ Nuovo addetto</h3>
-        <form id="formNuovoAddetto" onsubmit="event.preventDefault(); creaAddettoDaErta();">
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label>Ruolo</label>
-            <select id="nuovoAddettoRuolo" onchange="toggleCampoPS()" style="width:100%;padding:12px;background:var(--bg-surface-2);border:1px solid var(--border-default);border-radius:var(--r-md);color:var(--text-primary);font-size:15px;">
-              <option value="addetto">👷 Addetto</option>
-              <option value="medico">🩺 Medico di Gara</option>
-              <option value="resp_ps">🏁 Responsabile PS</option>
-              <option value="resp_trasf">🛣️ Responsabile Trasferimenti</option>
-            </select>
-          </div>
-          <div class="form-group" style="margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <div>
-              <label>Nome *</label>
-              <input type="text" id="nuovoAddettoNome" required>
-            </div>
-            <div>
-              <label>Cognome *</label>
-              <input type="text" id="nuovoAddettoCognome" required>
-            </div>
-          </div>
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label>Telefono</label>
-            <input type="tel" id="nuovoAddettoTelefono" placeholder="+39 347 1234567">
-          </div>
-          <div class="form-group" id="nuovoAddettoSettoreWrap" style="margin-bottom: 12px;">
-            <label id="nuovoAddettoSettoreLabel">Zona / Punto di presidio</label>
-            <input type="text" id="nuovoAddettoSettore" placeholder="Es. Bivio PS3 / Nord">
-          </div>
-          <div class="form-group" id="nuovoAddettoPsWrap" style="margin-bottom: 12px; display:none;">
-            <label>Prova Speciale</label>
-            <select id="nuovoAddettoPs" style="width:100%;padding:12px;background:var(--bg-surface-2);border:1px solid var(--border-default);border-radius:var(--r-md);color:var(--text-primary);font-size:15px;">
-              <option value="">— Seleziona PS —</option>
-            </select>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:16px;">
-            <button type="button" data-action="close-addetto-form" class="altro-logout" style="flex:1;background:var(--bg-surface-2);color:var(--text-secondary);">Annulla</button>
-            <button type="submit" data-action="submit-addetto" class="ddg-btn brand" id="btnSalvaAddetto" style="flex:2;">Crea e mostra QR</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Sheet QR code addetto -->
-    <div class="popup-overlay" id="addettoQrSheet" onclick="if(event.target===this)chiudiQrAddetto()">
-      <div class="altro-sheet" onclick="event.stopPropagation()" style="max-width: 420px; text-align: center;">
-        <div class="altro-grip"></div>
-        <h3 id="qrAddettoNome" style="font-size:18px;margin-bottom:4px;">—</h3>
-        <p id="qrAddettoRuolo" style="color:var(--text-tertiary);font-size:13px;margin-bottom:16px;">—</p>
-        <div style="background:#fff;padding:14px;border-radius:var(--r-md);margin-bottom:14px;display:inline-block;">
-          <img id="qrAddettoImg" alt="QR addetto" style="width:250px;height:250px;display:block;">
-        </div>
-        <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:14px;line-height:1.5;">
-          <strong>Fai scansionare questo codice</strong> all'addetto con la fotocamera del suo telefono. L'app si apre e si registra automaticamente.
-        </p>
-        <p id="qrAddettoUrl" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-tertiary);background:var(--bg-surface-2);padding:8px;border-radius:var(--r-sm);word-break:break-all;margin-bottom:14px;"></p>
-        <div style="display:flex;gap:8px;">
-          <button type="button" data-action="close-qr" class="ddg-btn" style="flex:1;background:var(--brand-500);">Fatto</button>
-          <button type="button" data-action="regen-qr" class="ddg-btn" style="background:var(--bg-surface-2);color:var(--text-secondary);border:1px solid var(--border-default);">🔄</button>
-        </div>
-      </div>
-    </div>
-
     <!-- Bottom Sheet "Altro" -->
     <div class="popup-overlay" id="altroSheet" onclick="if(event.target===this)toggleAltroSheet()">
       <div class="altro-sheet" onclick="event.stopPropagation()">
@@ -5839,6 +5772,73 @@
         to { transform: translateY(0); }
       }
     </style>
+  </div>
+
+  <!-- Sheet nuovo addetto DdG (FUORI da #app per funzionare anche con #app hidden) -->
+  <div class="popup-overlay" id="addettoFormSheet" onclick="if(event.target===this)chiudiFormAddetto()">
+    <div class="altro-sheet" onclick="event.stopPropagation()" style="max-width: 500px;">
+      <div class="altro-grip"></div>
+      <h3 style="margin-bottom: 14px; font-size: 16px;">➕ Nuovo addetto</h3>
+      <form id="formNuovoAddetto" onsubmit="event.preventDefault(); creaAddettoDaErta();">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>Ruolo</label>
+          <select id="nuovoAddettoRuolo" onchange="toggleCampoPS()" style="width:100%;padding:12px;background:var(--bg-surface-2);border:1px solid var(--border-default);border-radius:var(--r-md);color:var(--text-primary);font-size:15px;">
+            <option value="addetto">👷 Addetto</option>
+            <option value="medico">🩺 Medico di Gara</option>
+            <option value="resp_ps">🏁 Responsabile PS</option>
+            <option value="resp_trasf">🛣️ Responsabile Trasferimenti</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div>
+            <label>Nome *</label>
+            <input type="text" id="nuovoAddettoNome" required>
+          </div>
+          <div>
+            <label>Cognome *</label>
+            <input type="text" id="nuovoAddettoCognome" required>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>Telefono</label>
+          <input type="tel" id="nuovoAddettoTelefono" placeholder="+39 347 1234567">
+        </div>
+        <div class="form-group" id="nuovoAddettoSettoreWrap" style="margin-bottom: 12px;">
+          <label id="nuovoAddettoSettoreLabel">Zona / Punto di presidio</label>
+          <input type="text" id="nuovoAddettoSettore" placeholder="Es. Bivio PS3 / Nord">
+        </div>
+        <div class="form-group" id="nuovoAddettoPsWrap" style="margin-bottom: 12px; display:none;">
+          <label>Prova Speciale</label>
+          <select id="nuovoAddettoPs" style="width:100%;padding:12px;background:var(--bg-surface-2);border:1px solid var(--border-default);border-radius:var(--r-md);color:var(--text-primary);font-size:15px;">
+            <option value="">— Seleziona PS —</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button type="button" data-action="close-addetto-form" class="altro-logout" style="flex:1;background:var(--bg-surface-2);color:var(--text-secondary);">Annulla</button>
+          <button type="submit" data-action="submit-addetto" class="ddg-btn brand" id="btnSalvaAddetto" style="flex:2;">Crea e mostra QR</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sheet QR code addetto (FUORI da #app) -->
+  <div class="popup-overlay" id="addettoQrSheet" onclick="if(event.target===this)chiudiQrAddetto()">
+    <div class="altro-sheet" onclick="event.stopPropagation()" style="max-width: 420px; text-align: center;">
+      <div class="altro-grip"></div>
+      <h3 id="qrAddettoNome" style="font-size:18px;margin-bottom:4px;">—</h3>
+      <p id="qrAddettoRuolo" style="color:var(--text-tertiary);font-size:13px;margin-bottom:16px;">—</p>
+      <div style="background:#fff;padding:14px;border-radius:var(--r-md);margin-bottom:14px;display:inline-block;">
+        <img id="qrAddettoImg" alt="QR addetto" style="width:250px;height:250px;display:block;">
+      </div>
+      <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:14px;line-height:1.5;">
+        <strong>Fai scansionare questo codice</strong> all'addetto con la fotocamera del suo telefono. L'app si apre e si registra automaticamente.
+      </p>
+      <p id="qrAddettoUrl" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-tertiary);background:var(--bg-surface-2);padding:8px;border-radius:var(--r-sm);word-break:break-all;margin-bottom:14px;"></p>
+      <div style="display:flex;gap:8px;">
+        <button type="button" data-action="close-qr" class="ddg-btn" style="flex:1;background:var(--brand-500);">Fatto</button>
+        <button type="button" data-action="regen-qr" class="ddg-btn" style="background:var(--bg-surface-2);color:var(--text-secondary);border:1px solid var(--border-default);">🔄</button>
+      </div>
+    </div>
   </div>
 
   <!-- ==================== DASHBOARD DdG (redesigned) ==================== -->

@@ -3589,7 +3589,23 @@
       border-radius: var(--r-md);
       margin-bottom: 14px;
     }
-    .view-toggle-btn { font-size: 12px; padding: 10px 4px; }
+    .view-toggle-btn { font-size: 12px; padding: 10px 4px; position: relative; }
+    .view-toggle-btn.has-filter::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--danger);
+      border: 2px solid var(--bg-surface-2);
+      box-sizing: content-box;
+    }
+    .view-toggle-btn.active.has-filter::after {
+      border-color: var(--warning);
+      background: #fff;
+    }
     .view-toggle-btn {
       padding: 10px 6px;
       border: none;
@@ -4475,10 +4491,10 @@
       </div>
 
       <div id="filtriClassifica" class="filtri-row">
-        <select id="filtroClasse" onchange="caricaClassificaGenerale()" class="filtro-select">
+        <select id="filtroClasse" onchange="updateFilterIndicators(); caricaClassificaGenerale()" class="filtro-select">
           <option value="">Tutte le classi</option>
         </select>
-        <select id="filtroTeam" onchange="caricaClassificaGenerale()" class="filtro-select">
+        <select id="filtroTeam" onchange="updateFilterIndicators(); caricaClassificaGenerale()" class="filtro-select">
           <option value="">Tutti i MotoClub</option>
         </select>
       </div>
@@ -6923,6 +6939,7 @@
         }
         
         renderClassificaGenerale();
+        updateFilterIndicators();
         setUpdateTimestamp('lastUpdateClassifica');
         
       } catch (err) {
@@ -7004,6 +7021,16 @@
     }
 
     // ==================== CHAT 23: CLASSIFICA SQUADRE ====================
+    function updateFilterIndicators() {
+      const fc = document.getElementById('filtroClasse');
+      const ft = document.getElementById('filtroTeam');
+      const tC = document.getElementById('toggleClassi');
+      const tM = document.getElementById('toggleMotoClub');
+      if (tC) tC.classList.toggle('has-filter', !!(fc && fc.value));
+      if (tM) tM.classList.toggle('has-filter', !!(ft && ft.value));
+    }
+    window.updateFilterIndicators = updateFilterIndicators;
+
     function setVistaClassifica(vista) {
       if (typeof haptic === 'function') haptic(8);
       vistaClassifica = vista;

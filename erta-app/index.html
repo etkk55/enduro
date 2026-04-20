@@ -1848,6 +1848,104 @@
     }
     .ps-chip.none { color: var(--text-disabled); font-weight: 500; }
 
+    /* ==================== UNREAD COMUNICATI BANNER ==================== */
+    .unread-banner {
+      position: fixed;
+      top: calc(var(--safe-top) + 12px);
+      left: 12px;
+      right: 12px;
+      z-index: 150;
+      background: linear-gradient(135deg, var(--info) 0%, #1e40af 100%);
+      color: #fff;
+      border-radius: var(--r-lg);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 6px 20px rgba(59,130,246,0.4), 0 2px 6px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transform: translateY(calc(-100% - 20px));
+      opacity: 0;
+      transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms;
+      pointer-events: none;
+    }
+    .unread-banner.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+      animation: unreadPulse 2.4s ease-in-out 1s 2;
+    }
+    @keyframes unreadPulse {
+      0%, 100% { box-shadow: 0 6px 20px rgba(59,130,246,0.4), 0 2px 6px rgba(0,0,0,0.3); }
+      50% { box-shadow: 0 6px 28px rgba(59,130,246,0.7), 0 2px 10px rgba(0,0,0,0.4); }
+    }
+    .unread-banner:active { transform: translateY(0) scale(0.98); }
+    .unread-banner .icon {
+      font-size: 22px;
+      flex: 0 0 auto;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+    }
+    .unread-banner .body { flex: 1; min-width: 0; }
+    .unread-banner .count {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+    .unread-banner .sub {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 1px;
+    }
+    .unread-banner .arrow {
+      font-size: 18px;
+      opacity: 0.85;
+      flex: 0 0 auto;
+    }
+
+    /* Unread card treatment */
+    .comunicato-card.unread {
+      position: relative;
+      background: linear-gradient(135deg, var(--info-bg), var(--bg-surface)) !important;
+      border-color: var(--info) !important;
+      border-left-width: 4px !important;
+      box-shadow: 0 2px 8px rgba(59,130,246,0.25);
+    }
+    .comunicato-card.unread::before {
+      content: 'NUOVO';
+      position: absolute;
+      top: -8px;
+      right: 12px;
+      background: var(--info);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: var(--r-pill);
+      box-shadow: 0 2px 6px rgba(59,130,246,0.5);
+    }
+    .comunicato-card.unread::after {
+      content: '';
+      position: absolute;
+      top: 18px;
+      right: 14px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--info);
+      box-shadow: 0 0 0 0 rgba(59,130,246,0.5);
+      animation: unreadDot 2s ease-in-out infinite;
+    }
+    @keyframes unreadDot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.5); }
+      50% { box-shadow: 0 0 0 6px rgba(59,130,246,0); }
+    }
+    .comunicato-card.clickable {
+      cursor: pointer;
+      transition: transform 150ms;
+    }
+    .comunicato-card.clickable:active { transform: scale(0.98); }
+
     /* ==================== NETWORK STATUS + PULL TO REFRESH ==================== */
     .net-banner {
       position: fixed;
@@ -4071,6 +4169,16 @@
   <!-- Network status banner (hidden by default) -->
   <div id="netBanner" class="net-banner" role="status" aria-live="polite">
     <span class="dot"></span><span id="netBannerText">Senza connessione · dati in cache</span>
+  </div>
+
+  <!-- Unread comunicati banner (sticky, always visible until read) -->
+  <div id="unreadBanner" class="unread-banner" role="alert" onclick="openComunicatiFromBanner()">
+    <div class="icon">📢</div>
+    <div class="body">
+      <div class="count" id="unreadBannerCount">1 nuovo comunicato</div>
+      <div class="sub">Tocca per leggere</div>
+    </div>
+    <div class="arrow">→</div>
   </div>
 
   <!-- Pull-to-refresh indicator -->
@@ -6339,11 +6447,86 @@
       return s;
     }
     
+    // ==================== READ STATE (Comunicati non letti) ====================
+    const READ_KEY = 'erta_comunicati_letti';
+    let _lastLoadedComunicati = [];  // array di {id, tipo} per recompute banner
+
+    function getReadSet() {
+      try { return new Set(JSON.parse(localStorage.getItem(READ_KEY) || '[]')); }
+      catch (e) { return new Set(); }
+    }
+    function saveReadSet(set) {
+      try { localStorage.setItem(READ_KEY, JSON.stringify([...set])); }
+      catch (e) {}
+    }
+    function markComunicatoRead(id) {
+      if (!id) return;
+      const s = getReadSet();
+      if (s.has(String(id))) return;
+      s.add(String(id));
+      saveReadSet(s);
+      // Rimuovi highlight visivo della card
+      const card = document.querySelector(`.comunicato-card[data-cid="${id}"]`);
+      if (card) {
+        card.classList.remove('unread', 'clickable');
+        card.removeAttribute('onclick');
+      }
+      updateUnreadSurfaces();
+      if (typeof haptic === 'function') haptic(12);
+    }
+    window.markComunicatoRead = markComunicatoRead;
+
+    // Marca letto solo se il tap non era su un elemento interattivo (link PDF)
+    function onComunicatoTap(id, ev) {
+      if (!ev) return markComunicatoRead(id);
+      const target = ev.target;
+      if (target.closest('.comunicato-pdf, a, button')) return;
+      markComunicatoRead(id);
+    }
+    window.onComunicatoTap = onComunicatoTap;
+
+    function getUnreadCount() {
+      const read = getReadSet();
+      return _lastLoadedComunicati.filter(c => !read.has(String(c.id))).length;
+    }
+
+    function updateUnreadSurfaces() {
+      const count = getUnreadCount();
+      // Banner
+      const banner = document.getElementById('unreadBanner');
+      const label = document.getElementById('unreadBannerCount');
+      if (banner && label) {
+        if (count > 0) {
+          label.textContent = count === 1 ? '1 nuovo comunicato' : `${count} nuovi comunicati`;
+          banner.classList.add('show');
+        } else {
+          banner.classList.remove('show');
+        }
+      }
+      // Badge su tab Comunicati
+      const badge = document.getElementById('badgeComunicati');
+      if (badge) {
+        if (count > 0) {
+          badge.textContent = count > 99 ? '99+' : count;
+          badge.style.display = '';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+    window.updateUnreadSurfaces = updateUnreadSurfaces;
+
+    function openComunicatiFromBanner() {
+      if (typeof haptic === 'function') haptic(10);
+      showTab('comunicati');
+      showDocPilotaTab && showDocPilotaTab('comunicato');
+    }
+    window.openComunicatiFromBanner = openComunicatiFromBanner;
+
     async function loadComunicati() {
       if (!currentUser) return;
 
       try {
-        // Carica tutti e 3 i tipi di documenti
         const tipi = ['comunicato', 'general_info', 'paddock_info'];
         const containers = {
           'comunicato': 'comunicatiList',
@@ -6355,23 +6538,34 @@
           'general_info': { bg: '#1e4d3a', border: '#22c55e', text: '#4ade80', prefix: 'GEN' },
           'paddock_info': { bg: '#4d3a1e', border: '#f59e0b', text: '#fbbf24', prefix: 'PAD' }
         };
-        
+
+        // Reset lista per ricalcolare unread
+        const collected = [];
+
         for (const tipo of tipi) {
           const response = await fetch(`${API_BASE}/api/app/comunicati/${currentUser.codice}?tipo=${tipo}`);
           const data = await response.json();
-          
+
           if (data.success) {
-            renderDocumentiPilota(tipo, data.comunicati || [], containers[tipo], colors[tipo]);
+            const docs = data.comunicati || [];
+            // Includi solo i comunicati DdG nel conteggio unread (non info generali)
+            if (tipo === 'comunicato') {
+              docs.forEach(c => collected.push({ id: c.id, tipo }));
+            }
+            renderDocumentiPilota(tipo, docs, containers[tipo], colors[tipo]);
           }
         }
-        
+
+        _lastLoadedComunicati = collected;
+        updateUnreadSurfaces();
+
         setUpdateTimestamp('lastUpdateComunicati');
 
       } catch (err) {
         console.error('Errore caricamento documenti:', err);
       }
     }
-    
+
     function renderDocumentiPilota(tipo, documenti, containerId, colori) {
       const container = document.getElementById(containerId);
       if (!container) return;
@@ -6386,16 +6580,24 @@
         return;
       }
 
-      container.innerHTML = documenti.map(c => `
-        <div class="comunicato-card" style="border-left: 4px solid ${colori.border};">
-          <div class="comunicato-header">
-            <span class="comunicato-numero" style="color: ${colori.text};">${colori.prefix} #${c.numero}</span>
-            <span class="comunicato-ora">🕒 ${formatOraHHMMSS(c.ora)}</span>
+      const read = getReadSet();
+
+      container.innerHTML = documenti.map(c => {
+        const isUnread = tipo === 'comunicato' && !read.has(String(c.id));
+        const cls = ['comunicato-card'];
+        if (isUnread) { cls.push('unread', 'clickable'); }
+        const clickAttr = isUnread ? `onclick="onComunicatoTap('${c.id}', event)"` : '';
+        return `
+          <div class="${cls.join(' ')}" data-cid="${c.id}" ${clickAttr} style="border-left: 4px solid ${colori.border};">
+            <div class="comunicato-header">
+              <span class="comunicato-numero" style="color: ${colori.text};">${colori.prefix} #${c.numero}</span>
+              <span class="comunicato-ora">🕒 ${formatOraHHMMSS(c.ora)}</span>
+            </div>
+            <div class="comunicato-testo">${c.testo || ''}</div>
+            ${c.ha_pdf ? `<a class="comunicato-pdf" onclick="event.stopPropagation(); openAllegato('${c.id}', '${c.pdf_nome || ''}')" style="color: ${colori.text}; border-color: ${colori.border};">📎 Apri Allegato</a>` : ''}
           </div>
-          <div class="comunicato-testo">${c.testo || ''}</div>
-          ${c.ha_pdf ? `<a class="comunicato-pdf" onclick="openAllegato('${c.id}', '${c.pdf_nome || ''}')" style="color: ${colori.text}; border-color: ${colori.border};">📎 Apri Allegato</a>` : ''}
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function renderComunicati(comunicati) {

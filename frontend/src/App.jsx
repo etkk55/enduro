@@ -179,7 +179,15 @@ function AppLayout({ children, onOpenPalette }) {
     <div className="min-h-screen bg-base text-content-primary">
       {/* Desktop sidebar */}
       <div className="hidden lg:block">
-        <Sidebar groups={NAV_GROUPS} collapsed={collapsed} />
+        <Sidebar
+          groups={NAV_GROUPS}
+          collapsed={collapsed}
+          footer={(isCollapsed) => (
+            <div className={cn('text-xs text-content-tertiary font-mono', isCollapsed ? 'text-center' : 'px-2')}>
+              v1.1.00
+            </div>
+          )}
+        />
       </div>
 
       {/* Mobile drawer */}

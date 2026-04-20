@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.1.03</title>
+  <title>ERTA v1.1.04</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2580,14 +2580,14 @@
     /* Lista addetti nel DdG Admin */
     .ddg-addetto-row {
       display: grid;
-      grid-template-columns: 40px 1fr auto;
+      grid-template-columns: 40px 1fr;
       align-items: center;
       gap: 10px;
-      padding: 10px 12px;
+      padding: 12px;
       background: var(--bg-surface-2);
       border: 1px solid var(--border-subtle);
       border-radius: var(--r-md);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     .ddg-addetto-row.online { border-left: 3px solid var(--success); }
     .ddg-addetto-row.offline { opacity: 0.75; }
@@ -2619,26 +2619,37 @@
       animation: unreadDot 1.8s ease-in-out infinite;
     }
     .ddg-addetto-actions {
-      display: flex;
-      gap: 6px;
-      align-items: center;
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border-subtle);
     }
     .ddg-addetto-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 38px;
-      height: 38px;
+      gap: 6px;
+      padding: 10px 8px;
+      min-height: 44px;
       border-radius: var(--r-md);
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
       text-decoration: none;
       cursor: pointer;
-      font-size: 16px;
+      border: none;
+      color: #fff;
+      background: var(--bg-surface-3);
+      transition: transform 120ms, filter 120ms;
     }
-    .ddg-addetto-btn.call { background: var(--success); color: #fff; border-color: var(--success); }
-    .ddg-addetto-btn.map { background: var(--info); color: #fff; border-color: var(--info); }
+    .ddg-addetto-btn:active { transform: scale(0.97); filter: brightness(1.15); }
+    .ddg-addetto-btn.qr { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+    .ddg-addetto-btn.call { background: linear-gradient(135deg, var(--success), #047857); }
+    .ddg-addetto-btn.map { background: linear-gradient(135deg, var(--info), #1e40af); }
+    .ddg-addetto-btn.disabled { opacity: 0.4; pointer-events: none; background: var(--bg-surface-3); }
 
     .ddg-footer {
       position: fixed;
@@ -5156,7 +5167,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.03</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.04</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -5179,7 +5190,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.1.03</div>
+    <div class="login-version">ERTA · v1.1.04</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -5979,12 +5990,12 @@
 
       <!-- ============ TAB 3: ADMIN (accordion) ============ -->
       <section class="ddg-pane" id="ddgPaneAdmin">
-        <details class="ddg-accord" open onclick="setTimeout(loadDdgAddetti, 50)">
+        <details class="ddg-accord" open ontoggle="if(this.open)loadDdgAddetti()">
           <summary><span class="ico">👷</span>Team Addetti<span class="caret">▶</span></summary>
           <div class="body">
             <p class="ddg-help">Medici, responsabili e addetti al percorso. Usa "Nuovo addetto" durante il briefing per generare il QR che l'addetto scansionerà col proprio telefono.</p>
-            <button onclick="mostraFormNuovoAddetto()" class="ddg-btn brand" style="width:100%; margin-bottom:14px;">
-              ➕ Nuovo addetto
+            <button type="button" onclick="event.stopPropagation(); mostraFormNuovoAddetto();" class="ddg-btn brand" style="width:100%; margin-bottom:14px; padding:14px; font-size:15px; min-height:48px;">
+              ➕ Nuovo addetto · Genera QR
             </button>
             <div id="ddgAddettiList"><div class="ddg-empty">Caricamento…</div></div>
           </div>
@@ -11187,6 +11198,12 @@
         const mapUrl = (a.ultima_lat != null && a.ultima_lon != null)
           ? `https://www.google.com/maps?q=${a.ultima_lat},${a.ultima_lon}`
           : null;
+        const callBtn = a.telefono
+          ? `<a class="ddg-addetto-btn call" href="tel:${esc(a.telefono)}">📞 Chiama</a>`
+          : `<span class="ddg-addetto-btn disabled">📞 Chiama</span>`;
+        const mapBtn = mapUrl
+          ? `<a class="ddg-addetto-btn map" href="${mapUrl}" target="_blank" rel="noopener">🗺️ Mappa</a>`
+          : `<span class="ddg-addetto-btn disabled">🗺️ Mappa</span>`;
         return `
           <div class="ddg-addetto-row ${a.online ? 'online' : 'offline'}">
             <div class="ddg-addetto-ico">${ico}</div>
@@ -11195,9 +11212,9 @@
               <div class="ddg-addetto-ruolo">${ruoloLbl} ${settore} ${online}</div>
             </div>
             <div class="ddg-addetto-actions">
-              <button class="ddg-addetto-btn" onclick="mostraQrAddettoById('${a.id}')" title="Mostra QR">📱</button>
-              ${a.telefono ? `<a class="ddg-addetto-btn call" href="tel:${esc(a.telefono)}" title="Chiama ${esc(a.telefono)}">📞</a>` : ''}
-              ${mapUrl ? `<a class="ddg-addetto-btn map" href="${mapUrl}" target="_blank" rel="noopener" title="Apri mappa">🗺️</a>` : ''}
+              <button class="ddg-addetto-btn qr" onclick="event.stopPropagation(); mostraQrAddettoById('${a.id}')">📱 QR</button>
+              ${callBtn}
+              ${mapBtn}
             </div>
           </div>`;
       }).join('');

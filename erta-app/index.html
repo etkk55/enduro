@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.0.5-p36</title>
+  <title>ERTA v1.1.00</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4860,7 +4860,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.0.5-p36</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.00</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -4883,7 +4883,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.0.5-p36</div>
+    <div class="login-version">ERTA · v1.1.00</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -5629,6 +5629,17 @@
               <button onclick="recuperaPIN()" class="ddg-btn warn">Cerca</button>
             </div>
             <div id="pinResult" class="ddg-result" style="display: none;"></div>
+          </div>
+        </details>
+
+        <details class="ddg-accord" onclick="setTimeout(renderMsgHistory, 50)">
+          <summary><span class="ico">📜</span>Log storico messaggi<span class="caret">▶</span></summary>
+          <div class="body">
+            <p class="ddg-help">Messaggi visti ed eliminati, con data e azione. Solo locale al dispositivo.</p>
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+              <button onclick="clearMsgHistory()" class="ddg-btn" style="background:var(--bg-surface-2); color:var(--danger); border:1px solid var(--danger-border); padding:8px 14px; font-size:13px;">Svuota log</button>
+            </div>
+            <div id="msgHistoryList"><div class="ddg-empty">Nessuna azione registrata</div></div>
           </div>
         </details>
 
@@ -10682,65 +10693,75 @@
         const mappingRes = await fetch(`${API_BASE}/api/codici-gara`);
         const mappings = await mappingRes.json();
         
-        // Crea mappa FICR → FMI
+        // Crea mappa FICR → FMI (case-insensitive)
         const mappingByFicr = {};
-        mappings.forEach(m => {
-          if (!mappingByFicr[m.codice_ficr]) {
-            mappingByFicr[m.codice_ficr] = [];
-          }
-          mappingByFicr[m.codice_ficr].push(m);
+        (mappings || []).forEach(m => {
+          const key = (m.codice_ficr || '').toUpperCase();
+          if (!mappingByFicr[key]) mappingByFicr[key] = [];
+          mappingByFicr[key].push(m);
         });
         
+        let html = '';
+
+        // Sezione 1: tutti i mapping già configurati (dal backend, sempre mostrati)
+        if (mappings && mappings.length > 0) {
+          html += `<h5 style="font-size:12px; font-weight:700; color:var(--text-tertiary); letter-spacing:0.08em; text-transform:uppercase; margin:4px 0 10px;">✅ Associazioni attive (${mappings.length})</h5>`;
+          html += '<div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">';
+          mappings.forEach(m => {
+            html += `
+              <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg-surface-2); border:1px solid var(--success-border); border-left:3px solid var(--success); border-radius:var(--r-md);">
+                <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--info); font-size:13px;">${m.codice_ficr || ''}</span>
+                <span style="color:var(--text-tertiary); font-size:11px;">→</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:#a855f7; font-size:13px;">${m.codice_fmi || ''}</span>
+                ${m.descrizione ? `<span style="font-size:11px; color:var(--text-tertiary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">· ${m.descrizione}</span>` : '<span style="flex:1;"></span>'}
+                <button onclick="eliminaMapping(${m.id}, '${(m.codice_fmi||'').replace(/'/g,"\\'")}', '${(m.codice_ficr||'').replace(/'/g,"\\'")}')" style="background:transparent; border:none; color:var(--danger); cursor:pointer; font-size:14px; padding:4px 8px; flex-shrink:0;" aria-label="Elimina">✕</button>
+              </div>`;
+          });
+          html += '</div>';
+        }
+
         if (eventi.length === 0) {
-          container.innerHTML = `
-            <div style="text-align: center; color: #888; padding: 20px;">
-              Nessun evento importato.<br>
-              <small>Importa prima le gare da FICR.</small>
-            </div>`;
+          if (!mappings || mappings.length === 0) {
+            html = `
+              <div class="ddg-empty">
+                Nessun evento importato.<br>
+                <small style="color:var(--text-tertiary);">Importa prima le gare da FICR.</small>
+              </div>`;
+          }
+          container.innerHTML = html;
           return;
         }
-        
-        let html = '';
-        eventi.forEach(ev => {
+
+        // Sezione 2: eventi senza mapping (richiedono configurazione)
+        const eventiSenzaMapping = eventi.filter(ev => {
+          const codFicr = (ev.codice_gara || '').toUpperCase();
+          return !mappingByFicr[codFicr];
+        });
+        if (eventiSenzaMapping.length > 0) {
+          html += `<h5 style="font-size:12px; font-weight:700; color:var(--warning); letter-spacing:0.08em; text-transform:uppercase; margin:16px 0 10px;">⚠️ Da configurare (${eventiSenzaMapping.length})</h5>`;
+        }
+
+        eventiSenzaMapping.forEach(ev => {
           const codFicr = ev.codice_gara || '';
-          const mapping = mappingByFicr[codFicr.toUpperCase()] || [];
-          const haMapping = mapping.length > 0;
-          
           html += `
-            <div style="background: #1e293b; border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 4px solid ${haMapping ? '#22c55e' : '#f59e0b'};">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <div>
-                  <span style="color: #60a5fa; font-weight: bold; font-size: 15px;">${codFicr}</span>
-                  <span style="color: #888; margin-left: 8px; font-size: 12px;">${ev.nome_evento || ''}</span>
+            <div style="background: var(--bg-surface); border:1px solid var(--warning-border); border-left:3px solid var(--warning); border-radius: var(--r-md); padding: 12px; margin-bottom: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap:8px;">
+                <div style="min-width:0; flex:1;">
+                  <div style="font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--info); font-size:14px;">${codFicr}</div>
+                  <div style="color:var(--text-tertiary); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${ev.nome_evento || ''}</div>
                 </div>
-                <span style="font-size: 11px; color: ${haMapping ? '#22c55e' : '#f59e0b'};">
-                  ${haMapping ? '✓ Configurato' : '⚠️ Manca FMI'}
-                </span>
+                <span style="font-size: 11px; color: var(--warning); font-weight:700;">⚠️ Manca FMI</span>
               </div>
-              
-              ${haMapping ? `
-                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                  ${mapping.map(m => `
-                    <div style="display: inline-flex; align-items: center; background: #0f172a; border-radius: 6px; padding: 6px 10px;">
-                      <span style="color: #a855f7; font-weight: bold; margin-right: 8px;">${m.codice_fmi}</span>
-                      ${m.descrizione ? `<span style="color: #6b7280; font-size: 11px; margin-right: 8px;">${m.descrizione}</span>` : ''}
-                      <button onclick="eliminaMapping(${m.id}, '${m.codice_fmi}', '${m.codice_ficr}')" 
-                        style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px; padding: 0;">✕</button>
-                    </div>
-                  `).join('')}
-                </div>
-              ` : `
-                <div style="display: flex; gap: 6px; align-items: center;">
-                  <input type="text" class="fmi-input" data-evento="${ev.id}" data-ficr="${codFicr}" placeholder="FMI" 
-                    style="width: 90px; padding: 8px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 13px; text-transform: uppercase;" maxlength="10">
-                  <input type="text" class="desc-input" data-evento="${ev.id}" placeholder="Descrizione" 
-                    style="flex: 1; min-width: 80px; padding: 8px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 13px;">
-                  <button class="salva-mapping-btn" data-evento="${ev.id}" data-ficr="${codFicr}"
-                    style="padding: 8px 12px; background: #22c55e; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; white-space: nowrap;">
-                    ✓ Salva
-                  </button>
-                </div>
-              `}
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <input type="text" class="fmi-input" data-evento="${ev.id}" data-ficr="${codFicr}" placeholder="FMI"
+                  class="ddg-input" style="width: 90px; padding: 8px; border-radius: var(--r-sm); border: 1px solid var(--border-default); background: var(--bg-surface-2); color: var(--text-primary); font-size: 13px; text-transform: uppercase; font-family:'JetBrains Mono',monospace;" maxlength="10">
+                <input type="text" class="desc-input" data-evento="${ev.id}" placeholder="Descrizione"
+                  style="flex: 1; min-width: 80px; padding: 8px; border-radius: var(--r-sm); border: 1px solid var(--border-default); background: var(--bg-surface-2); color: var(--text-primary); font-size: 13px;">
+                <button class="salva-mapping-btn" data-evento="${ev.id}" data-ficr="${codFicr}"
+                  style="padding: 8px 12px; background: var(--success); color: white; border: none; border-radius: var(--r-sm); font-weight: 700; cursor: pointer; font-size: 12px; white-space: nowrap;">
+                  ✓ Salva
+                </button>
+              </div>
             </div>`;
         });
         
@@ -11035,6 +11056,9 @@
       const container = document.getElementById('ddgAllarmiTab');
       if (!container) return;
 
+      // Cache per snapshot al momento dell'azione (log storico)
+      _currentMessaggi = messaggi || [];
+
       // Aggiorna counter top (SOS non letti + msg totali non letti)
       if (typeof updateDdgCounters === 'function') {
         const urgenti = messaggi.filter(m => (m.tipo === 'sos') && !m.letto).length;
@@ -11126,6 +11150,78 @@
       `}).join('');
     }
     
+    // ==================== LOG STORICO MESSAGGI DdG ====================
+    const MSG_LOG_KEY = 'erta_ddg_msg_log';
+    const MSG_LOG_MAX = 200;
+    let _currentMessaggi = []; // cache dei messaggi correnti per snapshot al momento dell'azione
+
+    function logMsgAction(msgId, action) {
+      try {
+        const msg = _currentMessaggi.find(m => String(m.id) === String(msgId));
+        if (!msg) return;
+        const log = JSON.parse(localStorage.getItem(MSG_LOG_KEY) || '[]');
+        log.unshift({
+          id: msg.id,
+          tipo: msg.tipo,
+          numero_pilota: msg.numero_pilota,
+          cognome: msg.cognome || '',
+          nome: msg.nome || '',
+          codice_gara: msg.codice_gara,
+          testo: msg.testo || '',
+          gps_lat: msg.gps_lat,
+          gps_lon: msg.gps_lon,
+          created_at: msg.created_at,
+          action,
+          action_at: new Date().toISOString()
+        });
+        if (log.length > MSG_LOG_MAX) log.length = MSG_LOG_MAX;
+        localStorage.setItem(MSG_LOG_KEY, JSON.stringify(log));
+      } catch (e) { /* quota */ }
+    }
+    window.logMsgAction = logMsgAction;
+
+    function renderMsgHistory() {
+      const container = document.getElementById('msgHistoryList');
+      if (!container) return;
+      const log = JSON.parse(localStorage.getItem(MSG_LOG_KEY) || '[]');
+      if (log.length === 0) {
+        container.innerHTML = '<div class="ddg-empty">Nessuna azione registrata</div>';
+        return;
+      }
+      const tipoIco = { sos: '🆘', pericolo: '⚠️', assistenza: '🔧', info: 'ℹ️', altro: '💬' };
+      const actionLabel = { visto: { txt: '👁 VISTO', color: 'var(--success)' }, eliminato: { txt: '🗑 ELIMINATO', color: 'var(--danger)' } };
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      container.innerHTML = log.map(e => {
+        const ico = tipoIco[e.tipo] || '💬';
+        const act = actionLabel[e.action] || { txt: e.action, color: 'var(--text-tertiary)' };
+        const when = new Date(e.action_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const gpsLink = (e.gps_lat != null && e.gps_lon != null)
+          ? `<a href="https://www.google.com/maps?q=${e.gps_lat},${e.gps_lon}" target="_blank" style="color:var(--info); font-size:11px; margin-left:6px;">📍 GPS</a>`
+          : '';
+        return `
+          <div style="background:var(--bg-surface-2); border:1px solid var(--border-subtle); border-left:3px solid ${act.color}; border-radius:var(--r-sm); padding:10px 12px; margin-bottom:6px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px;">
+              <div style="font-size:13px; font-weight:700; color:var(--text-primary);">
+                ${ico} #${esc(e.numero_pilota)} ${esc(e.cognome)} ${esc(e.nome)}
+              </div>
+              <span style="font-size:10px; font-weight:800; color:${act.color}; letter-spacing:0.06em;">${act.txt}</span>
+            </div>
+            ${e.testo ? `<div style="font-size:12px; color:var(--text-secondary); margin-bottom:4px; line-height:1.4;">${esc(e.testo)}</div>` : ''}
+            <div style="font-size:11px; color:var(--text-tertiary); font-family:'JetBrains Mono',monospace;">
+              ${esc(e.codice_gara || '')} · ${when}${gpsLink}
+            </div>
+          </div>`;
+      }).join('');
+    }
+    window.renderMsgHistory = renderMsgHistory;
+
+    function clearMsgHistory() {
+      if (!confirm('Svuotare il log storico? (azione non reversibile)')) return;
+      localStorage.removeItem(MSG_LOG_KEY);
+      renderMsgHistory();
+    }
+    window.clearMsgHistory = clearMsgHistory;
+
     // Funzioni azioni allarmi
     async function segnaVistoAllarme(msgId) {
       try {
@@ -11135,13 +11231,14 @@
           body: JSON.stringify({ letto: true })
         });
         if (response.ok) {
+          logMsgAction(msgId, 'visto');
           loadDdGData(); // Ricarica per aggiornare UI
         }
       } catch (err) {
         console.error('Errore segna visto:', err);
       }
     }
-    
+
     async function eliminaAllarme(msgId) {
       if (!confirm('Eliminare questo allarme?')) return;
       try {
@@ -11149,6 +11246,7 @@
           method: 'DELETE'
         });
         if (response.ok) {
+          logMsgAction(msgId, 'eliminato');
           loadDdGData(); // Ricarica per aggiornare UI
         }
       } catch (err) {

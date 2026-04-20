@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const pool = require('../db/pool');
 const { cercaEventoPerCodice } = require('../helpers/transcodification');
-const { inviaPushADestinatari } = require('../helpers/pushNotifications');
+const { inviaPushADestinatari, inviaPushAdAddetto } = require('../helpers/pushNotifications');
 const { distanza } = require('../helpers/haversine');
 
 // Calcola addetti da contattare per un SOS (medico + resp_trasf + resp_ps + top N più vicini)
@@ -73,10 +73,46 @@ router.post('/api/app/sos', async (req, res, next) => {
       console.log('Routing addetti fallito (non bloccante):', rErr.message);
     }
 
+    // Push al DdG (già esistente)
     try {
       await inviaPushADestinatari(codice_gara, 'ddg', `SOS Pilota #${numero_pilota}`, testoCompleto.substring(0, 100), '/');
     } catch (pushErr) {
       console.log('Push SOS failed (non bloccante):', pushErr.message);
+    }
+
+    // Nome pilota per alert
+    let pilotaNome = null;
+    try {
+      const pr = await pool.query(
+        `SELECT nome, cognome FROM piloti WHERE numero_gara = $1 AND id_evento = $2 LIMIT 1`,
+        [parseInt(numero_pilota), evento.id]
+      );
+      if (pr.rows.length > 0) {
+        pilotaNome = `${pr.rows[0].cognome || ''} ${pr.rows[0].nome || ''}`.trim();
+      }
+    } catch (e) {}
+
+    // Salva alert per ogni addetto + invia push
+    const idMessaggio = result.rows[0].id;
+    for (const a of addettiDaContattare) {
+      try {
+        await pool.query(
+          `INSERT INTO addetti_alerts (id_addetto, id_messaggio, tipo, testo, pilota_numero, pilota_nome, gps_lat, gps_lon, distanza_m)
+           VALUES ($1, $2, 'sos', $3, $4, $5, $6, $7, $8)`,
+          [a.id, idMessaggio, testoCompleto, parseInt(numero_pilota), pilotaNome, gps_lat || null, gps_lon || null, a.distanza_m || null]
+        );
+        const distTxt = a.distanza_m != null ? ` · ${a.distanza_m}m` : '';
+        const nomeTxt = pilotaNome ? ` ${pilotaNome}` : '';
+        await inviaPushAdAddetto(
+          a.id,
+          `🆘 SOS Pilota #${numero_pilota}${nomeTxt}`,
+          `${testoCompleto.substring(0, 80)}${distTxt}`,
+          '/',
+          { tipo: 'sos', id_messaggio: idMessaggio, gps_lat, gps_lon }
+        );
+      } catch (e) {
+        console.log(`Alert/push addetto ${a.id} fallito:`, e.message);
+      }
     }
 
     res.json({

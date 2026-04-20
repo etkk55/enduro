@@ -77,4 +77,39 @@ async function inviaPushADestinatari(codiceGara, ruoloDestinatario, titolo, mess
   }
 }
 
-module.exports = { inviaPushADestinatari };
+// Funzione: Invia push a uno specifico addetto tramite id
+async function inviaPushAdAddetto(idAddetto, titolo, messaggio, url, data) {
+  if (!config.VAPID_PUBLIC_KEY || !config.VAPID_PRIVATE_KEY) return { sent: 0, failed: 0 };
+  try {
+    const subs = await pool.query(
+      'SELECT * FROM push_subscriptions WHERE id_addetto = $1',
+      [idAddetto]
+    );
+    let sent = 0, failed = 0;
+    for (const sub of subs.rows) {
+      const pushSubscription = { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } };
+      const payload = JSON.stringify({
+        title: titolo,
+        body: messaggio,
+        url: url || '/',
+        data: data || {},
+        timestamp: Date.now()
+      });
+      try {
+        await webpush.sendNotification(pushSubscription, payload);
+        sent++;
+      } catch (err) {
+        failed++;
+        if (err.statusCode === 410) {
+          await pool.query('DELETE FROM push_subscriptions WHERE id = $1', [sub.id]);
+        }
+      }
+    }
+    return { sent, failed };
+  } catch (err) {
+    console.error('Errore push addetto:', err);
+    return { sent: 0, failed: 0 };
+  }
+}
+
+module.exports = { inviaPushADestinatari, inviaPushAdAddetto };

@@ -237,6 +237,13 @@ async function runMigrations() {
       CREATE INDEX IF NOT EXISTS idx_push_subs_ruolo ON push_subscriptions(ruolo);
     `);
 
+    // Aggiunge id_addetto a push_subscriptions per notifiche mirate ai marshalls
+    await client.query(`
+      ALTER TABLE push_subscriptions
+      ADD COLUMN IF NOT EXISTS id_addetto UUID;
+      CREATE INDEX IF NOT EXISTS idx_push_subs_addetto ON push_subscriptions(id_addetto);
+    `);
+
     // Addetti al percorso (medico, resp PS, resp trasferimenti, addetti generici)
     await client.query(`
       CREATE TABLE IF NOT EXISTS addetti (
@@ -261,6 +268,26 @@ async function runMigrations() {
       CREATE INDEX IF NOT EXISTS idx_addetti_evento ON addetti(id_evento);
       CREATE INDEX IF NOT EXISTS idx_addetti_ruolo ON addetti(ruolo);
       CREATE INDEX IF NOT EXISTS idx_addetti_token ON addetti(token);
+    `);
+
+    // Alerts inviati agli addetti (SOS, segnalazioni) — dopo addetti per FK
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS addetti_alerts (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        id_addetto UUID NOT NULL REFERENCES addetti(id) ON DELETE CASCADE,
+        id_messaggio UUID REFERENCES messaggi_piloti(id) ON DELETE CASCADE,
+        tipo VARCHAR(20) NOT NULL DEFAULT 'sos',
+        testo TEXT,
+        pilota_numero INTEGER,
+        pilota_nome VARCHAR(200),
+        gps_lat DECIMAL(10, 8),
+        gps_lon DECIMAL(11, 8),
+        distanza_m INTEGER,
+        preso_in_carico BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_addetti_alerts_addetto ON addetti_alerts(id_addetto);
+      CREATE INDEX IF NOT EXISTS idx_addetti_alerts_created ON addetti_alerts(created_at DESC);
     `);
 
     await client.query('COMMIT');

@@ -13,7 +13,7 @@ router.get('/api/app/push/vapid-key', (req, res) => {
 // Endpoint: Registra subscription push
 router.post('/api/app/push/subscribe', async (req, res, next) => {
   try {
-    const { codice_gara, numero_pilota, ruolo, subscription } = req.body;
+    const { codice_gara, numero_pilota, ruolo, subscription, id_addetto } = req.body;
 
     if (!codice_gara || !ruolo || !subscription) {
       return res.status(400).json({ error: 'Dati mancanti' });
@@ -26,13 +26,13 @@ router.post('/api/app/push/subscribe', async (req, res, next) => {
 
     // Upsert: aggiorna se esiste, inserisci se nuovo
     await pool.query(`
-      INSERT INTO push_subscriptions (codice_gara, numero_pilota, ruolo, endpoint, p256dh, auth)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO push_subscriptions (codice_gara, numero_pilota, ruolo, endpoint, p256dh, auth, id_addetto)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       ON CONFLICT (endpoint) DO UPDATE SET
-        codice_gara = $1, numero_pilota = $2, ruolo = $3, p256dh = $5, auth = $6
-    `, [codice_gara, numero_pilota || null, ruolo, endpoint, keys.p256dh, keys.auth]);
+        codice_gara = $1, numero_pilota = $2, ruolo = $3, p256dh = $5, auth = $6, id_addetto = $7
+    `, [codice_gara, numero_pilota || null, ruolo, endpoint, keys.p256dh, keys.auth, id_addetto || null]);
 
-    console.log(`Push subscription registrata: ${ruolo} - gara ${codice_gara}`);
+    console.log(`Push subscription registrata: ${ruolo}${id_addetto ? ' (addetto ' + id_addetto.slice(0, 8) + ')' : ''} - gara ${codice_gara}`);
     res.json({ success: true, message: 'Notifiche attivate' });
   } catch (err) {
     console.error('Errore registrazione push:', err);

@@ -242,4 +242,32 @@ router.get('/api/eventi/:id_evento/addetti-live', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// GET alerts di un addetto (chiamato dal suo ERTA)
+router.get('/api/addetti/:id/alerts', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      `SELECT * FROM addetti_alerts
+       WHERE id_addetto = $1
+         AND created_at > NOW() - INTERVAL '6 hours'
+       ORDER BY created_at DESC LIMIT 50`,
+      [id]
+    );
+    res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
+// PATCH preso in carico (addetto conferma ricezione SOS)
+router.patch('/api/addetti/alerts/:id_alert/preso-in-carico', async (req, res, next) => {
+  try {
+    const { id_alert } = req.params;
+    const result = await pool.query(
+      `UPDATE addetti_alerts SET preso_in_carico = TRUE WHERE id = $1 RETURNING *`,
+      [id_alert]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Alert non trovato' });
+    res.json({ success: true, alert: result.rows[0] });
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

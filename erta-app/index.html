@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.1.01</title>
+  <title>ERTA v1.1.02</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1996,6 +1996,91 @@
       font-weight: 800;
     }
 
+    .addetto-alert {
+      background: linear-gradient(135deg, var(--danger-bg), var(--bg-surface));
+      border: 2px solid var(--danger);
+      border-radius: var(--r-lg);
+      padding: 14px;
+      margin-bottom: 10px;
+      animation: addettoAlertPulse 2s ease-in-out infinite;
+    }
+    .addetto-alert.taken {
+      animation: none;
+      opacity: 0.7;
+      border-color: var(--success-border);
+      background: var(--success-bg);
+    }
+    @keyframes addettoAlertPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
+      50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+    }
+    .addetto-alert-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .addetto-alert-ico { font-size: 24px; flex: 0 0 auto; }
+    .addetto-alert-title {
+      flex: 1;
+      min-width: 0;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--danger);
+    }
+    .addetto-alert.taken .addetto-alert-title { color: var(--success); }
+    .addetto-alert-time {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .addetto-alert-body {
+      font-size: 13px;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+    .addetto-alert-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+    .addetto-alert-meta .chip {
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      padding: 3px 8px;
+      border-radius: var(--r-pill);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .addetto-alert-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .addetto-alert-btn {
+      flex: 1 1 auto;
+      padding: 10px 14px;
+      border: none;
+      border-radius: var(--r-md);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      text-align: center;
+      cursor: pointer;
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .addetto-alert-btn.gps { background: var(--info); color: #fff; }
+    .addetto-alert-btn.take { background: var(--success); color: #fff; }
+    .addetto-alert-btn.taken { background: var(--bg-surface-2); color: var(--text-tertiary); cursor: default; }
+
     /* ==================== DASHBOARD DdG (redesigned) ==================== */
     #appDdG {
       min-height: 100vh;
@@ -2491,6 +2576,69 @@
       text-transform: uppercase;
     }
     .ddg-mapping-add .ddg-input { padding: 10px 8px; font-size: 13px; text-transform: uppercase; }
+
+    /* Lista addetti nel DdG Admin */
+    .ddg-addetto-row {
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      margin-bottom: 6px;
+    }
+    .ddg-addetto-row.online { border-left: 3px solid var(--success); }
+    .ddg-addetto-row.offline { opacity: 0.75; }
+    .ddg-addetto-ico {
+      font-size: 22px;
+      text-align: center;
+    }
+    .ddg-addetto-info { min-width: 0; }
+    .ddg-addetto-nome {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ddg-addetto-ruolo {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .ddg-addetto-ruolo .dot-online {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--success);
+      animation: unreadDot 1.8s ease-in-out infinite;
+    }
+    .ddg-addetto-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .ddg-addetto-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: var(--r-md);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .ddg-addetto-btn.call { background: var(--success); color: #fff; border-color: var(--success); }
+    .ddg-addetto-btn.map { background: var(--info); color: #fff; border-color: var(--info); }
 
     .ddg-footer {
       position: fixed;
@@ -5008,7 +5156,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.01</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.02</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -5031,7 +5179,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.1.01</div>
+    <div class="login-version">ERTA · v1.1.02</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -5764,7 +5912,15 @@
 
       <!-- ============ TAB 3: ADMIN (accordion) ============ -->
       <section class="ddg-pane" id="ddgPaneAdmin">
-        <details class="ddg-accord" open>
+        <details class="ddg-accord" open onclick="setTimeout(loadDdgAddetti, 50)">
+          <summary><span class="ico">👷</span>Team Addetti<span class="caret">▶</span></summary>
+          <div class="body">
+            <p class="ddg-help">Medici, responsabili e addetti al percorso con posizione GPS e contatto telefonico.</p>
+            <div id="ddgAddettiList"><div class="ddg-empty">Caricamento…</div></div>
+          </div>
+        </details>
+
+        <details class="ddg-accord">
           <summary><span class="ico">📍</span>GPS piloti<span class="caret">▶</span></summary>
           <div class="body">
             <div id="ddgPosizioniTab"><div class="ddg-empty">Caricamento…</div></div>
@@ -5852,9 +6008,8 @@
       </section>
 
       <section class="addetto-card">
-        <h3>💬 Comunicazioni</h3>
-        <p class="addetto-help">In caso di emergenza riceverai una notifica push con la posizione del pilota e i dettagli dell'allarme. Per contattare la DdG usa il telefono della Direzione Gara.</p>
-        <div id="addettoAlertsList"></div>
+        <h3>🆘 Allarmi recenti</h3>
+        <div id="addettoAlertsList"><p class="addetto-help">Nessun allarme in corso. Riceverai una notifica push se arriva un SOS.</p></div>
       </section>
 
       <section class="addetto-card">
@@ -10384,13 +10539,21 @@
         }
         
         // SEMPRE invia al backend per aggiornare ruolo
-        const codiceGara = currentUser?.codice || localStorage.getItem('erta_codice_gara');
-        const numeroPilota = currentUser?.numero || localStorage.getItem('erta_numero_pilota');
-        // Determina ruolo: ddg, pilota, o pubblico
         let userType = 'pilota';
-        if (isDdG) userType = 'ddg';
+        let codiceGara = currentUser?.codice || localStorage.getItem('erta_codice_gara');
+        let numeroPilota = currentUser?.numero || localStorage.getItem('erta_numero_pilota');
+        let idAddetto = null;
+
+        if (isAddetto && currentAddetto) {
+          userType = 'addetto';
+          idAddetto = currentAddetto.id;
+          // Per addetto usa codice evento dal record addetto
+          const sessioneAddetto = JSON.parse(localStorage.getItem('erta_addetto') || '{}');
+          codiceGara = sessioneAddetto.evento?.codice_gara || codiceGara;
+          numeroPilota = null;
+        } else if (isDdG) userType = 'ddg';
         else if (isPublic) userType = 'pubblico';
-        
+
         await fetch(`${API_BASE}/api/app/push/subscribe`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -10398,6 +10561,7 @@
             codice_gara: codiceGara,
             numero_pilota: userType === 'pilota' ? parseInt(numeroPilota) : null,
             ruolo: userType,
+            id_addetto: idAddetto,
             subscription: pushSubscription.toJSON()
           })
         });
@@ -10815,9 +10979,10 @@
         if (btn) btn.classList.toggle('active', t === tab);
         if (pane) pane.classList.toggle('active', t === tab);
       });
-      // Lazy-load mapping quando Admin viene aperto
-      if (tab === 'admin' && typeof loadMappingCodici === 'function') {
-        loadMappingCodici();
+      // Lazy-load mapping + addetti quando Admin viene aperto
+      if (tab === 'admin') {
+        if (typeof loadMappingCodici === 'function') loadMappingCodici();
+        if (typeof loadDdgAddetti === 'function') loadDdgAddetti();
       }
     }
     window.showDdgTab = showDdgTab;
@@ -10906,6 +11071,62 @@
       setSec('ddgSecCountGps', counts.gps);
     }
     window.updateDdgCounters = updateDdgCounters;
+
+    // Carica lista addetti nel DdG Admin
+    async function loadDdgAddetti() {
+      if (!currentUser?.evento?.id) return;
+      const container = document.getElementById('ddgAddettiList');
+      if (!container) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/eventi/${currentUser.evento.id}/addetti`);
+        if (!res.ok) {
+          container.innerHTML = '<div class="ddg-empty">Errore caricamento addetti</div>';
+          return;
+        }
+        const addetti = await res.json();
+        renderDdgAddetti(addetti);
+      } catch (err) {
+        container.innerHTML = '<div class="ddg-empty">Errore di connessione</div>';
+      }
+    }
+    window.loadDdgAddetti = loadDdgAddetti;
+
+    function renderDdgAddetti(addetti) {
+      const container = document.getElementById('ddgAddettiList');
+      if (!container) return;
+      if (!addetti || addetti.length === 0) {
+        container.innerHTML = '<div class="ddg-empty">Nessun addetto registrato. Registrali dal pannello web (Frontend → Addetti).</div>';
+        return;
+      }
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const icoMap = { medico: '🩺', resp_ps: '🏁', resp_trasf: '🛣️', addetto: '👷' };
+      const labelMap = { medico: 'Medico di Gara', resp_ps: 'Resp PS', resp_trasf: 'Resp Trasferimenti', addetto: 'Addetto' };
+      container.innerHTML = addetti.map(a => {
+        const ico = icoMap[a.ruolo] || '👷';
+        const ruoloLbl = labelMap[a.ruolo] || 'Addetto';
+        const settore = a.nome_ps ? `· PS ${esc(a.nome_ps)}` : (a.nome_settore ? `· ${esc(a.nome_settore)}` : '');
+        const online = a.online
+          ? '<span class="dot-online"></span><span style="color:var(--success);font-weight:700;">Online</span>'
+          : (a.ultima_posizione_at
+             ? `<span style="color:var(--text-tertiary);">Ultima: ${new Date(a.ultima_posizione_at).toLocaleTimeString('it-IT')}</span>`
+             : '<span style="color:var(--text-tertiary);">Mai connesso</span>');
+        const mapUrl = (a.ultima_lat != null && a.ultima_lon != null)
+          ? `https://www.google.com/maps?q=${a.ultima_lat},${a.ultima_lon}`
+          : null;
+        return `
+          <div class="ddg-addetto-row ${a.online ? 'online' : 'offline'}">
+            <div class="ddg-addetto-ico">${ico}</div>
+            <div class="ddg-addetto-info">
+              <div class="ddg-addetto-nome">${esc(a.nome)} ${esc(a.cognome)}</div>
+              <div class="ddg-addetto-ruolo">${ruoloLbl} ${settore} ${online}</div>
+            </div>
+            <div class="ddg-addetto-actions">
+              ${a.telefono ? `<a class="ddg-addetto-btn call" href="tel:${esc(a.telefono)}" title="Chiama ${esc(a.telefono)}">📞</a>` : ''}
+              ${mapUrl ? `<a class="ddg-addetto-btn map" href="${mapUrl}" target="_blank" rel="noopener" title="Apri mappa">🗺️</a>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+    }
 
     // Compatibility shim: alcuni posti del codice chiamano showDocTab('codici') o simili
     function showDocTab(tipo) {
@@ -12757,6 +12978,72 @@ ${mapsLink}`;
 
       avviaAddettoGpsTracking();
       initPushNotifications();
+      startAddettoAlertsPolling();
+    }
+
+    let addettoAlertsInterval = null;
+    async function caricaAddettoAlerts() {
+      if (!currentAddetto) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/addetti/${currentAddetto.id}/alerts`);
+        if (!res.ok) return;
+        const alerts = await res.json();
+        renderAddettoAlerts(alerts || []);
+      } catch (err) { console.error('Errore alerts:', err); }
+    }
+
+    function renderAddettoAlerts(alerts) {
+      const container = document.getElementById('addettoAlertsList');
+      if (!container) return;
+      if (!alerts || alerts.length === 0) {
+        container.innerHTML = '<p class="addetto-help">Nessun allarme in corso. Riceverai una notifica push se arriva un SOS.</p>';
+        return;
+      }
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      container.innerHTML = alerts.map(a => {
+        const when = new Date(a.created_at);
+        const timeStr = when.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+        const hasGps = a.gps_lat != null && a.gps_lon != null;
+        const mapsUrl = hasGps ? `https://www.google.com/maps?q=${a.gps_lat},${a.gps_lon}` : null;
+        const titolo = a.tipo === 'sos' ? `🆘 SOS Pilota #${a.pilota_numero}` : `Allarme #${a.pilota_numero}`;
+        const distStr = a.distanza_m != null ? `📏 ${a.distanza_m < 1000 ? a.distanza_m + 'm' : (a.distanza_m/1000).toFixed(1) + 'km'}` : '';
+        return `
+          <div class="addetto-alert${a.preso_in_carico ? ' taken' : ''}">
+            <div class="addetto-alert-head">
+              <div class="addetto-alert-ico">${a.preso_in_carico ? '✅' : '🆘'}</div>
+              <div class="addetto-alert-title">${titolo}</div>
+              <div class="addetto-alert-time">${timeStr}</div>
+            </div>
+            ${a.pilota_nome ? `<div class="addetto-alert-body"><strong>${esc(a.pilota_nome)}</strong></div>` : ''}
+            ${a.testo ? `<div class="addetto-alert-body">${esc(a.testo)}</div>` : ''}
+            <div class="addetto-alert-meta">
+              ${distStr ? `<span class="chip">${distStr}</span>` : ''}
+              ${hasGps ? `<span class="chip">📍 ${parseFloat(a.gps_lat).toFixed(5)}, ${parseFloat(a.gps_lon).toFixed(5)}</span>` : ''}
+            </div>
+            <div class="addetto-alert-actions">
+              ${mapsUrl ? `<a class="addetto-alert-btn gps" href="${mapsUrl}" target="_blank" rel="noopener">🗺️ Apri mappa</a>` : ''}
+              ${a.preso_in_carico
+                ? '<button class="addetto-alert-btn taken" disabled>✅ Presa in carico</button>'
+                : `<button class="addetto-alert-btn take" onclick="prendiInCaricoAlert('${a.id}')">Prendi in carico</button>`
+              }
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function prendiInCaricoAlert(idAlert) {
+      if (typeof haptic === 'function') haptic(15);
+      try {
+        const res = await fetch(`${API_BASE}/api/addetti/alerts/${idAlert}/preso-in-carico`, { method: 'PATCH' });
+        if (res.ok) caricaAddettoAlerts();
+      } catch (err) { console.error(err); }
+    }
+    window.prendiInCaricoAlert = prendiInCaricoAlert;
+
+    function startAddettoAlertsPolling() {
+      if (addettoAlertsInterval) clearInterval(addettoAlertsInterval);
+      caricaAddettoAlerts();
+      addettoAlertsInterval = setInterval(caricaAddettoAlerts, 15000);
     }
 
     function avviaAddettoGpsTracking() {

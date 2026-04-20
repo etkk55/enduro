@@ -84,7 +84,10 @@ export default function Addetti() {
         cognome: form.cognome.trim(),
         telefono: form.telefono.trim() || null,
         id_ps: form.ruolo === 'resp_ps' ? (form.id_ps || null) : null,
-        nome_settore: form.ruolo === 'resp_trasf' ? (form.nome_settore.trim() || null) : null,
+        // Punto di presidio: sia per 'resp_trasf' (settore) sia per 'addetto' (zona)
+        nome_settore: (form.ruolo === 'resp_trasf' || form.ruolo === 'addetto')
+          ? (form.nome_settore.trim() || null)
+          : null,
         note: form.note.trim() || null
       };
       const res = await fetch(url, {

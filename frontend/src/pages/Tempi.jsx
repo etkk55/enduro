@@ -39,7 +39,10 @@ export default function Tempi() {
         const res = await fetch(`${API_BASE}/eventi`);
         const data = await res.json();
         setEventi(data);
-        if (data.length > 0) setEventoSelezionato(data[0].id);
+        if (data.length > 0) {
+          const { pickDefaultEvent } = await import('../utils/activeEvent');
+          setEventoSelezionato(pickDefaultEvent(data));
+        }
       } catch (e) {
         console.error('[Tempi]', e);
         setErrore('Errore caricamento eventi');
@@ -48,6 +51,16 @@ export default function Tempi() {
       }
     })();
   }, []);
+
+  // Memorizza evento attivo al cambio
+  useEffect(() => {
+    if (eventoSelezionato && eventi.length > 0) {
+      const ev = eventi.find(e => e.id === eventoSelezionato);
+      import('../utils/activeEvent').then(({ setActiveEventId }) => {
+        setActiveEventId(eventoSelezionato, ev?.codice_gara);
+      });
+    }
+  }, [eventoSelezionato, eventi]);
 
   // 2. Load prove when event changes
   useEffect(() => {

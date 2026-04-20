@@ -35,6 +35,11 @@ export default function Comunicati() {
   useEffect(() => {
     const saved = localStorage.getItem('gareRecentiComunicati');
     if (saved) setGareRecenti(JSON.parse(saved));
+    // Precarica il codice gara dall'evento attivo condiviso
+    import('../utils/activeEvent').then(({ getActiveCodiceGara }) => {
+      const cod = getActiveCodiceGara();
+      if (cod && !codiceGara) setCodiceGara(cod);
+    });
   }, []);
 
   useEffect(() => {

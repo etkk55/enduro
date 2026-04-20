@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.1.07</title>
+  <title>ERTA v1.1.08</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5167,7 +5167,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.07</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.08</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -5190,7 +5190,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.1.07</div>
+    <div class="login-version">ERTA · v1.1.08</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -5818,6 +5818,17 @@
           <button type="submit" data-action="submit-addetto" class="ddg-btn brand" id="btnSalvaAddetto" style="flex:2;">Crea e mostra QR</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Sheet inoltra SOS ad addetto (FUORI da #app) -->
+  <div class="popup-overlay" id="inoltraSosSheet" onclick="if(event.target===this)chiudiInoltraSos()">
+    <div class="altro-sheet" onclick="event.stopPropagation()" style="max-width: 500px;">
+      <div class="altro-grip"></div>
+      <h3 style="margin-bottom: 8px; font-size: 18px;">📡 Inoltra SOS all'addetto</h3>
+      <p id="inoltraSosIntro" style="color:var(--text-tertiary); font-size:13px; margin-bottom:14px;">Scegli chi contattare via WhatsApp. Il messaggio sarà precompilato con posizione GPS e dettagli.</p>
+      <div id="inoltraSosList"><div class="ddg-empty">Caricamento addetti…</div></div>
+      <button type="button" data-action="close-inoltra-sos" class="ddg-btn" style="width:100%; margin-top:12px; background:var(--bg-surface-2); color:var(--text-secondary); border:1px solid var(--border-default);">Chiudi</button>
     </div>
   </div>
 
@@ -11281,6 +11292,20 @@
       } else if (action === 'regen-qr') {
         e.preventDefault();
         rigeneraQrAddettoCorrente();
+      } else if (action === 'inoltra-sos') {
+        e.preventDefault();
+        e.stopPropagation();
+        mostraInoltraSos({
+          tipo: el.dataset.tipo,
+          numero_pilota: el.dataset.num,
+          nomePilota: el.dataset.nome,
+          testo: el.dataset.testo,
+          lat: el.dataset.lat,
+          lon: el.dataset.lon
+        });
+      } else if (action === 'close-inoltra-sos') {
+        e.preventDefault();
+        chiudiInoltraSos();
       }
     });
 
@@ -11409,6 +11434,124 @@
       _qrAddettoCorrente = null;
     }
     window.chiudiQrAddetto = chiudiQrAddetto;
+
+    // ============ Inoltra SOS ad addetto via WhatsApp ============
+    let _sosDaInoltrare = null;
+
+    async function mostraInoltraSos(sosData) {
+      if (typeof haptic === 'function') haptic(15);
+      _sosDaInoltrare = sosData;
+      const sheet = document.getElementById('inoltraSosSheet');
+      const list = document.getElementById('inoltraSosList');
+      const intro = document.getElementById('inoltraSosIntro');
+      if (intro) {
+        intro.textContent = `Inoltro per: ${sosData.tipo} · Pilota #${sosData.numero_pilota}${sosData.nomePilota ? ' ' + sosData.nomePilota : ''}. Scegli chi contattare via WhatsApp.`;
+      }
+      list.innerHTML = '<div class="ddg-empty">Caricamento addetti…</div>';
+      sheet.classList.add('active');
+
+      if (!currentUser?.evento?.id) {
+        list.innerHTML = '<div class="ddg-empty">Evento non disponibile</div>';
+        return;
+      }
+      try {
+        const hasGps = sosData.lat && sosData.lon;
+        const query = hasGps ? `?lat=${sosData.lat}&lon=${sosData.lon}` : '';
+        const res = await fetch(`${API_BASE}/api/eventi/${currentUser.evento.id}/addetti-live${query}`);
+        const addetti = await res.json();
+        renderInoltraSosList(Array.isArray(addetti) ? addetti : []);
+      } catch (err) {
+        list.innerHTML = '<div class="ddg-empty">Errore di connessione</div>';
+      }
+    }
+    window.mostraInoltraSos = mostraInoltraSos;
+
+    function renderInoltraSosList(addetti) {
+      const container = document.getElementById('inoltraSosList');
+      if (!container) return;
+      if (addetti.length === 0) {
+        container.innerHTML = '<div class="ddg-empty">Nessun addetto registrato. Crea prima gli addetti dal tab Admin.</div>';
+        return;
+      }
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const icoMap = { medico: '🩺', resp_ps: '🏁', resp_trasf: '🛣️', addetto: '👷' };
+      const labelMap = { medico: 'Medico', resp_ps: 'Resp PS', resp_trasf: 'Resp Trasf.', addetto: 'Addetto' };
+
+      // Ordina: online prima, poi per distanza
+      const sorted = [...addetti].sort((a, b) => {
+        if (a.online !== b.online) return b.online ? 1 : -1;
+        if (a.distanza_m != null && b.distanza_m != null) return a.distanza_m - b.distanza_m;
+        if (a.distanza_m != null) return -1;
+        if (b.distanza_m != null) return 1;
+        return 0;
+      });
+
+      container.innerHTML = sorted.map(a => {
+        const ico = icoMap[a.ruolo] || '👷';
+        const ruoloLbl = labelMap[a.ruolo] || 'Addetto';
+        const distTxt = a.distanza_m != null
+          ? (a.distanza_m < 1000 ? `${a.distanza_m}m` : `${(a.distanza_m / 1000).toFixed(1)}km`)
+          : '';
+        const statusChip = a.online
+          ? '<span style="color:var(--success); font-weight:700; font-size:11px;">● online</span>'
+          : '<span style="color:var(--text-tertiary); font-size:11px;">offline</span>';
+
+        const hasPhone = !!a.telefono;
+        const disabledAttr = hasPhone ? '' : 'disabled';
+        const btnStyle = hasPhone
+          ? 'background: linear-gradient(135deg,#25D366,#128C7E); color:#fff; cursor:pointer;'
+          : 'background: var(--bg-surface-2); color: var(--text-disabled); cursor: not-allowed; opacity: 0.55;';
+
+        return `
+          <div style="display:flex; align-items:center; gap:12px; padding:12px; background:var(--bg-surface-2); border:1px solid var(--border-subtle); border-radius:var(--r-md); margin-bottom:8px; ${a.online ? 'border-left:3px solid var(--success);' : ''}">
+            <div style="font-size:22px; width:36px; text-align:center;">${ico}</div>
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:14px; font-weight:700; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                ${esc(a.nome)} ${esc(a.cognome)}
+              </div>
+              <div style="font-size:11px; color:var(--text-tertiary); margin-top:2px; display:flex; gap:8px; flex-wrap:wrap;">
+                <span>${ruoloLbl}${a.nome_ps ? ' · ' + esc(a.nome_ps) : (a.nome_settore ? ' · ' + esc(a.nome_settore) : '')}</span>
+                ${statusChip}
+                ${distTxt ? `<span style="font-family:'JetBrains Mono',monospace;">📏 ${distTxt}</span>` : ''}
+              </div>
+              ${a.telefono ? `<div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-tertiary); margin-top:2px;">📞 ${esc(a.telefono)}</div>` : '<div style="font-size:11px; color:var(--danger); margin-top:2px;">⚠️ Numero telefono mancante</div>'}
+            </div>
+            <button type="button" onclick="inoltraSosAd('${a.id}','${esc(a.telefono || '')}')" ${disabledAttr}
+              style="padding:10px 14px; border:none; border-radius:var(--r-md); font-size:13px; font-weight:700; min-height:44px; white-space:nowrap; ${btnStyle}">
+              📱 Inoltra
+            </button>
+          </div>`;
+      }).join('');
+    }
+
+    function inoltraSosAd(idAddetto, telefono) {
+      if (!_sosDaInoltrare || !telefono) return;
+      if (typeof haptic === 'function') haptic(15);
+
+      const sos = _sosDaInoltrare;
+      const mapsLink = (sos.lat && sos.lon) ? `https://www.google.com/maps?q=${sos.lat},${sos.lon}` : '';
+      const parti = [
+        `🆘 ${sos.tipo || 'SOS'} · Pilota #${sos.numero_pilota}${sos.nomePilota ? ' ' + sos.nomePilota : ''}`,
+        sos.testo ? sos.testo : '',
+        mapsLink ? `📍 Posizione: ${mapsLink}` : '',
+        '',
+        'Inoltrato da DdG · ERTA'
+      ].filter(Boolean);
+      const testo = parti.join('\n');
+
+      // Pulisci il numero (rimuovi spazi, +, etc non cifre)
+      const telPulito = String(telefono).replace(/[^\d]/g, '');
+      const urlWhatsapp = `https://wa.me/${telPulito}?text=${encodeURIComponent(testo)}`;
+      window.open(urlWhatsapp, '_blank');
+      // Non chiudo il sheet subito così può inoltrare a più addetti
+    }
+    window.inoltraSosAd = inoltraSosAd;
+
+    function chiudiInoltraSos() {
+      document.getElementById('inoltraSosSheet').classList.remove('active');
+      _sosDaInoltrare = null;
+    }
+    window.chiudiInoltraSos = chiudiInoltraSos;
 
     async function rigeneraQrAddettoCorrente() {
       if (!_qrAddettoCorrente) return;
@@ -11891,12 +12034,18 @@
               style="flex: 1; min-width: 80px; min-height: 44px; padding: 12px; background: ${m.letto ? '#374151' : '#22c55e'}; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; -webkit-tap-highlight-color: rgba(0,0,0,0.1); touch-action: manipulation;">
               ${m.letto ? '✓ VISTO' : '👁 VISTO'}
             </button>
+            ${m.tipo === 'sos' ? `
+              <button data-action="inoltra-sos" data-msg-id="${m.id}" data-tipo="${config.label}" data-num="${m.numero_pilota}" data-nome="${nomePilota}" data-testo="${(m.testo || '').replace(/"/g, '&quot;')}" data-lat="${m.gps_lat || ''}" data-lon="${m.gps_lon || ''}"
+                style="flex: 1; min-width: 80px; min-height: 44px; padding: 12px; background: linear-gradient(135deg,#f59e0b,#d97706); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight:700; cursor: pointer; -webkit-tap-highlight-color: rgba(0,0,0,0.1); touch-action: manipulation;">
+                📡 Inoltra addetto
+              </button>
+            ` : ''}
             ${m.gps_lat && m.gps_lon ? `
-              <button onclick="ultimoGPSPilota(${m.numero_pilota})" 
+              <button onclick="ultimoGPSPilota(${m.numero_pilota})"
                 style="flex: 1; min-width: 80px; min-height: 44px; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; -webkit-tap-highlight-color: rgba(0,0,0,0.1); touch-action: manipulation;">
                 📍 ULTIMO GPS
               </button>
-              <button onclick="inviaWhatsApp('${config.label}', ${m.numero_pilota}, '${nomePilota}', '${m.testo || ''}', ${m.gps_lat}, ${m.gps_lon})" 
+              <button onclick="inviaWhatsApp('${config.label}', ${m.numero_pilota}, '${nomePilota}', '${m.testo || ''}', ${m.gps_lat}, ${m.gps_lon})"
                 style="flex: 1; min-width: 80px; min-height: 44px; padding: 12px; background: #25D366; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; -webkit-tap-highlight-color: rgba(0,0,0,0.1); touch-action: manipulation;">
                 📱 WhatsApp
               </button>

@@ -59,7 +59,7 @@ const NAV_GROUPS = [
       { to: '/eventi', icon: Calendar, label: 'Eventi' },
       { to: '/piloti', icon: Users, label: 'Piloti' },
       { to: '/setup-gara', icon: Settings, label: 'Setup Gara' },
-      { to: '/controllo-gara', icon: Activity, label: 'Controllo Gara' },
+      { to: '/controllo-gara', icon: Activity, label: 'Simulazione Gara' },
       { to: '/import-ficr', icon: Download, label: 'Import FICR' },
     ],
   },
@@ -184,7 +184,7 @@ function AppLayout({ children, onOpenPalette }) {
           collapsed={collapsed}
           footer={(isCollapsed) => (
             <div className={cn('text-xs text-content-tertiary font-mono', isCollapsed ? 'text-center' : 'px-2')}>
-              v1.1.00
+              v1.1.01
             </div>
           )}
         />

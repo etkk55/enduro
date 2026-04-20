@@ -55,10 +55,14 @@ export default function Piloti() {
     Promise.all([
       fetch(`${API_URL}/eventi`).then(r => r.json()),
       fetch(`${API_URL}/piloti`).then(r => r.json()),
-    ]).then(([ev, pl]) => {
+    ]).then(async ([ev, pl]) => {
       if (cancelled) return;
       setEventi(ev);
       setPiloti(pl);
+      if (ev.length > 0 && !eventoSelezionato) {
+        const { pickDefaultEvent } = await import('../utils/activeEvent');
+        setEventoSelezionato(pickDefaultEvent(ev));
+      }
       setLoading(false);
     }).catch(err => {
       console.error('[Piloti]', err);

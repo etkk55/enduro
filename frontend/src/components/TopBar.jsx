@@ -8,7 +8,7 @@ const PAGE_TITLES = {
   '/eventi': { title: 'Eventi', description: 'Calendario gare' },
   '/piloti': { title: 'Piloti', description: 'Gestione e tracking' },
   '/setup-gara': { title: 'Setup Gara', description: 'Configurazione gara FICR' },
-  '/controllo-gara': { title: 'Controllo Gara', description: 'Pannello operativo' },
+  '/controllo-gara': { title: 'Simulazione Gara', description: 'Simula lo svolgimento dell\'evento' },
   '/live': { title: 'Live Timing', description: 'Classifica in tempo reale' },
   '/la-mia-gara': { title: 'La Mia Gara', description: 'Vista pilota' },
   '/tempi': { title: 'Tempi', description: 'Gestione tempi' },

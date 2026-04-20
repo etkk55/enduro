@@ -86,12 +86,16 @@ export default function ControlloGara() {
     setShowDmsConverter(null);
   };
   
-  // Carica eventi
+  // Carica eventi (e auto-seleziona evento attivo condiviso)
   useEffect(() => {
     fetch(`${API_BASE}/api/eventi`)
       .then(res => res.json())
-      .then(data => {
+      .then(async (data) => {
+        const { pickDefaultEvent } = await import('../utils/activeEvent');
         setEventi(data);
+        if (data.length > 0 && !eventoSelezionato) {
+          setEventoSelezionato(pickDefaultEvent(data));
+        }
         setLoadingEventi(false);
       })
       .catch(err => {
@@ -99,6 +103,16 @@ export default function ControlloGara() {
         setLoadingEventi(false);
       });
   }, []);
+
+  // Memorizza evento attivo al cambio
+  useEffect(() => {
+    if (eventoSelezionato && eventi.length > 0) {
+      const ev = eventi.find(e => e.id === eventoSelezionato);
+      import('../utils/activeEvent').then(({ setActiveEventId }) => {
+        setActiveEventId(eventoSelezionato, ev?.codice_gara);
+      });
+    }
+  }, [eventoSelezionato, eventi]);
   
   // Quando cambia evento, carica info
   useEffect(() => {
@@ -609,8 +623,8 @@ export default function ControlloGara() {
     <div className="p-4 lg:p-8 max-w-7xl mx-auto animate-fade-in space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-heading-1">Controllo Gara</h1>
-        <p className="text-content-secondary mt-1 text-sm">Configurazione evento, GPS, simulazione e fonte dati live</p>
+        <h1 className="text-heading-1">Simulazione Gara</h1>
+        <p className="text-content-secondary mt-1 text-sm">Simula lo svolgimento dell'evento e gestisci la fonte dati live</p>
       </div>
 
       {/* Event + source */}

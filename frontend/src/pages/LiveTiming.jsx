@@ -405,14 +405,15 @@ export default function LiveTiming() {
   const [loadingOrari, setLoadingOrari] = useState(false);
   const [tempiSettoreOrari, setTempiSettoreOrari] = useState(null);
 
-  // NUOVO: Carica eventi dal database al mount
+  // NUOVO: Carica eventi dal database al mount (con default evento attivo)
   useEffect(() => {
     fetch(`${API_BASE}/api/eventi`)
       .then(res => res.json())
-      .then(data => {
+      .then(async (data) => {
+        const { pickDefaultEvent } = await import('../utils/activeEvent');
         setEventi(data);
         if (data.length > 0) {
-          setEventoSelezionato(data[0].id);
+          setEventoSelezionato(pickDefaultEvent(data));
         }
         setLoadingEventi(false);
       })
@@ -421,6 +422,16 @@ export default function LiveTiming() {
         setLoadingEventi(false);
       });
   }, []);
+
+  // Memorizza l'evento selezionato come "attivo" per condividerlo con altre pagine
+  useEffect(() => {
+    if (eventoSelezionato && eventi.length > 0) {
+      const ev = eventi.find(e => e.id === eventoSelezionato);
+      import('../utils/activeEvent').then(({ setActiveEventId }) => {
+        setActiveEventId(eventoSelezionato, ev?.codice_gara);
+      });
+    }
+  }, [eventoSelezionato, eventi]);
 
   // MODIFICATO: Usa API_BASE invece di URL hardcoded
   useEffect(() => {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { API_BASE } from '../services/api';
+import { pickDefaultEvent, setActiveEventId } from '../utils/activeEvent';
 import { Users, Plus, Trash2, RefreshCw, QrCode, Printer, X, Phone, MapPin, Stethoscope, Flag, Route as RouteIcon, HardHat } from 'lucide-react';
 
 // URL base dell'app ERTA (PWA pilota/addetto)
@@ -30,15 +31,23 @@ export default function Addetti() {
   const [editingId, setEditingId] = useState(null);
   const [qrAddetto, setQrAddetto] = useState(null);
 
-  // Carica eventi al mount
+  // Carica eventi al mount (con default evento attivo)
   useEffect(() => {
     fetch(`${API_BASE}/api/eventi`)
       .then(r => r.json())
       .then(data => {
         setEventi(data);
-        if (data.length > 0 && !eventoSelezionato) setEventoSelezionato(data[0].id);
+        if (data.length > 0 && !eventoSelezionato) setEventoSelezionato(pickDefaultEvent(data));
       });
   }, []);
+
+  // Memorizza evento attivo al cambio
+  useEffect(() => {
+    if (eventoSelezionato && eventi.length > 0) {
+      const ev = eventi.find(e => e.id === eventoSelezionato);
+      setActiveEventId(eventoSelezionato, ev?.codice_gara);
+    }
+  }, [eventoSelezionato, eventi]);
 
   // Carica addetti + prove speciali al cambio evento
   useEffect(() => {

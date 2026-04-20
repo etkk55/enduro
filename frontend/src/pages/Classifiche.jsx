@@ -31,7 +31,13 @@ export default function Classifiche() {
       const res = await fetch(`${API_BASE}/eventi`);
       const data = await res.json();
       setEventi(data);
-      if (data.length > 0) setEventoSelezionato(data[0].id);
+      if (data.length > 0) {
+        const { pickDefaultEvent, setActiveEventId } = await import('../utils/activeEvent');
+        const id = pickDefaultEvent(data);
+        setEventoSelezionato(id);
+        const ev = data.find(e => e.id === id);
+        setActiveEventId(id, ev?.codice_gara);
+      }
     } catch (err) {
       console.error('[Classifiche]', err);
     }

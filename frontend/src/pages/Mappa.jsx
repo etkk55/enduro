@@ -179,7 +179,7 @@ export default function Mappa() {
   const isPilotaSelezionato = (num) => pilotiSelezionati.some(x => x.numero === String(num));
 
   return (
-    <div className="p-6 max-w-full mx-auto">
+    <div className="p-4 lg:p-6 w-full h-full flex flex-col">
       <header className="flex items-center justify-between flex-wrap gap-4 mb-4">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center">
@@ -322,7 +322,7 @@ function MappaPreview({ geojson }) {
     const bounds = layer.getBounds();
     if (bounds.isValid()) map.fitBounds(bounds, { padding: [20, 20] });
   }, [geojson]);
-  return <div ref={ref} style={{ height: 260, borderRadius: 8, overflow: 'hidden' }} />;
+  return <div ref={ref} style={{ height: 420, borderRadius: 8, overflow: 'hidden' }} />;
 }
 
 function LiveTab({ tracciatoGeojson, piloti, addetti, posizioniPiloti, pilotiSelezionati, togglePilota, isPilotaSelezionato, pilotiFiltered, query, setQuery, onRefresh }) {
@@ -426,9 +426,9 @@ function LiveTab({ tracciatoGeojson, piloti, addetti, posizioniPiloti, pilotiSel
   }, [pilotiSelezionati, posizioniPiloti, addetti]);
 
   return (
-    <div className="grid lg:grid-cols-[340px_1fr] gap-4" style={{ minHeight: 600 }}>
+    <div className="grid lg:grid-cols-[340px_1fr] gap-4" style={{ height: 'calc(100vh - 200px)', minHeight: 500 }}>
       {/* Sidebar: selezione piloti */}
-      <section className="bg-surface border border-border-subtle rounded-xl p-4 flex flex-col">
+      <section className="bg-surface border border-border-subtle rounded-xl p-4 flex flex-col overflow-hidden">
         <h3 className="font-semibold mb-2 flex items-center justify-between gap-2">
           <span className="flex items-center gap-2"><Users className="w-4 h-4" /> Piloti da tracciare</span>
           <button onClick={onRefresh} className="p-1 hover:bg-surface-2 rounded" title="Aggiorna posizioni">
@@ -456,7 +456,7 @@ function LiveTab({ tracciatoGeojson, piloti, addetti, posizioniPiloti, pilotiSel
             className="w-full pl-9 pr-3 py-2 rounded-md border border-border bg-surface text-sm"
           />
         </div>
-        <div className="overflow-y-auto flex-1" style={{ maxHeight: 500 }}>
+        <div className="overflow-y-auto flex-1">
           {pilotiFiltered.map(p => {
             const sel = isPilotaSelezionato(p.numero_gara);
             const pos = posizioniPiloti[String(p.numero_gara)];
@@ -480,7 +480,7 @@ function LiveTab({ tracciatoGeojson, piloti, addetti, posizioniPiloti, pilotiSel
 
       {/* Mappa */}
       <section className="bg-surface border border-border-subtle rounded-xl overflow-hidden">
-        <div ref={mapContainerRef} style={{ height: 600, width: '100%' }} />
+        <div ref={mapContainerRef} style={{ height: '100%', minHeight: 500, width: '100%' }} />
       </section>
     </div>
   );

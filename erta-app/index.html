@@ -1848,6 +1848,519 @@
     }
     .ps-chip.none { color: var(--text-disabled); font-weight: 500; }
 
+    /* ==================== DASHBOARD DdG (redesigned) ==================== */
+    #appDdG {
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--bg-base);
+      padding-bottom: calc(44px + var(--safe-bottom));
+    }
+
+    /* Sticky top: brand + counter bar */
+    .ddg-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-sm);
+    }
+    .ddg-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: calc(var(--safe-top) + 10px) 14px 10px;
+    }
+    .ddg-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--r-md);
+      background: linear-gradient(135deg, var(--info), #1e40af);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ddg-ev { flex: 1; min-width: 0; }
+    .ddg-ev .name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .ddg-ev .sub {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+    .ddg-exit {
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      padding: 8px 14px;
+      border-radius: var(--r-pill);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      min-height: 36px;
+    }
+
+    .ddg-counters {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 0 12px 10px;
+    }
+    .ddg-counter {
+      padding: 8px 6px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      cursor: pointer;
+      transition: transform 150ms, background 150ms;
+      min-height: 58px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    .ddg-counter:active { transform: scale(0.96); }
+    .ddg-counter .val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    .ddg-counter .lbl {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text-tertiary);
+      white-space: nowrap;
+    }
+    .ddg-counter.critical.has-items {
+      background: linear-gradient(135deg, var(--danger), #991b1b);
+      border-color: var(--danger);
+      animation: ddgCritPulse 1.6s ease-in-out infinite;
+    }
+    .ddg-counter.critical.has-items .val,
+    .ddg-counter.critical.has-items .lbl { color: #fff; }
+    @keyframes ddgCritPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.6); }
+      50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+    }
+    .ddg-counter.warn.has-items {
+      background: var(--warning-bg);
+      border-color: var(--warning);
+    }
+    .ddg-counter.warn.has-items .val { color: var(--warning); }
+    .ddg-counter.danger.has-items {
+      background: var(--danger-bg);
+      border-color: var(--danger);
+    }
+    .ddg-counter.danger.has-items .val { color: var(--danger); }
+    .ddg-counter.info.has-items {
+      background: var(--info-bg);
+      border-color: var(--info);
+    }
+    .ddg-counter.info.has-items .val { color: var(--info); }
+
+    /* Tab nav (3) */
+    .ddg-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: calc(var(--safe-top) + 142px);
+      z-index: 50;
+    }
+    .ddg-tab {
+      padding: 14px 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-tertiary);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      min-height: 52px;
+      transition: color 150ms;
+    }
+    .ddg-tab .ico { font-size: 18px; line-height: 1; }
+    .ddg-tab.active { color: var(--info); }
+    .ddg-tab.active::after {
+      content: '';
+      position: absolute;
+      left: 24%;
+      right: 24%;
+      bottom: 0;
+      height: 3px;
+      background: var(--info);
+      border-radius: 3px 3px 0 0;
+    }
+
+    /* Panes */
+    .ddg-main { padding: 14px 12px 20px; }
+    .ddg-pane { display: none; }
+    .ddg-pane.active { display: block; }
+
+    /* Cruscotto: filtri + sezioni */
+    .ddg-filters {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+      margin-bottom: 14px;
+    }
+    .ddg-filters::-webkit-scrollbar { height: 4px; }
+    .ddg-filter {
+      flex: 0 0 auto;
+      padding: 8px 14px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--r-pill);
+      cursor: pointer;
+      white-space: nowrap;
+      min-height: 36px;
+    }
+    .ddg-filter.active {
+      background: var(--info);
+      color: #fff;
+      border-color: var(--info);
+    }
+
+    .ddg-feed-sec { margin-bottom: 18px; }
+    .ddg-feed-sec.hidden { display: none; }
+    .ddg-sec-title {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin: 0 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ddg-sec-title.critical { color: var(--danger); }
+    .ddg-sec-title.warn { color: var(--warning); }
+    .ddg-sec-title.danger { color: var(--danger); }
+    .ddg-sec-count {
+      background: var(--bg-surface-2);
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: var(--r-pill);
+      letter-spacing: 0;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .ddg-empty {
+      text-align: center;
+      color: var(--text-tertiary);
+      padding: 24px 12px;
+      font-size: 13px;
+      background: var(--bg-surface);
+      border: 1px dashed var(--border-subtle);
+      border-radius: var(--r-md);
+    }
+
+    /* Comunicati: tipo selector + form */
+    .ddg-doc-type {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      background: var(--bg-surface-2);
+      padding: 4px;
+      border-radius: var(--r-md);
+      margin-bottom: 14px;
+    }
+    .ddg-doc-type button {
+      padding: 10px 4px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: var(--r-sm);
+      min-height: 40px;
+    }
+    .ddg-doc-type button.active {
+      background: var(--info);
+      color: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+    .ddg-doc-type button[data-tipo="general_info"].active { background: var(--success); }
+    .ddg-doc-type button[data-tipo="paddock_info"].active { background: var(--warning); color: #0f172a; }
+
+    .ddg-doc-form {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+    .ddg-textarea {
+      width: 100%;
+      min-height: 110px;
+      padding: 14px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-md);
+      color: var(--text-primary);
+      font-size: 16px;
+      font-family: inherit;
+      resize: vertical;
+      box-sizing: border-box;
+      line-height: 1.5;
+    }
+    .ddg-textarea:focus { outline: none; border-color: var(--info); }
+    .ddg-doc-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .ddg-pdf-btn {
+      background: var(--bg-surface-2);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+      padding: 10px 14px;
+      border-radius: var(--r-md);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 40px;
+    }
+    .ddg-pdf-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+      padding: 8px 12px;
+      border-radius: var(--r-md);
+      font-size: 13px;
+      color: var(--info);
+      font-weight: 600;
+    }
+    .ddg-pdf-x {
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ddg-doc-targets {
+      margin-top: 12px;
+      padding: 12px;
+      background: var(--bg-surface-2);
+      border-radius: var(--r-md);
+    }
+    .ddg-doc-targets .label {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .ddg-doc-targets .checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .ddg-doc-targets .checks label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 6px 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-sm);
+    }
+    .ddg-publish {
+      width: 100%;
+      margin-top: 12px;
+      padding: 14px;
+      border: none;
+      border-radius: var(--r-md);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      min-height: 48px;
+      transition: background 150ms, transform 150ms;
+    }
+    .ddg-publish:active { transform: scale(0.98); }
+    .ddg-publish.info { background: var(--info); }
+    .ddg-publish.success { background: var(--success); }
+    .ddg-publish.warn { background: var(--warning); color: #0f172a; }
+    .ddg-publish:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Admin accordion */
+    .ddg-accord {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .ddg-accord summary {
+      padding: 16px;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      user-select: none;
+    }
+    .ddg-accord summary::-webkit-details-marker { display: none; }
+    .ddg-accord summary:active { background: var(--bg-surface-2); }
+    .ddg-accord summary .ico {
+      font-size: 18px;
+      flex: 0 0 auto;
+    }
+    .ddg-accord summary .caret {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      transition: transform 200ms;
+    }
+    .ddg-accord[open] summary .caret { transform: rotate(90deg); }
+    .ddg-accord .body {
+      padding: 0 16px 16px;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 14px;
+    }
+    .ddg-help {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+    .ddg-inline-form {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .ddg-input {
+      flex: 1;
+      padding: 12px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-md);
+      color: var(--text-primary);
+      font-size: 15px;
+      font-family: inherit;
+    }
+    .ddg-input:focus { outline: none; border-color: var(--info); }
+    .ddg-btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: var(--r-md);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 44px;
+      color: #fff;
+    }
+    .ddg-btn.warn { background: var(--warning); color: #0f172a; }
+    .ddg-btn.brand { background: var(--brand-500); }
+    .ddg-btn.info { background: var(--info); }
+    .ddg-result {
+      margin-top: 10px;
+      padding: 12px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      font-size: 13px;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .ddg-mapping-add {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .ddg-mapping-add h5 {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-tertiary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .ddg-mapping-add .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+    .ddg-mapping-add label {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      display: block;
+      margin-bottom: 4px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .ddg-mapping-add .ddg-input { padding: 10px 8px; font-size: 13px; text-transform: uppercase; }
+
+    .ddg-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      padding: 8px 10px;
+      padding-bottom: calc(var(--safe-bottom) + 8px);
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      z-index: 40;
+    }
+
     /* ==================== UNREAD COMUNICATI BANNER ==================== */
     .unread-banner {
       position: fixed;
@@ -4951,209 +5464,206 @@
     </style>
   </div>
 
-  <!-- ==================== DASHBOARD DdG (Chat 21) ==================== -->
+  <!-- ==================== DASHBOARD DdG (redesigned) ==================== -->
   <div id="appDdG" style="display: none;">
-    <header class="app-header" style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%);">
-      <button class="logout-btn" onclick="doLogout()">ESCI</button>
-      <div class="pilot-info">
-        <div class="pilot-number" style="background: #1e3a5f;">DdG</div>
-        <div class="pilot-details">
-          <h2>Direzione Gara</h2>
-          <p id="ddgEventoInfo">--</p>
+    <!-- Sticky top: brand + counter bar -->
+    <header class="ddg-topbar">
+      <div class="ddg-brand">
+        <div class="ddg-logo">DdG</div>
+        <div class="ddg-ev">
+          <div class="name">Direzione Gara</div>
+          <div class="sub" id="ddgEventoInfo">--</div>
         </div>
+        <button class="ddg-exit" onclick="doLogout()">ESCI</button>
+      </div>
+      <div class="ddg-counters" role="group" aria-label="Contatori emergenze">
+        <button class="ddg-counter critical" id="ddgCounterSOS" onclick="ddgFilterFeed('sos')">
+          <div class="val" id="ddgCountSOS">—</div>
+          <div class="lbl">🆘 SOS</div>
+        </button>
+        <button class="ddg-counter warn" id="ddgCounterFermi" onclick="ddgFilterFeed('fermi')">
+          <div class="val" id="ddgCountFermi">—</div>
+          <div class="lbl">⚠️ Fermi</div>
+        </button>
+        <button class="ddg-counter danger" id="ddgCounterGps" onclick="ddgFilterFeed('gps')">
+          <div class="val" id="ddgCountGps">—</div>
+          <div class="lbl">📵 GPS persi</div>
+        </button>
+        <button class="ddg-counter info" id="ddgCounterMsg" onclick="ddgFilterFeed('msg')">
+          <div class="val" id="ddgCountMsg">—</div>
+          <div class="lbl">💬 Messaggi</div>
+        </button>
       </div>
     </header>
 
-    <!-- Tab Documenti -->
-    <div style="padding: 15px; position: sticky; top: 0; background: #0f172a; z-index: 100;">
-      <div style="display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap;">
-        <button onclick="showDocTab('allarmi')" id="docTabAllarmi" class="doc-tab-btn active"
-          style="flex: 1; min-width: 70px; padding: 10px 8px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; background: #ef4444; color: white;">
-          🚨 Allarmi
-        </button>
-        <button onclick="showDocTab('comunicato')" id="docTabComunicato" class="doc-tab-btn"
-          style="flex: 1; min-width: 70px; padding: 10px 8px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; background: #374151; color: #9ca3af;">
-          📢 Comunicati
-        </button>
-        <button onclick="showDocTab('general_info')" id="docTabGeneral" class="doc-tab-btn"
-          style="flex: 1; min-width: 70px; padding: 10px 8px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; background: #374151; color: #9ca3af;">
-          🏕️ Paddock
-        </button>
-        <button onclick="showDocTab('posizioni')" id="docTabPosizioni" class="doc-tab-btn"
-          style="flex: 1; min-width: 70px; padding: 10px 8px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; background: #374151; color: #9ca3af;">
-          📍 GPS Piloti
-        </button>
-        <button onclick="showDocTab('codici')" id="docTabCodici" class="doc-tab-btn"
-          style="flex: 1; min-width: 70px; padding: 10px 8px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; background: #374151; color: #9ca3af;">
-          ⚙️ Codici
-        </button>
-      </div>
-      
-      <!-- Contenuto Tab: ALLARMI (Chat 23) -->
-      <div id="docContentAllarmi" class="doc-content" style="display: block;">
-        <!-- Sottosezione: Messaggi Piloti -->
-        <h4 style="color: #ef4444; margin-bottom: 10px; font-size: 14px;">💬 Messaggi Piloti</h4>
-        <div id="ddgAllarmiTab" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
-          <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
-        </div>
-        
-        <!-- Sottosezione: Piloti Fermi -->
-        <h4 style="color: #f97316; margin-bottom: 10px; font-size: 14px;">⚠️ Piloti Fermi</h4>
-        <div id="ddgPilotiFermiTab" style="max-height: 200px; overflow-y: auto; margin-bottom: 20px;">
-          <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
-        </div>
-        
-        <!-- Sottosezione: Segnale GPS Perso -->
-        <h4 style="color: #dc2626; margin-bottom: 10px; font-size: 14px;">📵 Segnale GPS Perso</h4>
-        <div id="ddgSegnalePersoTab" style="max-height: 200px; overflow-y: auto;">
-          <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
-        </div>
-      </div>
-      
-      <!-- Contenuto Tab: COMUNICATI -->
-      <div id="docContentComunicato" class="doc-content" style="display: none;">
-        <div style="background: #1e3a5f; border: 1px solid #3b82f6; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
-          <textarea id="nuovoComunicatoTesto" placeholder="Scrivi il testo del comunicato..." 
-            style="width: 100%; min-height: 80px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; padding: 10px; font-size: 14px; resize: vertical; box-sizing: border-box;"></textarea>
-          
-          <!-- Upload PDF -->
-          <div style="margin-top: 10px;">
-            <input type="file" id="pdfComunicato" accept="application/pdf" style="display: none;" onchange="onPdfSelected('comunicato')">
-            <div id="pdfPreviewComunicato" style="display: none; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; margin-bottom: 10px;">
-              <span id="pdfNameComunicato" style="color: #60a5fa;"></span>
-              <button onclick="removePdf('comunicato')" style="background: #dc2626; color: white; border: none; padding: 2px 8px; border-radius: 4px; margin-left: 10px; cursor: pointer;">✕</button>
-            </div>
-            <button type="button" onclick="document.getElementById('pdfComunicato').click()" 
-              style="background: #475569; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
-              📎 Allega PDF
-            </button>
-          </div>
-          
-          <div id="selezioneGareComunicato" style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
-            <p style="color: #94a3b8; font-size: 12px; margin-bottom: 8px;">📨 Invia a:</p>
-            <div id="checkboxGareComunicato" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
-          </div>
-          
-          <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-            <button onclick="inviaNuovoDocumento('comunicato')" id="btnInviaComunicato"
-              style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">
-              📤 Pubblica
-            </button>
-          </div>
-        </div>
-        <div id="ddgComunicati" style="max-height: 250px; overflow-y: auto;">
-          <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
-        </div>
-      </div>
-      
-      <!-- Contenuto Tab: GENERAL INFO -->
-      <div id="docContentGeneral" class="doc-content" style="display: none;">
-        <div style="background: #1e4d3a; border: 1px solid #22c55e; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
-          <textarea id="nuovoGeneralTesto" placeholder="Scrivi informazioni generali..." 
-            style="width: 100%; min-height: 80px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; padding: 10px; font-size: 14px; resize: vertical; box-sizing: border-box;"></textarea>
-          
-          <!-- Upload PDF -->
-          <div style="margin-top: 10px;">
-            <input type="file" id="pdfGeneral" accept="application/pdf" style="display: none;" onchange="onPdfSelected('general_info')">
-            <div id="pdfPreviewGeneral" style="display: none; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; margin-bottom: 10px;">
-              <span id="pdfNameGeneral" style="color: #4ade80;"></span>
-              <button onclick="removePdf('general_info')" style="background: #dc2626; color: white; border: none; padding: 2px 8px; border-radius: 4px; margin-left: 10px; cursor: pointer;">✕</button>
-            </div>
-            <button type="button" onclick="document.getElementById('pdfGeneral').click()" 
-              style="background: #475569; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
-              📎 Allega PDF
-            </button>
-          </div>
-          
-          <div style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
-            <p style="color: #94a3b8; font-size: 12px; margin-bottom: 8px;">📨 Invia a:</p>
-            <div id="checkboxGareGeneral" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
-          </div>
-          
-          <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-            <button onclick="inviaNuovoDocumento('general_info')" id="btnInviaGeneral"
-              style="background: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">
-              📤 Pubblica
-            </button>
-          </div>
-        </div>
-        <div id="ddgGeneral" style="max-height: 250px; overflow-y: auto;">
-          <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
-        </div>
-      </div>
-      
-      <!-- Contenuto Tab: POSIZIONI (Chat 23) -->
-      <div id="docContentPosizioni" class="doc-content" style="display: none;">
-        <!-- Recupera PIN Pilota -->
-        <div style="background: #1e3a5f; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
-          <h4 style="color: #f59e0b; margin-bottom: 10px; font-size: 14px;">🔐 Recupera PIN Pilota</h4>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <input type="number" id="pinNumeroPilota" placeholder="N° pilota" 
-              style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 14px;">
-            <button onclick="recuperaPIN()" 
-              style="padding: 10px 16px; background: #f59e0b; color: black; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px;">
-              CERCA
-            </button>
-          </div>
-          <div id="pinResult" style="margin-top: 10px; padding: 10px; background: #0f172a; border-radius: 6px; display: none;">
-            <!-- Risultato PIN -->
-          </div>
-        </div>
-        
-        <!-- GPS Piloti -->
-        <h4 style="color: #a855f7; margin-bottom: 10px; font-size: 14px;">📍 GPS Piloti</h4>
-        <div id="ddgPosizioniTab" style="max-height: calc(100vh - 350px); overflow-y: auto;">
-          <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
-        </div>
-      </div>
-      
-      <!-- Contenuto Tab: CODICI GARA (Transcodifica FMI ↔ FICR) -->
-      <div id="docContentCodici" class="doc-content" style="display: none;">
-        <div style="background: #1e3a5f; border: 1px solid #8b5cf6; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
-          <h4 style="color: #8b5cf6; margin-bottom: 10px; font-size: 14px;">ℹ️ Transcodifica FICR → FMI</h4>
-          <p style="color: #94a3b8; font-size: 12px; margin: 0;">
-            Associa i codici FMI (usati dai piloti per il login) ai codici FICR (usati dall'import).
-            I piloti potranno accedere digitando il codice FMI invece del codice FICR.
-          </p>
-        </div>
-        
-        <h4 style="color: #a855f7; margin-bottom: 10px; font-size: 14px;">📋 Eventi Importati</h4>
-        <div id="mappingList" style="max-height: calc(100vh - 350px); overflow-y: auto;">
-          <div style="text-align: center; color: #888; padding: 20px;">Caricamento...</div>
-        </div>
-        
-        <!-- Form aggiunta manuale -->
-        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #334155;">
-          <h4 style="color: #6b7280; margin-bottom: 10px; font-size: 13px;">➕ Aggiungi Mapping Manuale</h4>
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: end;">
-            <div>
-              <label style="font-size: 10px; color: #6b7280; display: block; margin-bottom: 2px;">FICR</label>
-              <input type="text" id="mapCodiceFicr" placeholder="303-1" 
-                style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 13px; text-transform: uppercase; box-sizing: border-box;">
-            </div>
-            <div>
-              <label style="font-size: 10px; color: #6b7280; display: block; margin-bottom: 2px;">FMI</label>
-              <input type="text" id="mapCodiceFmi" placeholder="VENEN015" 
-                style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 13px; text-transform: uppercase; box-sizing: border-box;">
-            </div>
-            <div>
-              <label style="font-size: 10px; color: #6b7280; display: block; margin-bottom: 2px;">Descrizione</label>
-              <input type="text" id="mapDescrizione" placeholder="Camp. Veneto" 
-                style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 13px; box-sizing: border-box;">
-            </div>
-            <button onclick="aggiungiMapping()" 
-              style="padding: 8px 12px; background: #8b5cf6; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; white-space: nowrap;">
-              ➕
-            </button>
-          </div>
-          <input type="hidden" id="mapAnno" value="2025">
-        </div>
-      </div>
-    </div>
+    <!-- Tab nav (3 tab) -->
+    <nav class="ddg-tabs" role="tablist">
+      <button class="ddg-tab active" onclick="showDdgTab('cruscotto')" id="ddgTabCruscotto">
+        <span class="ico">📊</span>Cruscotto
+      </button>
+      <button class="ddg-tab" onclick="showDdgTab('comunicati')" id="ddgTabComunicati">
+        <span class="ico">📢</span>Comunicati
+      </button>
+      <button class="ddg-tab" onclick="showDdgTab('admin')" id="ddgTabAdmin">
+        <span class="ico">⚙️</span>Admin
+      </button>
+    </nav>
 
-    <!-- Footer info -->
-    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a2e; padding: 10px; text-align: center; font-size: 12px; color: #888;">
-      Auto-aggiornamento ogni 30 secondi • <span id="ddgLastUpdate">--</span>
+    <main class="ddg-main">
+      <!-- ============ TAB 1: CRUSCOTTO (feed unificato + filtri) ============ -->
+      <section class="ddg-pane active" id="ddgPaneCruscotto">
+        <div class="ddg-filters" role="tablist" aria-label="Filtri feed">
+          <button class="ddg-filter active" data-filter="all" onclick="ddgFilterFeed('all')">Tutti</button>
+          <button class="ddg-filter" data-filter="sos" onclick="ddgFilterFeed('sos')">🆘 SOS</button>
+          <button class="ddg-filter" data-filter="fermi" onclick="ddgFilterFeed('fermi')">⚠️ Fermi</button>
+          <button class="ddg-filter" data-filter="gps" onclick="ddgFilterFeed('gps')">📵 GPS</button>
+          <button class="ddg-filter" data-filter="msg" onclick="ddgFilterFeed('msg')">💬 Messaggi</button>
+        </div>
+
+        <div class="ddg-feed-sec" data-sec="msg">
+          <h4 class="ddg-sec-title critical">💬 Messaggi piloti <span class="ddg-sec-count" id="ddgSecCountMsg">0</span></h4>
+          <div id="ddgAllarmiTab"><div class="ddg-empty">Caricamento…</div></div>
+        </div>
+
+        <div class="ddg-feed-sec" data-sec="fermi">
+          <h4 class="ddg-sec-title warn">⚠️ Piloti fermi <span class="ddg-sec-count" id="ddgSecCountFermi">0</span></h4>
+          <div id="ddgPilotiFermiTab"><div class="ddg-empty">Caricamento…</div></div>
+        </div>
+
+        <div class="ddg-feed-sec" data-sec="gps">
+          <h4 class="ddg-sec-title danger">📵 Segnale GPS perso <span class="ddg-sec-count" id="ddgSecCountGps">0</span></h4>
+          <div id="ddgSegnalePersoTab"><div class="ddg-empty">Caricamento…</div></div>
+        </div>
+      </section>
+
+      <!-- ============ TAB 2: COMUNICATI (form unificato + lista) ============ -->
+      <section class="ddg-pane" id="ddgPaneComunicati">
+        <div class="ddg-doc-type" role="tablist" aria-label="Tipo documento">
+          <button class="active" data-tipo="comunicato" onclick="selectDocTipo('comunicato')">📢 Comunicato</button>
+          <button data-tipo="general_info" onclick="selectDocTipo('general_info')">📋 Generale</button>
+          <button data-tipo="paddock_info" onclick="selectDocTipo('paddock_info')">🅿️ Paddock</button>
+        </div>
+
+        <!-- Form Comunicato -->
+        <div class="ddg-doc-form" id="formTipoComunicato" data-tipo="comunicato">
+          <textarea id="nuovoComunicatoTesto" class="ddg-textarea" placeholder="Scrivi il testo del comunicato urgente…"></textarea>
+          <div class="ddg-doc-actions">
+            <input type="file" id="pdfComunicato" accept="application/pdf" style="display: none;" onchange="onPdfSelected('comunicato')">
+            <div id="pdfPreviewComunicato" class="ddg-pdf-preview" style="display: none;">
+              <span id="pdfNameComunicato"></span>
+              <button onclick="removePdf('comunicato')" class="ddg-pdf-x">✕</button>
+            </div>
+            <button type="button" class="ddg-pdf-btn" onclick="document.getElementById('pdfComunicato').click()">📎 Allega PDF</button>
+          </div>
+          <div class="ddg-doc-targets">
+            <div class="label">📨 Invia a:</div>
+            <div id="checkboxGareComunicato" class="checks"></div>
+          </div>
+          <button onclick="inviaNuovoDocumento('comunicato')" id="btnInviaComunicato" class="ddg-publish info">
+            📤 Pubblica comunicato
+          </button>
+        </div>
+
+        <!-- Form Generale -->
+        <div class="ddg-doc-form" id="formTipoGeneral" data-tipo="general_info" style="display:none;">
+          <textarea id="nuovoGeneralTesto" class="ddg-textarea" placeholder="Scrivi informazioni generali…"></textarea>
+          <div class="ddg-doc-actions">
+            <input type="file" id="pdfGeneral" accept="application/pdf" style="display: none;" onchange="onPdfSelected('general_info')">
+            <div id="pdfPreviewGeneral" class="ddg-pdf-preview" style="display: none;">
+              <span id="pdfNameGeneral"></span>
+              <button onclick="removePdf('general_info')" class="ddg-pdf-x">✕</button>
+            </div>
+            <button type="button" class="ddg-pdf-btn" onclick="document.getElementById('pdfGeneral').click()">📎 Allega PDF</button>
+          </div>
+          <div class="ddg-doc-targets">
+            <div class="label">📨 Invia a:</div>
+            <div id="checkboxGareGeneral" class="checks"></div>
+          </div>
+          <button onclick="inviaNuovoDocumento('general_info')" id="btnInviaGeneral" class="ddg-publish success">
+            📤 Pubblica info generale
+          </button>
+        </div>
+
+        <!-- Form Paddock -->
+        <div class="ddg-doc-form" id="formTipoPaddock" data-tipo="paddock_info" style="display:none;">
+          <textarea id="nuovoPaddockTesto" class="ddg-textarea" placeholder="Scrivi info sul paddock…"></textarea>
+          <div class="ddg-doc-actions">
+            <input type="file" id="pdfPaddock" accept="application/pdf" style="display: none;" onchange="onPdfSelected('paddock_info')">
+            <div id="pdfPreviewPaddock" class="ddg-pdf-preview" style="display: none;">
+              <span id="pdfNamePaddock"></span>
+              <button onclick="removePdf('paddock_info')" class="ddg-pdf-x">✕</button>
+            </div>
+            <button type="button" class="ddg-pdf-btn" onclick="document.getElementById('pdfPaddock').click()">📎 Allega PDF</button>
+          </div>
+          <div class="ddg-doc-targets">
+            <div class="label">📨 Invia a:</div>
+            <div id="checkboxGarePaddock" class="checks"></div>
+          </div>
+          <button onclick="inviaNuovoDocumento('paddock_info')" id="btnInviaPaddock" class="ddg-publish warn">
+            📤 Pubblica info paddock
+          </button>
+        </div>
+
+        <h4 class="ddg-sec-title" style="margin-top:20px;">Pubblicati recenti</h4>
+        <div id="ddgPubblicati">
+          <div id="ddgComunicati"></div>
+          <div id="ddgGeneral"></div>
+        </div>
+      </section>
+
+      <!-- ============ TAB 3: ADMIN (accordion) ============ -->
+      <section class="ddg-pane" id="ddgPaneAdmin">
+        <details class="ddg-accord" open>
+          <summary><span class="ico">📍</span>GPS piloti<span class="caret">▶</span></summary>
+          <div class="body">
+            <div id="ddgPosizioniTab"><div class="ddg-empty">Caricamento…</div></div>
+          </div>
+        </details>
+
+        <details class="ddg-accord">
+          <summary><span class="ico">🔐</span>Recupero PIN pilota<span class="caret">▶</span></summary>
+          <div class="body">
+            <p class="ddg-help">Cerca il PIN di un pilota tramite il suo numero di gara.</p>
+            <div class="ddg-inline-form">
+              <input type="number" id="pinNumeroPilota" placeholder="N° pilota" class="ddg-input">
+              <button onclick="recuperaPIN()" class="ddg-btn warn">Cerca</button>
+            </div>
+            <div id="pinResult" class="ddg-result" style="display: none;"></div>
+          </div>
+        </details>
+
+        <details class="ddg-accord">
+          <summary><span class="ico">🔁</span>Codici FICR ↔ FMI<span class="caret">▶</span></summary>
+          <div class="body">
+            <p class="ddg-help">Associa i codici FMI (login piloti) ai codici FICR (import). Richiesto una sola volta a evento.</p>
+            <div id="mappingList"><div class="ddg-empty">Caricamento…</div></div>
+            <div class="ddg-mapping-add">
+              <h5>Aggiungi mapping manuale</h5>
+              <div class="grid">
+                <div>
+                  <label>FICR</label>
+                  <input type="text" id="mapCodiceFicr" placeholder="303-1" class="ddg-input">
+                </div>
+                <div>
+                  <label>FMI</label>
+                  <input type="text" id="mapCodiceFmi" placeholder="VENEN015" class="ddg-input">
+                </div>
+                <div>
+                  <label>Descrizione</label>
+                  <input type="text" id="mapDescrizione" placeholder="Camp. Veneto" class="ddg-input">
+                </div>
+                <button onclick="aggiungiMapping()" class="ddg-btn brand">➕</button>
+              </div>
+              <input type="hidden" id="mapAnno" value="2026">
+            </div>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <div class="ddg-footer">
+      <span class="live-dot" aria-hidden="true"></span>
+      Live · agg. <span id="ddgLastUpdate">--</span>
     </div>
   </div>
 
@@ -10044,33 +10554,96 @@
     let currentDocTab = 'allarmi';
     let checkboxGiaPopulati = false; // Flag per evitare reset checkbox
     
-    function showDocTab(tipo) {
-      currentDocTab = tipo;
-      
-      // Aggiorna bottoni
-      document.getElementById('docTabAllarmi').style.background = tipo === 'allarmi' ? '#ef4444' : '#374151';
-      document.getElementById('docTabAllarmi').style.color = tipo === 'allarmi' ? 'white' : '#9ca3af';
-      document.getElementById('docTabComunicato').style.background = tipo === 'comunicato' ? '#3b82f6' : '#374151';
-      document.getElementById('docTabComunicato').style.color = tipo === 'comunicato' ? 'white' : '#9ca3af';
-      document.getElementById('docTabGeneral').style.background = tipo === 'general_info' ? '#22c55e' : '#374151';
-      document.getElementById('docTabGeneral').style.color = tipo === 'general_info' ? 'white' : '#9ca3af';
-      document.getElementById('docTabPosizioni').style.background = tipo === 'posizioni' ? '#a855f7' : '#374151';
-      document.getElementById('docTabPosizioni').style.color = tipo === 'posizioni' ? 'white' : '#9ca3af';
-      document.getElementById('docTabCodici').style.background = tipo === 'codici' ? '#8b5cf6' : '#374151';
-      document.getElementById('docTabCodici').style.color = tipo === 'codici' ? 'white' : '#9ca3af';
-      
-      // Mostra contenuto
-      document.getElementById('docContentAllarmi').style.display = tipo === 'allarmi' ? 'block' : 'none';
-      document.getElementById('docContentComunicato').style.display = tipo === 'comunicato' ? 'block' : 'none';
-      document.getElementById('docContentGeneral').style.display = tipo === 'general_info' ? 'block' : 'none';
-      document.getElementById('docContentPosizioni').style.display = tipo === 'posizioni' ? 'block' : 'none';
-      document.getElementById('docContentCodici').style.display = tipo === 'codici' ? 'block' : 'none';
-      
-      // Carica mapping quando si apre il tab
-      if (tipo === 'codici') {
+    // ============ Navigation nuova DdG (3 tab) ============
+    function showDdgTab(tab) {
+      if (typeof haptic === 'function') haptic(10);
+      ['cruscotto', 'comunicati', 'admin'].forEach(t => {
+        const btn = document.getElementById('ddgTab' + t[0].toUpperCase() + t.slice(1));
+        const pane = document.getElementById('ddgPane' + t[0].toUpperCase() + t.slice(1));
+        if (btn) btn.classList.toggle('active', t === tab);
+        if (pane) pane.classList.toggle('active', t === tab);
+      });
+      // Lazy-load mapping quando Admin viene aperto
+      if (tab === 'admin' && typeof loadMappingCodici === 'function') {
         loadMappingCodici();
       }
     }
+    window.showDdgTab = showDdgTab;
+
+    // Selettore tipo documento dentro tab Comunicati
+    function selectDocTipo(tipo) {
+      if (typeof haptic === 'function') haptic(8);
+      const map = { 'comunicato': 'formTipoComunicato', 'general_info': 'formTipoGeneral', 'paddock_info': 'formTipoPaddock' };
+      document.querySelectorAll('.ddg-doc-type button').forEach(b => {
+        b.classList.toggle('active', b.dataset.tipo === tipo);
+      });
+      Object.entries(map).forEach(([t, id]) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = (t === tipo) ? '' : 'none';
+      });
+    }
+    window.selectDocTipo = selectDocTipo;
+
+    // Filtro feed nel Cruscotto (chip o tap su counter)
+    function ddgFilterFeed(filter) {
+      if (typeof haptic === 'function') haptic(8);
+      // Se arrivo da un counter, switcho al tab Cruscotto se non già attivo
+      const cruscotto = document.getElementById('ddgPaneCruscotto');
+      if (cruscotto && !cruscotto.classList.contains('active')) {
+        showDdgTab('cruscotto');
+      }
+      // Mappa filter → data-sec (msg=messaggi, fermi, gps, all)
+      document.querySelectorAll('.ddg-filter').forEach(b => {
+        b.classList.toggle('active', b.dataset.filter === filter);
+      });
+      const map = { sos: 'msg', msg: 'msg', fermi: 'fermi', gps: 'gps' };
+      const targetSec = map[filter] || null;
+      document.querySelectorAll('.ddg-feed-sec').forEach(sec => {
+        if (filter === 'all' || !targetSec) {
+          sec.classList.remove('hidden');
+        } else {
+          sec.classList.toggle('hidden', sec.dataset.sec !== targetSec);
+        }
+      });
+    }
+    window.ddgFilterFeed = ddgFilterFeed;
+
+    // Aggiorna counter top (chiamato dai render funcs)
+    function updateDdgCounters(counts) {
+      // counts = { sos, fermi, gps, msg }
+      const set = (id, v, counterId) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = (v == null) ? '0' : v;
+        const counter = document.getElementById(counterId);
+        if (counter) counter.classList.toggle('has-items', (v || 0) > 0);
+      };
+      set('ddgCountSOS', counts.sos, 'ddgCounterSOS');
+      set('ddgCountFermi', counts.fermi, 'ddgCounterFermi');
+      set('ddgCountGps', counts.gps, 'ddgCounterGps');
+      set('ddgCountMsg', counts.msg, 'ddgCounterMsg');
+      // Conteggi per-sezione
+      const setSec = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = v || 0;
+      };
+      setSec('ddgSecCountMsg', counts.msg);
+      setSec('ddgSecCountFermi', counts.fermi);
+      setSec('ddgSecCountGps', counts.gps);
+    }
+    window.updateDdgCounters = updateDdgCounters;
+
+    // Compatibility shim: alcuni posti del codice chiamano showDocTab('codici') o simili
+    function showDocTab(tipo) {
+      if (tipo === 'codici' || tipo === 'posizioni') {
+        showDdgTab('admin');
+      } else if (tipo === 'comunicato' || tipo === 'general_info' || tipo === 'paddock_info') {
+        showDdgTab('comunicati');
+        selectDocTipo(tipo === 'general_info' ? 'general_info' : (tipo === 'paddock_info' ? 'paddock_info' : 'comunicato'));
+      } else {
+        showDdgTab('cruscotto');
+      }
+    }
+    window.showDocTab = showDocTab;
     
     // ==================== GESTIONE MAPPING CODICI FMI ↔ FICR ====================
     
@@ -10315,8 +10888,16 @@
     
     function startDdGPolling() {
       if (ddgPollingInterval) clearInterval(ddgPollingInterval);
-      ddgPollingInterval = setInterval(loadDdGData, 30000);
-      
+      // Polling 10s invece di 30s: più reattivo su SOS/fermi durante gara
+      ddgPollingInterval = setInterval(loadDdGData, 10000);
+
+      // Tick live del timestamp footer ogni 5s
+      if (window._ddgTsTick) clearInterval(window._ddgTsTick);
+      window._ddgTsTick = setInterval(() => {
+        const el = document.getElementById('ddgLastUpdate');
+        if (el && el.dataset.ts) el.textContent = fmtAgo(parseInt(el.dataset.ts));
+      }, 5000);
+
       // CHAT 25: Attiva push notifications automaticamente (come GPS)
       initPushNotifications();
     }
@@ -10416,8 +10997,12 @@
         } catch (e) { console.error(e); }
       }
       
-      // Aggiorna timestamp
-      document.getElementById('ddgLastUpdate').textContent = new Date().toLocaleTimeString('it-IT');
+      // Aggiorna timestamp live
+      const el = document.getElementById('ddgLastUpdate');
+      if (el) {
+        el.dataset.ts = Date.now();
+        el.textContent = fmtAgo(Date.now());
+      }
     }
     
     // ========== RENDER MULTI-EVENTO ==========
@@ -10426,9 +11011,18 @@
     function renderAllarmi(messaggi) {
       const container = document.getElementById('ddgAllarmiTab');
       if (!container) return;
-      
+
+      // Aggiorna counter top (SOS non letti + msg totali non letti)
+      if (typeof updateDdgCounters === 'function') {
+        const urgenti = messaggi.filter(m => (m.tipo === 'sos') && !m.letto).length;
+        const msgNonLetti = messaggi.filter(m => !m.letto).length;
+        const prev = window._ddgCounts || {};
+        window._ddgCounts = { ...prev, sos: urgenti, msg: msgNonLetti };
+        updateDdgCounters(window._ddgCounts);
+      }
+
       if (messaggi.length === 0) {
-        container.innerHTML = '<div style="text-align: center; color: #4ade80; padding: 15px; background: rgba(74,222,128,0.1); border-radius: 8px;">✅ Nessun allarme</div>';
+        container.innerHTML = '<div class="ddg-empty">✅ Nessun messaggio</div>';
         return;
       }
       
@@ -10633,12 +11227,19 @@ ${mapsLink}`;
     function renderPilotiFermiMulti(piloti) {
       const container = document.getElementById('ddgPilotiFermiTab');
       if (!container) return;
-      
+
       // Filtra nascosti
       const visibili = piloti.filter(p => !isAlertHidden('fermo', `${p.codice_gara}_${p.numero_pilota}`));
-      
+
+      // Aggiorna counter top
+      if (typeof updateDdgCounters === 'function') {
+        const prev = window._ddgCounts || {};
+        window._ddgCounts = { ...prev, fermi: visibili.length };
+        updateDdgCounters(window._ddgCounts);
+      }
+
       if (visibili.length === 0) {
-        container.innerHTML = '<div style="text-align: center; color: #4ade80; padding: 15px; background: rgba(74,222,128,0.1); border-radius: 8px;">✅ Nessun pilota fermo</div>';
+        container.innerHTML = '<div class="ddg-empty">✅ Nessun pilota fermo</div>';
         return;
       }
       
@@ -10675,12 +11276,19 @@ ${mapsLink}`;
     function renderSegnalePersoMulti(piloti) {
       const container = document.getElementById('ddgSegnalePersoTab');
       if (!container) return;
-      
+
       // Filtra nascosti
       const visibili = piloti.filter(p => !isAlertHidden('perso', `${p.codice_gara}_${p.numero_pilota}`));
-      
+
+      // Aggiorna counter top
+      if (typeof updateDdgCounters === 'function') {
+        const prev = window._ddgCounts || {};
+        window._ddgCounts = { ...prev, gps: visibili.length };
+        updateDdgCounters(window._ddgCounts);
+      }
+
       if (visibili.length === 0) {
-        container.innerHTML = '<div style="text-align: center; color: #4ade80; padding: 15px; background: rgba(74,222,128,0.1); border-radius: 8px;">✅ Tutti i segnali attivi</div>';
+        container.innerHTML = '<div class="ddg-empty">✅ Tutti i segnali attivi</div>';
         return;
       }
       

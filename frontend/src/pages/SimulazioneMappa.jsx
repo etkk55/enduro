@@ -29,6 +29,7 @@ const NOMI_FAKE = [
 ];
 const CLASSI = ['Major', 'Expert', 'Sport', 'Junior'];
 const CLASSE_COLOR = { Major: '#dc2626', Expert: '#d97706', Sport: '#2563eb', Junior: '#10b981' };
+const CLASSE_ABBR = { Major: 'MAJ', Expert: 'EXP', Sport: 'SPO', Junior: 'JUN' };
 const FUORI_PERCORSO_THRESHOLD_M = 50; // > 50m dal tracciato
 
 // Util: distanza Haversine (m)
@@ -538,73 +539,79 @@ export default function SimulazioneMappa() {
       <div className="relative flex-1">
         <div ref={mapRef} style={{ width: '100%', height: '100%', minHeight: 420 }} />
 
-        {/* Tooltip pilota selezionato */}
-        {pilotaSel && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[320px] bg-surface border border-border-subtle rounded-xl shadow-xl p-4 z-[500]">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-black">#{pilotaSel.numero}</span>
-                  <span className="px-2 py-0.5 rounded text-xs font-bold text-white" style={{ background: CLASSE_COLOR[pilotaSel.classe] }}>{pilotaSel.classe}</span>
-                </div>
-                <div className="text-base font-semibold">{pilotaSel.nome} {pilotaSel.cognome}</div>
+        {/* Colonna sidebar destra: Leaderboard + Tooltip (non coprono il tracciato) */}
+        <div className="absolute top-4 right-4 flex flex-col gap-3 z-[400]" style={{ width: 340 }}>
+          {/* LEADERBOARD resizable */}
+          {piloti.length > 0 && (
+            <div
+              className="bg-surface/95 backdrop-blur-sm border border-border-subtle rounded-xl shadow-xl overflow-auto"
+              style={{ resize: 'vertical', height: 340, minHeight: 120, maxHeight: '70vh' }}
+            >
+              <div className="sticky top-0 bg-surface px-3 py-2 border-b border-border-subtle flex items-center justify-between z-10">
+                <div className="font-bold text-sm">🏆 Classifica assoluta</div>
+                <div className="text-xs text-content-tertiary">{piloti.length} piloti</div>
               </div>
-              <button onClick={() => setSelected(null)} className="text-content-tertiary hover:text-content-primary text-sm">✕</button>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="bg-surface-2 rounded-md p-2">
-                <div className="text-xs text-content-tertiary">Classifica assoluta</div>
-                <div className="font-black text-lg">{posAssoluta.get(pilotaSel.id)}° <span className="text-sm font-normal text-content-tertiary">/ {piloti.length}</span></div>
-              </div>
-              <div className="bg-surface-2 rounded-md p-2">
-                <div className="text-xs text-content-tertiary">Classifica {pilotaSel.classe}</div>
-                <div className="font-black text-lg">{posClasse.get(pilotaSel.id)}° <span className="text-sm font-normal text-content-tertiary">/ {(perClasse[pilotaSel.classe] || []).length}</span></div>
-              </div>
-            </div>
-            <div className="mt-2 pt-2 border-t border-border-subtle grid grid-cols-2 gap-2 text-xs text-content-secondary">
-              <div>Stato: <span className="font-semibold text-content-primary">{statoLabel[pilotaSel.stato]}</span></div>
-              <div>Velocità: <span className="font-mono text-content-primary">{pilotaSel.speedKmh.toFixed(0)} km/h</span></div>
-            </div>
-          </div>
-        )}
-
-        {/* LEADERBOARD in alto a destra */}
-        {piloti.length > 0 && (
-          <div className="absolute top-4 right-4 w-[320px] max-h-[70vh] overflow-y-auto bg-surface/95 backdrop-blur-sm border border-border-subtle rounded-xl shadow-xl z-[400]">
-            <div className="sticky top-0 bg-surface px-3 py-2 border-b border-border-subtle flex items-center justify-between">
-              <div className="font-bold text-sm">🏆 Classifica assoluta</div>
-              <div className="text-xs text-content-tertiary">{piloti.length} piloti</div>
-            </div>
-            <table className="w-full text-xs">
-              <thead className="bg-surface-2 text-content-tertiary sticky top-[40px]">
-                <tr>
-                  <th className="px-2 py-1 text-left font-semibold">Pos</th>
-                  <th className="px-2 py-1 text-left font-semibold">#</th>
-                  <th className="px-2 py-1 text-left font-semibold">Pilota</th>
-                  <th className="px-2 py-1 text-left font-semibold">Classe</th>
-                  <th className="px-2 py-1 text-right font-semibold">Cl.</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border-subtle">
-                {classificaAssoluta.map(p => (
-                  <tr
-                    key={p.id}
-                    onClick={() => setSelected(p.id)}
-                    className={`cursor-pointer hover:bg-surface-2 ${selected === p.id ? 'bg-rose-50 dark:bg-rose-900/20' : ''}`}
-                  >
-                    <td className="px-2 py-1 font-bold">{posAssoluta.get(p.id)}°</td>
-                    <td className="px-2 py-1 font-mono">#{p.numero}</td>
-                    <td className="px-2 py-1 truncate max-w-[130px]">{p.nome} {p.cognome}</td>
-                    <td className="px-2 py-1">
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold text-white" style={{ background: CLASSE_COLOR[p.classe] }}>{p.classe[0]}</span>
-                    </td>
-                    <td className="px-2 py-1 text-right font-mono text-content-tertiary">{posClasse.get(p.id)}°</td>
+              <table className="w-full text-xs">
+                <thead className="bg-surface-2 text-content-tertiary sticky top-[37px] z-10">
+                  <tr>
+                    <th className="px-2 py-1 text-left font-semibold">Pos</th>
+                    <th className="px-2 py-1 text-left font-semibold">#</th>
+                    <th className="px-2 py-1 text-left font-semibold">Pilota</th>
+                    <th className="px-2 py-1 text-left font-semibold">Cl.</th>
+                    <th className="px-2 py-1 text-right font-semibold">P.Cl</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody className="divide-y divide-border-subtle">
+                  {classificaAssoluta.map(p => (
+                    <tr
+                      key={p.id}
+                      onClick={() => setSelected(p.id)}
+                      className={`cursor-pointer hover:bg-surface-2 ${selected === p.id ? 'bg-rose-50 dark:bg-rose-900/20' : ''}`}
+                    >
+                      <td className="px-2 py-1 font-bold">{posAssoluta.get(p.id)}°</td>
+                      <td className="px-2 py-1 font-mono">#{p.numero}</td>
+                      <td className="px-2 py-1 truncate max-w-[130px]">{p.nome || '—'} {p.cognome || ''}</td>
+                      <td className="px-2 py-1">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold text-white tracking-wider" style={{ background: CLASSE_COLOR[p.classe] }}>{CLASSE_ABBR[p.classe] || p.classe}</span>
+                      </td>
+                      <td className="px-2 py-1 text-right font-mono text-content-tertiary">{posClasse.get(p.id)}°</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* TOOLTIP pilota selezionato (sotto la classifica, stessa colonna) */}
+          {pilotaSel && (
+            <div className="bg-surface border border-border-subtle rounded-xl shadow-xl p-4">
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-black">#{pilotaSel.numero}</span>
+                    <span className="px-2 py-0.5 rounded text-xs font-bold text-white" style={{ background: CLASSE_COLOR[pilotaSel.classe] }}>{pilotaSel.classe}</span>
+                  </div>
+                  <div className="text-base font-semibold mt-0.5">{pilotaSel.nome || '—'} {pilotaSel.cognome || ''}</div>
+                </div>
+                <button onClick={() => setSelected(null)} className="text-content-tertiary hover:text-content-primary text-sm">✕</button>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="bg-surface-2 rounded-md p-2">
+                  <div className="text-xs text-content-tertiary">Cl. assoluta</div>
+                  <div className="font-black text-lg">{posAssoluta.get(pilotaSel.id)}° <span className="text-sm font-normal text-content-tertiary">/ {piloti.length}</span></div>
+                </div>
+                <div className="bg-surface-2 rounded-md p-2">
+                  <div className="text-xs text-content-tertiary">Cl. {pilotaSel.classe}</div>
+                  <div className="font-black text-lg">{posClasse.get(pilotaSel.id)}° <span className="text-sm font-normal text-content-tertiary">/ {(perClasse[pilotaSel.classe] || []).length}</span></div>
+                </div>
+              </div>
+              <div className="mt-2 pt-2 border-t border-border-subtle grid grid-cols-2 gap-2 text-xs text-content-secondary">
+                <div>Stato: <span className="font-semibold text-content-primary">{statoLabel[pilotaSel.stato]}</span></div>
+                <div>Velocità: <span className="font-mono text-content-primary">{pilotaSel.speedKmh.toFixed(0)} km/h</span></div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* LEGENDA */}
         <div className="absolute bottom-4 left-4 bg-surface/95 backdrop-blur-sm border border-border-subtle rounded-xl p-3 z-[400] shadow-lg text-xs max-w-[240px]">

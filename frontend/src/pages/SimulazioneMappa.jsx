@@ -329,17 +329,20 @@ export default function SimulazioneMappa() {
 
       // Aggiorna marker sulla mappa
       let marker = lf.markers.get(p.id);
-      const icon = L.divIcon({ html: markerSVG(p), className: 'sim-divicon', iconSize: [52, 74], iconAnchor: [26, 56] });
+      // Chiave icona: cambia solo se stato diverso o heading ruotato >= 5°.
+      // Evita di rigenerare il DOM ad ogni tick (distruggerebbe il click handler).
+      const iconKey = `${p.stato}|${Math.round(p.heading / 5) * 5}`;
       if (!marker) {
-        marker = L.marker([p.lat, p.lon], { icon, bubblingMouseEvents: false, interactive: true }).addTo(lf.map);
-        marker.pilotId = p.id;
-        marker.on('click', function(e) {
-          if (e.originalEvent) { e.originalEvent.stopPropagation(); }
-          setSelected(this.pilotId);
-        });
+        const icon = L.divIcon({ html: markerSVG(p), className: 'sim-divicon', iconSize: [52, 74], iconAnchor: [26, 56] });
+        marker = L.marker([p.lat, p.lon], { icon, interactive: true }).addTo(lf.map);
+        marker._iconKey = iconKey;
         lf.markers.set(p.id, marker);
       } else {
-        marker.setIcon(icon);
+        if (marker._iconKey !== iconKey) {
+          const icon = L.divIcon({ html: markerSVG(p), className: 'sim-divicon', iconSize: [52, 74], iconAnchor: [26, 56] });
+          marker.setIcon(icon);
+          marker._iconKey = iconKey;
+        }
         marker.setLatLng([p.lat, p.lon]);
       }
 

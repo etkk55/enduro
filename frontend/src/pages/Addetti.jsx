@@ -202,20 +202,30 @@ export default function Addetti() {
 <style>
   @page { size: A4; margin: 10mm; }
   * { box-sizing: border-box; }
-  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 0; color: #111; }
-  .page { width: 190mm; margin: 0 auto; page-break-after: always; }
-  .page:last-child { page-break-after: auto; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: -apple-system, system-ui, sans-serif; color: #111; }
+  .page {
+    width: 190mm;
+    height: 277mm;           /* area utile A4 meno margini 10mm */
+    margin: 0 auto;
+    overflow: hidden;
+    break-after: page;
+    page-break-after: always;
+  }
+  .page:last-of-type {
+    break-after: auto;
+    page-break-after: auto;
+  }
   .grid {
     display: grid;
     grid-template-columns: repeat(2, 85mm);
-    grid-auto-rows: 54mm;
-    gap: 3mm 6mm;
+    grid-template-rows: repeat(5, 53mm);
+    gap: 2mm 6mm;
     justify-content: center;
     align-content: start;
-    padding-top: 2mm;
   }
   .card {
-    width: 85mm; height: 54mm;
+    width: 85mm; height: 53mm;
     border: 0.6mm solid #888;
     border-radius: 2mm;
     padding: 2mm 3mm;

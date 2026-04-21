@@ -70,7 +70,7 @@ const COLOR_ALLARME = '#dc2626';   // rosso scuro
 
 // SVG DivIcon generator (restituisce HTML string) - colore fisso per stato
 function markerSVG(p) {
-  const { numero, stato, heading } = p;
+  const { id, numero, stato, heading } = p;
   const col = stato === 'fuori_percorso' ? COLOR_FUORI
            : stato === 'allarme' ? COLOR_ALLARME
            : stato === 'fermo' ? COLOR_FERMO
@@ -84,11 +84,11 @@ function markerSVG(p) {
   const pulse = isAlarm
     ? `<circle cx="22" cy="22" r="20" fill="none" stroke="${col}" stroke-width="2" opacity="0.8"><animate attributeName="r" values="18;28;18" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/></circle>`
     : '';
-  // Numero GRANDE e ben leggibile: 18px bold bianco, fondo scuro, bordo colorato
+  // Click gestito inline via window.__simSelect per robustezza (Leaflet click spesso non fira con transitions/icon updates)
   return `
-    <div class="sim-marker" style="position:relative;width:${Math.max(size,58)}px;height:${size+28}px;">
-      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:#111;color:#fff;font-size:18px;font-weight:900;padding:3px 10px;border-radius:6px;border:2.5px solid ${col};white-space:nowrap;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(0,0,0,0.6);z-index:2;line-height:1;">#${numero}</div>
-      <svg width="${size}" height="${size}" viewBox="0 0 44 44" style="position:absolute;top:26px;left:50%;transform:translateX(-50%);">
+    <div class="sim-marker" data-pid="${id}" onclick="window.__simSelect && window.__simSelect(${id})" style="position:relative;width:${Math.max(size,58)}px;height:${size+28}px;cursor:pointer;pointer-events:auto;">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:#111;color:#fff;font-size:18px;font-weight:900;padding:3px 10px;border-radius:6px;border:2.5px solid ${col};white-space:nowrap;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(0,0,0,0.6);z-index:2;line-height:1;pointer-events:none;">#${numero}</div>
+      <svg width="${size}" height="${size}" viewBox="0 0 44 44" style="position:absolute;top:26px;left:50%;transform:translateX(-50%);pointer-events:none;">
         ${pulse}
         ${arrow}
       </svg>
@@ -112,8 +112,14 @@ export default function SimulazioneMappa() {
   const pilotiRef = useRef([]); // stato simulazione senza rerender
   const tickRef = useRef(null);
   const lastNotificatoRef = useRef(new Set()); // id piloti già notificati come fuori percorso
-  const speedRef = useRef(1); // letto dentro tick per evitare stale closure
+  const speedRef = useRef(1);
   useEffect(() => { speedRef.current = speed; }, [speed]);
+
+  // Espone un handler globale che Leaflet divIcon può chiamare da onclick inline
+  useEffect(() => {
+    window.__simSelect = (id) => setSelected(id);
+    return () => { delete window.__simSelect; };
+  }, []);
 
   // Carica eventi
   useEffect(() => {

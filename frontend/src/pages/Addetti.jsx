@@ -72,6 +72,119 @@ export default function Addetti() {
     setLoading(false);
   }
 
+  function handlePrintAllQR() {
+    if (!addetti || addetti.length === 0) return;
+    const evento = eventi.find(e => e.id === eventoSelezionato);
+    const nomeEvento = evento?.nome_evento || evento?.codice_gara || 'Evento';
+    const ruoloEmoji = { medico: '🩺', resp_ps: '🏁', resp_trasf: '🛣️', addetto: '👷' };
+    const ruoloLabel = { medico: 'Medico di Gara', resp_ps: 'Responsabile PS', resp_trasf: 'Resp. Trasferimenti', addetto: 'Addetto' };
+
+    // Ordina: medico, resp_ps, resp_trasf, addetto — poi cognome
+    const ordine = { medico: 0, resp_ps: 1, resp_trasf: 2, addetto: 3 };
+    const sorted = [...addetti].sort((a, b) => {
+      const dr = (ordine[a.ruolo] ?? 9) - (ordine[b.ruolo] ?? 9);
+      if (dr !== 0) return dr;
+      return (a.cognome || '').localeCompare(b.cognome || '');
+    });
+
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+    const cards = sorted.map(a => {
+      const url = `${ERTA_URL}/?t=${a.token}`;
+      const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=2&data=${encodeURIComponent(url)}`;
+      const dettaglio = a.nome_ps ? `PS: ${a.nome_ps}` : (a.nome_settore ? a.nome_settore : '');
+      return `
+        <div class="card">
+          <div class="card-head">
+            <span class="ruolo">${ruoloEmoji[a.ruolo] || '👷'} ${ruoloLabel[a.ruolo] || 'Addetto'}</span>
+          </div>
+          <div class="nome">${esc(a.nome)} ${esc(a.cognome)}</div>
+          ${dettaglio ? `<div class="det">${esc(dettaglio)}</div>` : '<div class="det">&nbsp;</div>'}
+          <img class="qr" src="${qrSrc}" alt="QR" />
+          <div class="istruz">Inquadra con la fotocamera</div>
+          ${a.telefono ? `<div class="tel">📞 ${esc(a.telefono)}</div>` : ''}
+        </div>`;
+    }).join('');
+
+    // Riempi l'ultima pagina con card vuote per avere sempre griglia completa
+    const vuote = (8 - (sorted.length % 8)) % 8;
+    const fillers = Array.from({ length: vuote }, () => '<div class="card empty"></div>').join('');
+
+    const html = `<!DOCTYPE html>
+<html lang="it"><head>
+<meta charset="utf-8">
+<title>QR Addetti — ${esc(nomeEvento)}</title>
+<style>
+  @page { size: A4; margin: 8mm; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 0; color: #111; }
+  .intestazione { text-align: center; padding: 6mm 0 3mm; border-bottom: 1px dashed #bbb; margin-bottom: 4mm; }
+  .intestazione h1 { margin: 0; font-size: 14pt; }
+  .intestazione .sub { font-size: 10pt; color: #666; margin-top: 2px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 66mm;
+    gap: 0;
+  }
+  .card {
+    border: 1px dashed #888;
+    padding: 4mm 3mm;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    page-break-inside: avoid;
+  }
+  .card.empty { border-style: dashed; border-color: #ddd; }
+  /* Segni di taglio agli angoli di ogni card */
+  .card::before, .card::after {
+    content: '';
+    position: absolute;
+    background: #000;
+  }
+  .card::before { top: 0; left: 0; width: 5mm; height: 0.3mm; box-shadow: 0 66mm 0 #000; }
+  .card::after { top: 0; left: 0; width: 0.3mm; height: 5mm; box-shadow: calc(100% - 0.3mm) 0 0 #000; }
+  .card-head .ruolo {
+    font-size: 8pt;
+    background: #fde2e2;
+    color: #991b1b;
+    padding: 1mm 2mm;
+    border-radius: 2mm;
+    font-weight: 600;
+  }
+  .nome { font-size: 11pt; font-weight: 700; margin-top: 2mm; line-height: 1.2; }
+  .det { font-size: 8pt; color: #666; margin-top: 1mm; line-height: 1.1; min-height: 3mm; }
+  .qr { width: 38mm; height: 38mm; margin: 2mm 0 1mm; }
+  .istruz { font-size: 7pt; color: #888; margin-top: 0.5mm; }
+  .tel { font-size: 8pt; color: #333; margin-top: 1mm; font-family: monospace; }
+  /* Segni taglio nei 4 angoli del foglio */
+  .crop { position: fixed; width: 8mm; height: 8mm; }
+  .crop.tl { top: 2mm; left: 2mm; border-top: 0.3mm solid #000; border-left: 0.3mm solid #000; }
+  .crop.tr { top: 2mm; right: 2mm; border-top: 0.3mm solid #000; border-right: 0.3mm solid #000; }
+  .crop.bl { bottom: 2mm; left: 2mm; border-bottom: 0.3mm solid #000; border-left: 0.3mm solid #000; }
+  .crop.br { bottom: 2mm; right: 2mm; border-bottom: 0.3mm solid #000; border-right: 0.3mm solid #000; }
+  @media print {
+    .no-print { display: none; }
+  }
+</style>
+</head><body>
+  <div class="crop tl"></div><div class="crop tr"></div>
+  <div class="crop bl"></div><div class="crop br"></div>
+  <div class="intestazione">
+    <h1>QR Accesso ERTA — ${esc(nomeEvento)}</h1>
+    <div class="sub">${sorted.length} addetti · Stampato il ${new Date().toLocaleDateString('it-IT')}</div>
+  </div>
+  <div class="grid">${cards}${fillers}</div>
+  <script>window.onload = () => setTimeout(() => window.print(), 500);</script>
+</body></html>`;
+
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+  }
+
   function resetForm() {
     setForm({ ruolo: 'addetto', nome: '', cognome: '', telefono: '', id_ps: '', nome_settore: '', note: '' });
     setEditingId(null);
@@ -279,9 +392,19 @@ export default function Addetti() {
       <section className="bg-surface border border-border-subtle rounded-xl overflow-hidden">
         <div className="px-5 py-3 border-b border-border-subtle flex items-center justify-between">
           <h2 className="text-lg font-semibold">Addetti registrati ({addetti.length})</h2>
-          <button onClick={loadAddetti} className="text-xs text-content-tertiary hover:text-content-primary flex items-center gap-1">
-            <RefreshCw className="w-3 h-3" /> Aggiorna
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrintAllQR}
+              disabled={addetti.length === 0}
+              className="text-xs px-3 py-1.5 rounded-md bg-rose-600 text-white font-semibold hover:bg-rose-700 disabled:opacity-40 flex items-center gap-1"
+              title="Stampa tutti i QR code su A4 (8 per pagina, con segni di taglio)"
+            >
+              <Printer className="w-3 h-3" /> Stampa tutti i QR
+            </button>
+            <button onClick={loadAddetti} className="text-xs text-content-tertiary hover:text-content-primary flex items-center gap-1">
+              <RefreshCw className="w-3 h-3" /> Aggiorna
+            </button>
+          </div>
         </div>
         {loading ? (
           <div className="p-8 text-center text-content-tertiary">Caricamento…</div>

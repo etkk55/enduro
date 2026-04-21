@@ -6,8 +6,8 @@ import { Play, Pause, RotateCcw, Flag, AlertTriangle, Navigation, Activity } fro
 // Velocità simulazione (moltiplicatore)
 const SPEED_PRESETS = [1, 2, 5, 10];
 const PILOTI_COUNT_DEFAULT = 20;
-const TRAIL_LEN = 10; // ultime N posizioni per scia
-const TICK_MS = 500; // passo simulazione base
+const TRAIL_LEN = 14; // ultime N posizioni per scia
+const TICK_MS = 80;  // polling rapido per movimento fluido
 const FUORI_PERCORSO_THRESHOLD_M = 50; // > 50m dal tracciato
 
 // Util: distanza Haversine (m)
@@ -41,35 +41,33 @@ function bearing(lat1, lon1, lat2, lon2) {
   return (toDeg(Math.atan2(y, x)) + 360) % 360;
 }
 
-// Colore per velocità (km/h)
-function colorForSpeed(kmh) {
-  if (kmh < 5) return '#6b7280';       // grigio (fermo)
-  if (kmh < 40) return '#22c55e';      // verde
-  if (kmh < 80) return '#f59e0b';      // giallo
-  return '#ef4444';                     // rosso veloce
-}
+// Colore fisso per stato (velocità non più usata per il colore)
+const COLOR_IN_MOTO = '#ef4444';   // rosso
+const COLOR_FERMO   = '#9ca3af';   // grigio
+const COLOR_FUORI   = '#0ea5e9';   // azzurro
+const COLOR_ALLARME = '#dc2626';   // rosso scuro
 
-// SVG DivIcon generator (restituisce HTML string)
+// SVG DivIcon generator (restituisce HTML string) - colore fisso per stato
 function markerSVG(p) {
-  const { numero, stato, heading, speedKmh } = p;
-  const col = stato === 'fuori_percorso' ? '#0ea5e9'
-           : stato === 'allarme' ? '#dc2626'
-           : stato === 'fermo' ? '#9ca3af'
-           : colorForSpeed(speedKmh);
+  const { numero, stato, heading } = p;
+  const col = stato === 'fuori_percorso' ? COLOR_FUORI
+           : stato === 'allarme' ? COLOR_ALLARME
+           : stato === 'fermo' ? COLOR_FERMO
+           : COLOR_IN_MOTO;
   const isMoving = stato === 'in_moto' || stato === 'fuori_percorso';
   const isAlarm = stato === 'allarme';
-  const size = isAlarm ? 52 : 40;
+  const size = isAlarm ? 56 : 44;
   const arrow = isMoving
-    ? `<polygon points="20,4 34,32 20,24 6,32" fill="${col}" stroke="#fff" stroke-width="2" transform="rotate(${heading} 20 20)" />`
-    : `<circle cx="20" cy="20" r="10" fill="${col}" stroke="#fff" stroke-width="2.5" />`;
+    ? `<polygon points="22,4 38,36 22,27 6,36" fill="${col}" stroke="#fff" stroke-width="2.2" transform="rotate(${heading} 22 22)" />`
+    : `<circle cx="22" cy="22" r="11" fill="${col}" stroke="#fff" stroke-width="2.8" />`;
   const pulse = isAlarm
-    ? `<circle cx="20" cy="20" r="18" fill="none" stroke="${col}" stroke-width="2" opacity="0.8"><animate attributeName="r" values="16;26;16" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/></circle>`
+    ? `<circle cx="22" cy="22" r="20" fill="none" stroke="${col}" stroke-width="2" opacity="0.8"><animate attributeName="r" values="18;28;18" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/></circle>`
     : '';
-  // Numero ben leggibile: 14px bianco, fondo scuro, bordo colore stato
+  // Numero GRANDE e ben leggibile: 18px bold bianco, fondo scuro, bordo colorato
   return `
-    <div class="sim-marker" style="position:relative;width:${Math.max(size,44)}px;height:${size+22}px;">
-      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:#111;color:#fff;font-size:14px;font-weight:900;padding:2px 8px;border-radius:5px;border:2px solid ${col};white-space:nowrap;letter-spacing:0.5px;box-shadow:0 2px 6px rgba(0,0,0,0.55);z-index:2;line-height:1;">#${numero}</div>
-      <svg width="${size}" height="${size}" viewBox="0 0 40 40" style="position:absolute;top:20px;left:50%;transform:translateX(-50%);">
+    <div class="sim-marker" style="position:relative;width:${Math.max(size,58)}px;height:${size+28}px;">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:#111;color:#fff;font-size:18px;font-weight:900;padding:3px 10px;border-radius:6px;border:2.5px solid ${col};white-space:nowrap;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(0,0,0,0.6);z-index:2;line-height:1;">#${numero}</div>
+      <svg width="${size}" height="${size}" viewBox="0 0 44 44" style="position:absolute;top:26px;left:50%;transform:translateX(-50%);">
         ${pulse}
         ${arrow}
       </svg>
@@ -214,9 +212,9 @@ export default function SimulazioneMappa() {
     const now = Date.now();
     let allarmi = 0, fuori = 0, fermi = 0;
 
-    // Base: ogni tick avanza ~2% del tracciato a speed=1x (10x = 20%). Moltiplicato per jitter individuale pilota.
-    const baseStepPct = 0.020 * speed;
-    const baseStep = Math.max(2, Math.floor(coords.length * baseStepPct));
+    // Base: ogni tick (80ms) avanza ~0.3% tracciato a 1x. A 10x ~3%. Step piccoli = movimento fluido.
+    const baseStepPct = 0.003 * speed;
+    const baseStep = Math.max(1, Math.floor(coords.length * baseStepPct));
 
     pilotiRef.current = pilotiRef.current.map(p => {
       // Cambio stato random a intervalli
@@ -232,10 +230,10 @@ export default function SimulazioneMappa() {
       const prevLat = p.lat, prevLon = p.lon;
 
       if (p.stato === 'in_moto') {
-        // Avanza in SENSO ORARIO lungo il tracciato (coords array percorso all'indietro)
-        const jitter = 0.7 + Math.random() * 0.6; // 0.7..1.3 di variabilità tra piloti
+        // Avanza in SENSO ORARIO (index crescente su questo tracciato)
+        const jitter = 0.75 + Math.random() * 0.5; // 0.75..1.25 variabilità piloti
         const step = Math.max(1, Math.floor(baseStep * jitter));
-        p.trackIdx = (p.trackIdx - step + coords.length) % coords.length;
+        p.trackIdx = (p.trackIdx + step) % coords.length;
         const [lon, lat] = coords[p.trackIdx];
         p.heading = bearing(prevLat, prevLon, lat, lon);
         p.lat = lat; p.lon = lon;
@@ -287,12 +285,14 @@ export default function SimulazioneMappa() {
         marker.setLatLng([p.lat, p.lon]);
       }
 
-      // Aggiorna trail
+      // Aggiorna trail (colore fisso rosso/azzurro/grigio per stato)
       let trail = lf.trails.get(p.id);
-      const trailColor = p.stato === 'fuori_percorso' ? '#0ea5e9' : colorForSpeed(p.speedKmh);
+      const trailColor = p.stato === 'fuori_percorso' ? COLOR_FUORI
+                      : p.stato === 'fermo' || p.stato === 'allarme' ? COLOR_FERMO
+                      : COLOR_IN_MOTO;
       if (trail) lf.map.removeLayer(trail);
       if (p.trail.length >= 2) {
-        trail = L.polyline(p.trail, { color: trailColor, weight: 2, opacity: 0.55 }).addTo(lf.map);
+        trail = L.polyline(p.trail, { color: trailColor, weight: 2.5, opacity: 0.5 }).addTo(lf.map);
         lf.trails.set(p.id, trail);
       }
 
@@ -353,6 +353,13 @@ export default function SimulazioneMappa() {
 
   return (
     <div className="flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
+      <style>{`
+        /* Smoothing marker: transition CSS fa scorrere il transform che Leaflet applica */
+        .leaflet-marker-icon.sim-divicon {
+          transition: transform 120ms linear;
+          will-change: transform;
+        }
+      `}</style>
       {/* Toolbar */}
       <header className="flex items-center gap-3 px-4 py-2 border-b border-border-subtle bg-surface flex-wrap">
         <select
@@ -459,9 +466,7 @@ export default function SimulazioneMappa() {
         <div className="absolute bottom-4 left-4 bg-surface/95 backdrop-blur-sm border border-border-subtle rounded-xl p-3 z-[400] shadow-lg text-xs max-w-[240px]">
           <div className="font-bold text-sm mb-2 text-content-primary">Legenda</div>
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-sm bg-green-500"></span>In moto · &lt; 40 km/h</div>
-            <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-sm bg-amber-500"></span>In moto · 40-80 km/h</div>
-            <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-sm bg-red-500"></span>In moto · &gt; 80 km/h</div>
+            <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-sm bg-red-500"></span>Pilota in moto (freccia direzione)</div>
             <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-full bg-gray-400"></span>Pilota fermo</div>
             <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-full bg-red-600 animate-pulse"></span>Allarme / SOS attivo</div>
             <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-sm bg-sky-500"></span>Fuori percorso (notifica DdG)</div>

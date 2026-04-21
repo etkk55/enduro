@@ -75,12 +75,65 @@ export default function Addetti() {
 
   function handlePrintAllQR() {
     if (!addetti || addetti.length === 0) return;
-    // Apri dialog in-page per raccogliere opzioni (prompt/confirm nativi spariscono in background tab)
-    setPrintDialog({ ddgStr: '', includeRetro: true });
+    // Calcola scadenza default: data_fine + 1 giorno 23:59 (se presente)
+    const evento = eventi.find(e => e.id === eventoSelezionato);
+    let defaultExpire = '';
+    if (evento?.data_fine) {
+      const d = new Date(evento.data_fine);
+      d.setDate(d.getDate() + 1);
+      defaultExpire = d.toISOString().slice(0, 10); // yyyy-mm-dd
+    }
+    setPrintDialog({
+      ddgStr: '',
+      includeRetro: true,
+      validita: evento?.data_fine ? 'gara' : 'nessuna', // 'gara' | 'custom' | 'nessuna'
+      customDate: defaultExpire,
+    });
   }
 
-  function executePrint({ ddgStr, includeRetro }) {
+  async function invalidaTuttiToken() {
+    if (!eventoSelezionato) return;
+    if (!confirm('Invalidare TUTTI i QR degli addetti di questo evento?\nSarà necessario rigenerare e riconsegnare nuovi QR.')) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/eventi/${eventoSelezionato}/addetti/invalidate-tokens`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ Invalidati ${data.invalidated} token. Gli addetti verranno disconnessi al prossimo controllo.`);
+        loadAddetti();
+      }
+    } catch (err) { alert('Errore: ' + err.message); }
+  }
+
+  async function executePrint({ ddgStr, includeRetro, validita, customDate }) {
     if (!addetti || addetti.length === 0) return;
+
+    // Calcola expires_at in base alla scelta
+    let expiresAt = null;
+    if (validita === 'gara') {
+      const ev = eventi.find(e => e.id === eventoSelezionato);
+      if (ev?.data_fine) {
+        const d = new Date(ev.data_fine);
+        d.setDate(d.getDate() + 1);
+        d.setHours(23, 59, 0, 0);
+        expiresAt = d.toISOString();
+      }
+    } else if (validita === 'custom' && customDate) {
+      const d = new Date(customDate + 'T23:59:00');
+      expiresAt = d.toISOString();
+    }
+
+    // Applica scadenza bulk sul backend prima della stampa
+    try {
+      await fetch(`${API_BASE}/api/eventi/${eventoSelezionato}/addetti/expire-tokens`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expires_at: expiresAt })
+      });
+    } catch (err) {
+      alert('Errore aggiornamento scadenza token: ' + err.message);
+      return;
+    }
+
     const win = window.open('', '_blank');
     if (!win) {
       alert('Il browser ha bloccato la finestra di stampa. Consenti i popup per questo sito e riprova.');
@@ -168,6 +221,7 @@ export default function Addetti() {
             ${ddgStr ? `<div class="rif-row"><span class="rif-lbl">DdG</span><span class="rif-val">${esc(ddgStr)}</span></div>` : ''}
             ${medicoRif ? `<div class="rif-row"><span class="rif-lbl">Medico</span><span class="rif-val">${esc(medicoRif)}</span></div>` : ''}
           </div>
+          ${expiresAt ? `<div class="back-scad">⏱ QR valido fino al ${new Date(expiresAt).toLocaleDateString('it-IT')}</div>` : ''}
           <div class="back-foot">ERTA · FMI · Enduro Race-Time Assistant</div>
         </div>`;
     };
@@ -304,6 +358,7 @@ export default function Addetti() {
     min-width: 10mm; text-align: center;
   }
   .rif-val { color: #222; font-family: monospace; font-size: 6.8pt; line-height: 1.2; }
+  .back-scad { font-size: 6pt; color: #991b1b; text-align: center; margin-top: 1mm; font-style: italic; }
   .back-foot { font-size: 5.5pt; color: #999; text-align: center; margin-top: auto; padding-top: 1mm; border-top: 0.2mm dashed #ddd; letter-spacing: 0.3px; }
   /* Crop marks agli angoli del foglio */
   .crop { position: fixed; width: 6mm; height: 6mm; }
@@ -580,6 +635,14 @@ export default function Addetti() {
             >
               ⬇ CSV
             </button>
+            <button
+              onClick={invalidaTuttiToken}
+              disabled={addetti.length === 0}
+              className="text-xs px-3 py-1.5 rounded-md bg-red-100 text-red-700 font-semibold hover:bg-red-200 disabled:opacity-40 flex items-center gap-1"
+              title="Scade subito tutti i QR degli addetti. Servono nuovi QR per riaccedere."
+            >
+              🚫 Invalida QR
+            </button>
             <button onClick={loadAddetti} className="text-xs text-content-tertiary hover:text-content-primary flex items-center gap-1">
               <RefreshCw className="w-3 h-3" /> Aggiorna
             </button>
@@ -693,6 +756,34 @@ function PrintBadgeDialog({ value, onChange, onCancel, onConfirm }) {
             autoFocus
           />
           <p className="text-xs text-content-tertiary mt-1">Stampato sul retro di ogni badge. Lascia vuoto per ometterlo.</p>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold uppercase text-content-tertiary mb-1">
+            Validità QR
+          </label>
+          <select
+            value={value.validita}
+            onChange={e => onChange({ ...value, validita: e.target.value })}
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-sm"
+          >
+            <option value="gara">Solo durante la gara (consigliato)</option>
+            <option value="custom">Scegli data di scadenza…</option>
+            <option value="nessuna">Nessuna scadenza</option>
+          </select>
+          {value.validita === 'custom' && (
+            <input
+              type="date"
+              value={value.customDate}
+              onChange={e => onChange({ ...value, customDate: e.target.value })}
+              className="mt-2 w-full px-3 py-2 rounded-md border border-border bg-surface text-sm"
+            />
+          )}
+          <p className="text-xs text-content-tertiary mt-1">
+            {value.validita === 'gara' && 'Il QR scade il giorno dopo la fine gara alle 23:59.'}
+            {value.validita === 'custom' && 'Il QR scade alla data scelta (23:59).'}
+            {value.validita === 'nessuna' && '⚠️ Nessuna scadenza — QR utilizzabile finché non lo invalidi manualmente.'}
+          </p>
         </div>
 
         <label className="flex items-start gap-2 cursor-pointer select-none">

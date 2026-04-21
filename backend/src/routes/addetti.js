@@ -141,6 +141,12 @@ router.post('/api/addetti/login-token', async (req, res, next) => {
       return res.status(401).json({ error: 'Token non valido o addetto disattivato' });
     }
 
+    // Check scadenza token
+    const addettoRow = result.rows[0];
+    if (addettoRow.token_expires_at && new Date(addettoRow.token_expires_at) < new Date()) {
+      return res.status(401).json({ error: 'QR scaduto. Richiedine uno nuovo al Direttore di Gara.' });
+    }
+
     await pool.query(
       `UPDATE addetti SET ultimo_accesso_at = CURRENT_TIMESTAMP WHERE id = $1`,
       [result.rows[0].id]
@@ -268,6 +274,32 @@ router.patch('/api/addetti/alerts/:id_alert/preso-in-carico', async (req, res, n
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Alert non trovato' });
     res.json({ success: true, alert: result.rows[0] });
+  } catch (err) { next(err); }
+});
+
+// PATCH bulk imposta scadenza token di tutti gli addetti di un evento
+// body: { expires_at: "2026-05-02T23:59:00Z" | null }
+router.patch('/api/eventi/:id_evento/addetti/expire-tokens', async (req, res, next) => {
+  try {
+    const { id_evento } = req.params;
+    const { expires_at } = req.body || {};
+    const result = await pool.query(
+      `UPDATE addetti SET token_expires_at = $1 WHERE id_evento = $2 RETURNING id`,
+      [expires_at || null, id_evento]
+    );
+    res.json({ success: true, updated: result.rowCount, expires_at: expires_at || null });
+  } catch (err) { next(err); }
+});
+
+// POST invalida subito tutti i token (scade_at = NOW)
+router.post('/api/eventi/:id_evento/addetti/invalidate-tokens', async (req, res, next) => {
+  try {
+    const { id_evento } = req.params;
+    const result = await pool.query(
+      `UPDATE addetti SET token_expires_at = CURRENT_TIMESTAMP WHERE id_evento = $1 RETURNING id`,
+      [id_evento]
+    );
+    res.json({ success: true, invalidated: result.rowCount });
   } catch (err) { next(err); }
 });
 

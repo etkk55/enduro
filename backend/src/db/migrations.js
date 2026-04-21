@@ -245,6 +245,12 @@ async function runMigrations() {
       ADD COLUMN IF NOT EXISTS tracciato_updated_at TIMESTAMP;
     `);
 
+    // Scadenza token addetti (NULL = nessuna scadenza)
+    await client.query(`
+      ALTER TABLE addetti
+      ADD COLUMN IF NOT EXISTS token_expires_at TIMESTAMP;
+    `);
+
     // Aggiunge id_addetto a push_subscriptions per notifiche mirate ai marshalls
     await client.query(`
       ALTER TABLE push_subscriptions

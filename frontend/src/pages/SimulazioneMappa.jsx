@@ -58,17 +58,18 @@ function markerSVG(p) {
            : colorForSpeed(speedKmh);
   const isMoving = stato === 'in_moto' || stato === 'fuori_percorso';
   const isAlarm = stato === 'allarme';
-  const size = isAlarm ? 48 : 36;
+  const size = isAlarm ? 52 : 40;
   const arrow = isMoving
-    ? `<polygon points="18,4 30,28 18,22 6,28" fill="${col}" stroke="#fff" stroke-width="1.5" transform="rotate(${heading} 18 18)" />`
-    : `<circle cx="18" cy="18" r="9" fill="${col}" stroke="#fff" stroke-width="2" />`;
+    ? `<polygon points="20,4 34,32 20,24 6,32" fill="${col}" stroke="#fff" stroke-width="2" transform="rotate(${heading} 20 20)" />`
+    : `<circle cx="20" cy="20" r="10" fill="${col}" stroke="#fff" stroke-width="2.5" />`;
   const pulse = isAlarm
-    ? `<circle cx="18" cy="18" r="16" fill="none" stroke="${col}" stroke-width="2" opacity="0.8"><animate attributeName="r" values="14;22;14" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/></circle>`
+    ? `<circle cx="20" cy="20" r="18" fill="none" stroke="${col}" stroke-width="2" opacity="0.8"><animate attributeName="r" values="16;26;16" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/></circle>`
     : '';
+  // Numero ben leggibile: 14px bianco, fondo scuro, bordo colore stato
   return `
-    <div class="sim-marker" style="position:relative;width:${size}px;height:${size+14}px;">
-      <div style="position:absolute;top:-2px;left:50%;transform:translateX(-50%);background:#111;color:#fff;font-size:10px;font-weight:800;padding:1px 5px;border-radius:3px;border:1px solid ${col};white-space:nowrap;letter-spacing:0.3px;box-shadow:0 1px 3px rgba(0,0,0,0.4);z-index:2;">#${numero}</div>
-      <svg width="${size}" height="${size}" viewBox="0 0 36 36" style="position:absolute;top:12px;left:50%;transform:translateX(-50%);">
+    <div class="sim-marker" style="position:relative;width:${Math.max(size,44)}px;height:${size+22}px;">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:#111;color:#fff;font-size:14px;font-weight:900;padding:2px 8px;border-radius:5px;border:2px solid ${col};white-space:nowrap;letter-spacing:0.5px;box-shadow:0 2px 6px rgba(0,0,0,0.55);z-index:2;line-height:1;">#${numero}</div>
+      <svg width="${size}" height="${size}" viewBox="0 0 40 40" style="position:absolute;top:20px;left:50%;transform:translateX(-50%);">
         ${pulse}
         ${arrow}
       </svg>
@@ -213,40 +214,60 @@ export default function SimulazioneMappa() {
     const now = Date.now();
     let allarmi = 0, fuori = 0, fermi = 0;
 
+    // Base: ogni tick avanza ~2% del tracciato a speed=1x (10x = 20%). Moltiplicato per jitter individuale pilota.
+    const baseStepPct = 0.020 * speed;
+    const baseStep = Math.max(2, Math.floor(coords.length * baseStepPct));
+
     pilotiRef.current = pilotiRef.current.map(p => {
       // Cambio stato random a intervalli
       if (now > p.statoFinoA) {
         const r = Math.random();
-        if (r < 0.03) p.stato = 'allarme';
-        else if (r < 0.08) p.stato = 'fuori_percorso';
-        else if (r < 0.18) p.stato = 'fermo';
+        if (r < 0.02) p.stato = 'allarme';
+        else if (r < 0.06) p.stato = 'fuori_percorso';
+        else if (r < 0.14) p.stato = 'fermo';
         else p.stato = 'in_moto';
-        p.statoFinoA = now + 5000 + Math.random() * 15000;
+        p.statoFinoA = now + 4000 + Math.random() * 12000;
       }
 
       const prevLat = p.lat, prevLon = p.lon;
 
       if (p.stato === 'in_moto') {
-        // Avanza lungo il tracciato
-        const step = Math.max(1, Math.floor((p.speedKmh / 40) * speed));
-        p.trackIdx = (p.trackIdx + step) % coords.length;
+        // Avanza in SENSO ORARIO lungo il tracciato (coords array percorso all'indietro)
+        const jitter = 0.7 + Math.random() * 0.6; // 0.7..1.3 di variabilità tra piloti
+        const step = Math.max(1, Math.floor(baseStep * jitter));
+        p.trackIdx = (p.trackIdx - step + coords.length) % coords.length;
         const [lon, lat] = coords[p.trackIdx];
         p.heading = bearing(prevLat, prevLon, lat, lon);
         p.lat = lat; p.lon = lon;
         p.speedKmh = 30 + Math.random() * 60;
+        // Clear offset fuori percorso
+        p.fpOffset = null;
       } else if (p.stato === 'fuori_percorso') {
-        // Drift casuale fuori dal tracciato
-        const drift = 0.0003 * speed;
-        p.lat += (Math.random() - 0.5) * drift;
-        p.lon += (Math.random() - 0.5) * drift;
-        p.heading = bearing(prevLat, prevLon, p.lat, p.lon) || p.heading;
-        p.speedKmh = 10 + Math.random() * 20;
+        // Sta fermo appena fuori dal tracciato (offset fisso ~20-60m perpendicolare al bearing)
+        if (!p.fpOffset) {
+          // Calcola offset perpendicolare alla direzione corrente
+          const angle = ((p.heading || 0) + 90) * Math.PI / 180; // 90° a destra del moto
+          const offsetM = (20 + Math.random() * 40) * (Math.random() < 0.5 ? 1 : -1);
+          // 1 grado lat ≈ 111km; lon dipende da cos(lat)
+          const [lon0, lat0] = coords[p.trackIdx];
+          const dLat = (offsetM * Math.cos(angle)) / 111000;
+          const dLon = (offsetM * Math.sin(angle)) / (111000 * Math.cos(lat0 * Math.PI / 180));
+          p.fpOffset = { dLat, dLon };
+          p.lat = lat0 + dLat;
+          p.lon = lon0 + dLon;
+        }
+        // Jitter minimo per sembrare vivo
+        p.lat += (Math.random() - 0.5) * 0.00002;
+        p.lon += (Math.random() - 0.5) * 0.00002;
+        p.speedKmh = 5 + Math.random() * 10;
         fuori++;
       } else if (p.stato === 'fermo') {
         p.speedKmh = 0;
+        p.fpOffset = null;
         fermi++;
       } else if (p.stato === 'allarme') {
         p.speedKmh = 0;
+        p.fpOffset = null;
         allarmi++;
       }
 
@@ -255,7 +276,7 @@ export default function SimulazioneMappa() {
 
       // Aggiorna marker sulla mappa
       let marker = lf.markers.get(p.id);
-      const icon = L.divIcon({ html: markerSVG(p), className: 'sim-divicon', iconSize: [36, 50], iconAnchor: [18, 42] });
+      const icon = L.divIcon({ html: markerSVG(p), className: 'sim-divicon', iconSize: [52, 74], iconAnchor: [26, 56] });
       if (!marker) {
         marker = L.marker([p.lat, p.lon], { icon }).addTo(lf.map);
         marker.on('click', () => setSelected(p.id));
@@ -433,6 +454,20 @@ export default function SimulazioneMappa() {
             </div>
           </div>
         )}
+
+        {/* LEGENDA */}
+        <div className="absolute bottom-4 left-4 bg-surface/95 backdrop-blur-sm border border-border-subtle rounded-xl p-3 z-[400] shadow-lg text-xs max-w-[240px]">
+          <div className="font-bold text-sm mb-2 text-content-primary">Legenda</div>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-sm bg-green-500"></span>In moto · &lt; 40 km/h</div>
+            <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-sm bg-amber-500"></span>In moto · 40-80 km/h</div>
+            <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-sm bg-red-500"></span>In moto · &gt; 80 km/h</div>
+            <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-full bg-gray-400"></span>Pilota fermo</div>
+            <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-full bg-red-600 animate-pulse"></span>Allarme / SOS attivo</div>
+            <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 rounded-sm bg-sky-500"></span>Fuori percorso (notifica DdG)</div>
+            <div className="flex items-center gap-2 pt-1 border-t border-border-subtle mt-1"><span className="inline-block w-4 h-0.5 bg-blue-600"></span>Tracciato GPX</div>
+          </div>
+        </div>
 
         {!tracciato && (
           <div className="absolute inset-0 flex items-center justify-center bg-surface/80 backdrop-blur-sm">

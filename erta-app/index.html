@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.1.09</title>
+  <title>ERTA v1.1.12</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5167,7 +5167,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.09</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.12</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -5190,7 +5190,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.1.09</div>
+    <div class="login-version">ERTA · v1.1.12</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -5823,12 +5823,13 @@
 
   <!-- Sheet inoltra SOS ad addetto (FUORI da #app) -->
   <div class="popup-overlay" id="inoltraSosSheet" onclick="if(event.target===this)chiudiInoltraSos()">
-    <div class="altro-sheet" onclick="event.stopPropagation()" style="max-width: 500px;">
+    <div class="altro-sheet" style="max-width: 500px; position:relative;">
+      <button type="button" data-close-sheet="inoltra-sos" onclick="chiudiInoltraSos()" aria-label="Chiudi" style="position:absolute; top:8px; right:8px; width:36px; height:36px; border-radius:50%; border:none; background:var(--bg-surface-2); color:var(--text-primary); font-size:20px; font-weight:700; cursor:pointer; z-index:10;">✕</button>
       <div class="altro-grip"></div>
       <h3 style="margin-bottom: 8px; font-size: 18px;">📡 Inoltra SOS all'addetto</h3>
       <p id="inoltraSosIntro" style="color:var(--text-tertiary); font-size:13px; margin-bottom:14px;">Scegli chi contattare via WhatsApp. Il messaggio sarà precompilato con posizione GPS e dettagli.</p>
       <div id="inoltraSosList"><div class="ddg-empty">Caricamento addetti…</div></div>
-      <button type="button" data-action="close-inoltra-sos" class="ddg-btn" style="width:100%; margin-top:12px; background:var(--bg-surface-2); color:var(--text-secondary); border:1px solid var(--border-default);">Chiudi</button>
+      <button type="button" data-close-sheet="inoltra-sos" onclick="chiudiInoltraSos()" class="ddg-btn" style="width:100%; margin-top:12px; background:var(--bg-surface-2); color:var(--text-secondary); border:1px solid var(--border-default);">Chiudi</button>
     </div>
   </div>
 
@@ -11450,6 +11451,13 @@
       list.innerHTML = '<div class="ddg-empty">Caricamento addetti…</div>';
       sheet.classList.add('active');
 
+      // Bind robusti ai bottoni Chiudi (fallback se inline onclick viene bloccato)
+      sheet.querySelectorAll('[data-close-sheet="inoltra-sos"]').forEach(btn => {
+        btn.onclick = null;
+        btn.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); chiudiInoltraSos(); }, { once: false });
+        btn.addEventListener('touchend', (ev) => { ev.preventDefault(); ev.stopPropagation(); chiudiInoltraSos(); }, { once: false });
+      });
+
       if (!currentUser?.evento?.id) {
         list.innerHTML = '<div class="ddg-empty">Evento non disponibile</div>';
         return;
@@ -11550,7 +11558,7 @@
       ].filter(Boolean);
       const testo = parti.join('\n');
 
-      const urlWhatsapp = `https://wa.me/${telPulito}?text=${encodeURIComponent(testo)}`;
+      const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telPulito}&text=${encodeURIComponent(testo)}&type=phone_number&app_absent=0`;
       window.open(urlWhatsapp, '_blank');
       // Non chiudo il sheet così si può inoltrare a più addetti in sequenza
     }

@@ -76,25 +76,28 @@ export default function Addetti() {
     if (!addetti || addetti.length === 0) return;
     const evento = eventi.find(e => e.id === eventoSelezionato);
     const nomeEvento = evento?.nome_evento || evento?.codice_gara || 'Evento';
+    const luogoEvento = evento?.luogo || '';
+    const fmtData = (d) => d ? new Date(d).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+    const dataIni = fmtData(evento?.data_inizio);
+    const dataFin = fmtData(evento?.data_fine);
+    const periodoGara = dataIni && dataFin && dataIni !== dataFin ? `${dataIni} – ${dataFin}` : (dataIni || dataFin || '');
+
     const ruoloEmoji = { medico: '🩺', resp_ps: '🏁', resp_trasf: '🛣️', addetto: '👷' };
     const ruoloLabel = { medico: 'Medico di Gara', resp_ps: 'Responsabile PS', resp_trasf: 'Resp. Trasferimenti', addetto: 'Addetto' };
-    // Colori bordo per ruolo (RGB)
     const ruoloColor = {
-      medico: '#dc2626',     // rosso
-      resp_ps: '#d97706',    // ambra
-      resp_trasf: '#2563eb', // blu
-      addetto: '#6b7280'     // grigio
+      medico: '#dc2626', resp_ps: '#d97706', resp_trasf: '#2563eb', addetto: '#6b7280'
     };
     const ruoloBg = {
-      medico: '#fde2e2',
-      resp_ps: '#fef3c7',
-      resp_trasf: '#dbeafe',
-      addetto: '#e5e7eb'
+      medico: '#fde2e2', resp_ps: '#fef3c7', resp_trasf: '#dbeafe', addetto: '#e5e7eb'
     };
 
-    // Opzioni interattive
-    const numEmergenza = prompt('Numero di emergenza DdG (stampato su ogni badge). Lascia vuoto per ometterlo.', '+39 ') || '';
-    const includeRetro = confirm('Stampare anche il RETRO con le istruzioni?\n\nOK = fronte + retro (duplex short-edge)\nAnnulla = solo fronte');
+    // Medico auto-lookup (primo medico nella lista)
+    const medico = addetti.find(a => a.ruolo === 'medico');
+    const medicoRif = medico ? `${medico.nome} ${medico.cognome}${medico.telefono ? ' · ' + medico.telefono : ''}` : '';
+
+    // Prompt: riferimenti DdG in un'unica stringa
+    const ddgStr = prompt('Riferimento Direttore di Gara (Nome, Telefono). Es. "Mario Rossi · +39 347 1234567".\nLascia vuoto per ometterlo.', '') || '';
+    const includeRetro = confirm('Stampare anche il RETRO con istruzioni, DdG, Medico e info gara?\n\nOK = fronte + retro (duplex, capovolgi lato corto)\nAnnulla = solo fronte');
 
     // Ordina: medico, resp_ps, resp_trasf, addetto — poi cognome
     const ordine = { medico: 0, resp_ps: 1, resp_trasf: 2, addetto: 3 };
@@ -131,7 +134,7 @@ export default function Addetti() {
             </div>
             <div class="qr-wrap">
               <img class="qr" src="${qrSrc}" alt="QR" />
-              <div class="qr-logo">FMI</div>
+              <div class="qr-logo"><img src="/fmi-logo.png" alt="FMI" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'FMI',className:'qr-logo-fallback'}))"/></div>
             </div>
           </div>
           <div class="foot">Inquadra il QR con la fotocamera per accedere ad ERTA</div>
@@ -142,15 +145,21 @@ export default function Addetti() {
       const color = ruoloColor[a.ruolo] || ruoloColor.addetto;
       return `
         <div class="card back" style="border-color:${color};">
-          <div class="back-title">ISTRUZIONI ERTA</div>
+          <div class="back-head">
+            <div class="back-event-name">${esc(nomeEvento)}</div>
+            <div class="back-event-sub">${esc([periodoGara, luogoEvento].filter(Boolean).join(' · '))}</div>
+          </div>
           <ol class="back-list">
-            <li>Inquadra il QR lato fronte con la fotocamera del telefono</li>
-            <li>Tocca la notifica per aprire ERTA</li>
+            <li>Inquadra il <b>QR</b> con la fotocamera del telefono</li>
             <li>Consenti <b>Posizione</b> e <b>Notifiche</b></li>
-            <li>Aggiungi l'app alla <b>schermata Home</b></li>
+            <li>Aggiungi ERTA alla <b>schermata Home</b></li>
+            <li>Tieni l'app aperta durante la gara</li>
           </ol>
-          ${numEmergenza ? `<div class="back-emerg">🆘 Emergenza DdG: <b>${esc(numEmergenza)}</b></div>` : ''}
-          <div class="back-event">${esc(nomeEvento)}</div>
+          <div class="back-rif">
+            ${ddgStr ? `<div class="rif-row"><span class="rif-lbl">DdG</span><span class="rif-val">${esc(ddgStr)}</span></div>` : ''}
+            ${medicoRif ? `<div class="rif-row"><span class="rif-lbl">Medico</span><span class="rif-val">${esc(medicoRif)}</span></div>` : ''}
+          </div>
+          <div class="back-foot">ERTA · FMI · Enduro Race-Time Assistant</div>
         </div>`;
     };
 
@@ -238,13 +247,17 @@ export default function Addetti() {
   .qr-logo {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
+    width: 7mm; height: 7mm;
     background: #fff;
-    color: #dc2626;
-    font-size: 6pt; font-weight: 900;
-    padding: 0.4mm 1.2mm;
-    border-radius: 0.6mm;
-    border: 0.3mm solid #dc2626;
-    letter-spacing: 0.3px;
+    border-radius: 1mm;
+    padding: 0.4mm;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 0.3mm #fff;
+  }
+  .qr-logo img { width: 100%; height: 100%; object-fit: contain; }
+  .qr-logo-fallback {
+    color: #dc2626; font-size: 6pt; font-weight: 900;
+    padding: 0.4mm 1mm; border: 0.3mm solid #dc2626; border-radius: 0.6mm;
   }
   .foot {
     font-size: 6pt; color: #666; text-align: center;
@@ -254,17 +267,25 @@ export default function Addetti() {
   /* RETRO */
   .back-page .card.back {
     justify-content: flex-start;
-    padding: 3mm 4mm;
+    padding: 2.5mm 3mm;
+    gap: 1.2mm;
   }
-  .back-title { font-size: 9pt; font-weight: 800; text-align: center; letter-spacing: 1px; margin-bottom: 2mm; }
-  .back-list { font-size: 7.5pt; line-height: 1.35; margin: 0; padding-left: 4mm; color: #222; }
-  .back-list li { margin-bottom: 0.8mm; }
-  .back-emerg {
-    margin-top: 2mm; padding: 1.5mm 2mm;
-    background: #fef2f2; border: 0.3mm solid #dc2626; border-radius: 1mm;
-    font-size: 8pt; text-align: center; color: #991b1b;
+  .back-head { text-align: center; border-bottom: 0.3mm solid #ddd; padding-bottom: 1.2mm; }
+  .back-event-name { font-size: 8.5pt; font-weight: 800; line-height: 1.1; color: #111; }
+  .back-event-sub { font-size: 6.5pt; color: #666; margin-top: 0.5mm; }
+  .back-list { font-size: 7pt; line-height: 1.3; margin: 0; padding-left: 4mm; color: #222; }
+  .back-list li { margin-bottom: 0.4mm; }
+  .back-rif { display: flex; flex-direction: column; gap: 0.6mm; margin-top: 0.5mm; }
+  .rif-row { display: flex; align-items: baseline; font-size: 7pt; gap: 1.5mm; }
+  .rif-lbl {
+    font-weight: 700; font-size: 6pt;
+    background: #111; color: #fff;
+    padding: 0.3mm 1.2mm; border-radius: 1mm;
+    text-transform: uppercase; letter-spacing: 0.3px;
+    min-width: 10mm; text-align: center;
   }
-  .back-event { font-size: 6.5pt; color: #888; text-align: center; margin-top: auto; padding-top: 1.5mm; border-top: 0.2mm dashed #ccc; }
+  .rif-val { color: #222; font-family: monospace; font-size: 6.8pt; line-height: 1.2; }
+  .back-foot { font-size: 5.5pt; color: #999; text-align: center; margin-top: auto; padding-top: 1mm; border-top: 0.2mm dashed #ddd; letter-spacing: 0.3px; }
   /* Crop marks agli angoli del foglio */
   .crop { position: fixed; width: 6mm; height: 6mm; }
   .crop.tl { top: 3mm; left: 3mm; border-top: 0.3mm solid #000; border-left: 0.3mm solid #000; }

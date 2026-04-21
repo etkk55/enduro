@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.1.20</title>
+  <title>ERTA v1.1.21</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1091,8 +1091,30 @@
     }
     .sos-cat:active { transform: scale(0.97); }
     .sos-cat.selected {
-      border-width: 3px;
-      background: rgba(255,255,255,0.04);
+      border-width: 4px;
+      transform: scale(1.03);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.12), 0 6px 18px rgba(0,0,0,0.5);
+      z-index: 1;
+    }
+    .sos-cat.selected .sos-cat-lbl { color: #fff; }
+    .sos-cat.selected .sos-cat-prio { color: #fff; }
+    .sos-cat.selected::after {
+      content: '✓';
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 22px;
+      height: 22px;
+      background: #10b981;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      border: 2px solid var(--bg-surface);
     }
     .sos-cat-ico { font-size: 22px; line-height: 1; margin-bottom: 2px; }
     .sos-cat-lbl { font-size: 10px; font-weight: 800; text-align: center; line-height: 1.1; letter-spacing: 0.3px; }
@@ -1103,11 +1125,12 @@
       color: rgba(255,255,255,0.55);
       letter-spacing: 0.3px;
     }
-    .sos-cat.prio-1 { border-color: #dc2626; } .sos-cat.prio-1.selected { background: rgba(220,38,38,0.14); }
-    .sos-cat.prio-2 { border-color: #ea580c; } .sos-cat.prio-2.selected { background: rgba(234,88,12,0.14); }
-    .sos-cat.prio-3 { border-color: #f59e0b; } .sos-cat.prio-3.selected { background: rgba(245,158,11,0.14); }
-    .sos-cat.prio-4 { border-color: #3b82f6; } .sos-cat.prio-4.selected { background: rgba(59,130,246,0.14); }
-    .sos-cat.prio-5 { border-color: #22c55e; } .sos-cat.prio-5.selected { background: rgba(34,197,94,0.14); }
+    /* Sfondo colore pieno quando selezionato (bordo colorato + fill) */
+    .sos-cat.prio-1 { border-color: #dc2626; } .sos-cat.prio-1.selected { background: rgba(220,38,38,0.32); border-color: #ef4444; }
+    .sos-cat.prio-2 { border-color: #ea580c; } .sos-cat.prio-2.selected { background: rgba(234,88,12,0.32); border-color: #f97316; }
+    .sos-cat.prio-3 { border-color: #f59e0b; } .sos-cat.prio-3.selected { background: rgba(245,158,11,0.32); border-color: #fbbf24; }
+    .sos-cat.prio-4 { border-color: #3b82f6; } .sos-cat.prio-4.selected { background: rgba(59,130,246,0.32); border-color: #60a5fa; }
+    .sos-cat.prio-5 { border-color: #22c55e; } .sos-cat.prio-5.selected { background: rgba(34,197,94,0.32); border-color: #4ade80; }
     /* Quinta card (info) occupa tutta la riga orizzontale */
     .sos-cat-grid .sos-cat:nth-child(5) { grid-column: span 2; min-height: 50px; flex-direction: row; gap: 8px; padding: 6px 10px; }
     .sos-cat-grid .sos-cat:nth-child(5) .sos-cat-ico { margin-bottom: 0; }
@@ -5291,7 +5314,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.20</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.21</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -5314,7 +5337,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.1.20</div>
+    <div class="login-version">ERTA · v1.1.21</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -5626,7 +5649,7 @@
             <div class="sos-cat-sub">Caduta grave, pilota bloccato</div>
             <div class="sos-cat-prio">P2</div>
           </button>
-          <button type="button" class="sos-cat prio-3" data-tipo="ostacolo_percorso" onclick="selezionaTipoSOS('ostacolo_percorso')">
+          <button type="button" class="sos-cat prio-3 selected" data-tipo="ostacolo_percorso" onclick="selezionaTipoSOS('ostacolo_percorso')">
             <div class="sos-cat-ico">⚠️</div>
             <div class="sos-cat-lbl">OSTACOLO PERCORSO</div>
             <div class="sos-cat-sub">Albero, buca, pilota avanti</div>
@@ -5647,21 +5670,21 @@
         </div>
       </div>
 
-      <!-- Tasto SOS (disabilitato finché non è selezionata una categoria) -->
-      <div class="sos-container sos-disabled" id="sosContainer">
+      <!-- Tasto SOS (sempre attivo: default 'Ostacolo percorso' se niente selezionato) -->
+      <div class="sos-container" id="sosContainer">
         <h4 class="sos-cat-title">2. Tieni premuto 3 secondi</h4>
         <div class="sos-btn-wrap">
           <svg class="sos-ring" id="sosRing" viewBox="0 0 220 220" aria-hidden="true">
             <circle class="track" cx="110" cy="110" r="100"></circle>
             <circle class="fill" cx="110" cy="110" r="100"></circle>
           </svg>
-          <button class="sos-btn" id="sosBtn" disabled
+          <button class="sos-btn" id="sosBtn"
                   onmousedown="startSOS()" onmouseup="cancelSOS()" onmouseleave="cancelSOS()"
                   ontouchstart="startSOS()" ontouchend="cancelSOS()" ontouchcancel="cancelSOS()">
             🆘
           </button>
         </div>
-        <p class="sos-label" id="sosLabel">Seleziona prima il tipo di emergenza</p>
+        <p class="sos-label" id="sosLabel">TIENI PREMUTO 3 SEC · OSTACOLO PERCORSO</p>
       </div>
 
       <div class="segnala-form" style="margin-top: 15px;">
@@ -9294,7 +9317,8 @@
       guasto_meccanico: 'GUASTO MECCANICO',
       info_non_urgente: 'INFO NON URGENTE'
     };
-    let _sosTipoSelezionato = null;
+    // Default: ostacolo_percorso (P3) così il pulsante SOS è sempre utilizzabile
+    let _sosTipoSelezionato = 'ostacolo_percorso';
 
     function selezionaTipoSOS(tipo) {
       if (!SOS_PRIORITA[tipo]) return;
@@ -9318,16 +9342,8 @@
     let sosVibrationInterval = null;
     let sosCountdownInterval = null;
     function startSOS() {
-      // Richiede categoria selezionata
-      if (!_sosTipoSelezionato) {
-        if (navigator.vibrate) navigator.vibrate([30, 30, 30]);
-        const container = document.getElementById('sosContainer');
-        if (container) {
-          container.style.outline = '2px solid #ef4444';
-          setTimeout(() => { container.style.outline = ''; }, 500);
-        }
-        return;
-      }
+      // Se per qualche motivo non c'è categoria, usa il default (ostacolo_percorso)
+      if (!_sosTipoSelezionato) _sosTipoSelezionato = 'ostacolo_percorso';
       sosStartTime = Date.now();
       const btn = document.getElementById('sosBtn');
       const container = btn.closest('.sos-container');

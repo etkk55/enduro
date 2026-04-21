@@ -8,6 +8,27 @@ const SPEED_PRESETS = [1, 2, 5, 10];
 const PILOTI_COUNT_DEFAULT = 5;
 const TRAIL_LEN = 14; // ultime N posizioni per scia
 const TICK_MS = 80;  // polling rapido per movimento fluido
+
+// Dati fittizi piloti per la simulazione
+const NOMI_FAKE = [
+  { nome: 'Marco', cognome: 'Rossi' }, { nome: 'Luca', cognome: 'Bianchi' },
+  { nome: 'Andrea', cognome: 'Verdi' }, { nome: 'Paolo', cognome: 'Neri' },
+  { nome: 'Giovanni', cognome: 'Russo' }, { nome: 'Matteo', cognome: 'Ferrari' },
+  { nome: 'Alessandro', cognome: 'Esposito' }, { nome: 'Francesco', cognome: 'Romano' },
+  { nome: 'Simone', cognome: 'Colombo' }, { nome: 'Davide', cognome: 'Ricci' },
+  { nome: 'Enrico', cognome: 'Bruno' }, { nome: 'Fabio', cognome: 'Gallo' },
+  { nome: 'Riccardo', cognome: 'Conti' }, { nome: 'Stefano', cognome: 'De Luca' },
+  { nome: 'Michele', cognome: 'Mancini' }, { nome: 'Tommaso', cognome: 'Costa' },
+  { nome: 'Nicola', cognome: 'Greco' }, { nome: 'Giulio', cognome: 'Bruno' },
+  { nome: 'Daniele', cognome: 'Marino' }, { nome: 'Federico', cognome: 'Leone' },
+  { nome: 'Emanuele', cognome: 'Villa' }, { nome: 'Lorenzo', cognome: 'Galli' },
+  { nome: 'Filippo', cognome: 'Pellegrini' }, { nome: 'Giorgio', cognome: 'Fontana' },
+  { nome: 'Roberto', cognome: 'Sanna' }, { nome: 'Carlo', cognome: 'Parisi' },
+  { nome: 'Valerio', cognome: 'Serra' }, { nome: 'Alberto', cognome: 'Lombardi' },
+  { nome: 'Mirko', cognome: 'Martini' }, { nome: 'Samuele', cognome: 'Barbieri' },
+];
+const CLASSI = ['Major', 'Expert', 'Sport', 'Junior'];
+const CLASSE_COLOR = { Major: '#dc2626', Expert: '#d97706', Sport: '#2563eb', Junior: '#10b981' };
 const FUORI_PERCORSO_THRESHOLD_M = 50; // > 50m dal tracciato
 
 // Util: distanza Haversine (m)
@@ -187,24 +208,34 @@ export default function SimulazioneMappa() {
     }
   }
 
+  function makeFakePilot(id, numero, idx, coords) {
+    const [lon, lat] = coords[idx];
+    const p = NOMI_FAKE[Math.floor(Math.random() * NOMI_FAKE.length)];
+    return {
+      id,
+      numero,
+      nome: p.nome,
+      cognome: p.cognome,
+      classe: CLASSI[Math.floor(Math.random() * CLASSI.length)],
+      lat, lon,
+      heading: 0,
+      speedKmh: 40 + Math.random() * 40,
+      stato: 'in_moto',
+      trackIdx: idx,
+      trail: [],
+      statoFinoA: 0,
+      progress: 0, // metrica usata per il ranking
+      fpOffset: null,
+    };
+  }
+
   function initPiloti() {
     if (!tracciato || tracciato.length === 0) { alert('Nessun tracciato caricato. Caricalo dalla pagina Mappa.'); return; }
-    const coords = tracciato; // [[lon,lat], ...]
+    const coords = tracciato;
     const list = [];
     for (let i = 0; i < pilotiCount; i++) {
       const idx = Math.floor(Math.random() * coords.length);
-      const [lon, lat] = coords[idx];
-      list.push({
-        id: i + 1,
-        numero: 10 + i,
-        lat, lon,
-        heading: 0,
-        speedKmh: 40 + Math.random() * 40,
-        stato: 'in_moto',
-        trackIdx: idx,
-        trail: [],
-        statoFinoA: 0,
-      });
+      list.push(makeFakePilot(i + 1, 10 + i, idx, coords));
     }
     pilotiRef.current = list;
     setPiloti(list);
@@ -243,6 +274,7 @@ export default function SimulazioneMappa() {
         const jitter = 0.75 + Math.random() * 0.5;
         const step = Math.max(1, Math.floor(baseStep * jitter));
         p.trackIdx = (p.trackIdx + step) % coords.length;
+        p.progress = (p.progress || 0) + step;
         const [lon, lat] = coords[p.trackIdx];
         p.lat = lat; p.lon = lon;
         // Bearing target calcolato guardando avanti `lookahead` punti (evita rumore corte)
@@ -384,12 +416,7 @@ export default function SimulazioneMappa() {
         while (existingIds.has(nextId)) nextId++;
         while (existingNumbers.has(nextNumero)) nextNumero++;
         const idx = Math.floor(Math.random() * coords.length);
-        const [lon, lat] = coords[idx];
-        newOnes.push({
-          id: nextId, numero: nextNumero, lat, lon,
-          heading: 0, speedKmh: 40 + Math.random() * 40,
-          stato: 'in_moto', trackIdx: idx, trail: [], statoFinoA: 0, fpOffset: null
-        });
+        newOnes.push(makeFakePilot(nextId, nextNumero, idx, coords));
         existingIds.add(nextId); existingNumbers.add(nextNumero);
         nextId++; nextNumero++;
       }
@@ -410,6 +437,23 @@ export default function SimulazioneMappa() {
   }, [pilotiCount, tracciato]);
 
   const pilotaSel = piloti.find(p => p.id === selected);
+
+  // Classifica calcolata live
+  const classificaAssoluta = [...piloti].sort((a, b) => (b.progress || 0) - (a.progress || 0));
+  const posAssoluta = new Map(classificaAssoluta.map((p, i) => [p.id, i + 1]));
+  const posClasse = new Map();
+  const perClasse = {};
+  classificaAssoluta.forEach(p => {
+    perClasse[p.classe] = perClasse[p.classe] || [];
+    perClasse[p.classe].push(p);
+    posClasse.set(p.id, perClasse[p.classe].length);
+  });
+  const statoLabel = {
+    in_moto: 'In moto',
+    fermo: 'Fermo',
+    allarme: '🆘 Allarme',
+    fuori_percorso: '⚠️ Fuori percorso'
+  };
 
   return (
     <div className="flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
@@ -483,17 +527,69 @@ export default function SimulazioneMappa() {
 
         {/* Tooltip pilota selezionato */}
         {pilotaSel && (
-          <div className="absolute top-4 right-4 w-64 bg-surface border border-border-subtle rounded-xl shadow-xl p-4 z-[400]">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[320px] bg-surface border border-border-subtle rounded-xl shadow-xl p-4 z-[500]">
             <div className="flex items-start justify-between mb-2">
-              <div className="font-bold text-lg">#{pilotaSel.numero}</div>
-              <button onClick={() => setSelected(null)} className="text-content-tertiary text-xs">✕</button>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-black">#{pilotaSel.numero}</span>
+                  <span className="px-2 py-0.5 rounded text-xs font-bold text-white" style={{ background: CLASSE_COLOR[pilotaSel.classe] }}>{pilotaSel.classe}</span>
+                </div>
+                <div className="text-base font-semibold">{pilotaSel.nome} {pilotaSel.cognome}</div>
+              </div>
+              <button onClick={() => setSelected(null)} className="text-content-tertiary hover:text-content-primary text-sm">✕</button>
             </div>
-            <div className="space-y-1 text-sm">
-              <div className="flex justify-between"><span className="text-content-tertiary">Stato</span><span className="font-semibold">{pilotaSel.stato}</span></div>
-              <div className="flex justify-between"><span className="text-content-tertiary">Velocità</span><span className="font-mono">{pilotaSel.speedKmh.toFixed(0)} km/h</span></div>
-              <div className="flex justify-between"><span className="text-content-tertiary">Heading</span><span className="font-mono">{pilotaSel.heading.toFixed(0)}°</span></div>
-              <div className="flex justify-between"><span className="text-content-tertiary">GPS</span><span className="font-mono text-xs">{pilotaSel.lat.toFixed(4)}, {pilotaSel.lon.toFixed(4)}</span></div>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="bg-surface-2 rounded-md p-2">
+                <div className="text-xs text-content-tertiary">Classifica assoluta</div>
+                <div className="font-black text-lg">{posAssoluta.get(pilotaSel.id)}° <span className="text-sm font-normal text-content-tertiary">/ {piloti.length}</span></div>
+              </div>
+              <div className="bg-surface-2 rounded-md p-2">
+                <div className="text-xs text-content-tertiary">Classifica {pilotaSel.classe}</div>
+                <div className="font-black text-lg">{posClasse.get(pilotaSel.id)}° <span className="text-sm font-normal text-content-tertiary">/ {(perClasse[pilotaSel.classe] || []).length}</span></div>
+              </div>
             </div>
+            <div className="mt-2 pt-2 border-t border-border-subtle grid grid-cols-2 gap-2 text-xs text-content-secondary">
+              <div>Stato: <span className="font-semibold text-content-primary">{statoLabel[pilotaSel.stato]}</span></div>
+              <div>Velocità: <span className="font-mono text-content-primary">{pilotaSel.speedKmh.toFixed(0)} km/h</span></div>
+            </div>
+          </div>
+        )}
+
+        {/* LEADERBOARD in alto a destra */}
+        {piloti.length > 0 && (
+          <div className="absolute top-4 right-4 w-[320px] max-h-[70vh] overflow-y-auto bg-surface/95 backdrop-blur-sm border border-border-subtle rounded-xl shadow-xl z-[400]">
+            <div className="sticky top-0 bg-surface px-3 py-2 border-b border-border-subtle flex items-center justify-between">
+              <div className="font-bold text-sm">🏆 Classifica assoluta</div>
+              <div className="text-xs text-content-tertiary">{piloti.length} piloti</div>
+            </div>
+            <table className="w-full text-xs">
+              <thead className="bg-surface-2 text-content-tertiary sticky top-[40px]">
+                <tr>
+                  <th className="px-2 py-1 text-left font-semibold">Pos</th>
+                  <th className="px-2 py-1 text-left font-semibold">#</th>
+                  <th className="px-2 py-1 text-left font-semibold">Pilota</th>
+                  <th className="px-2 py-1 text-left font-semibold">Classe</th>
+                  <th className="px-2 py-1 text-right font-semibold">Cl.</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border-subtle">
+                {classificaAssoluta.map(p => (
+                  <tr
+                    key={p.id}
+                    onClick={() => setSelected(p.id)}
+                    className={`cursor-pointer hover:bg-surface-2 ${selected === p.id ? 'bg-rose-50 dark:bg-rose-900/20' : ''}`}
+                  >
+                    <td className="px-2 py-1 font-bold">{posAssoluta.get(p.id)}°</td>
+                    <td className="px-2 py-1 font-mono">#{p.numero}</td>
+                    <td className="px-2 py-1 truncate max-w-[130px]">{p.nome} {p.cognome}</td>
+                    <td className="px-2 py-1">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold text-white" style={{ background: CLASSE_COLOR[p.classe] }}>{p.classe[0]}</span>
+                    </td>
+                    <td className="px-2 py-1 text-right font-mono text-content-tertiary">{posClasse.get(p.id)}°</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 

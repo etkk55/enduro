@@ -561,4 +561,33 @@ router.get('/api/eventi/:id/piloti-fermi', async (req, res, next) => {
   }
 });
 
+// GET configurazione routing SOS (per priorità) di un evento
+router.get('/api/eventi/:id/sos-routing', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const r = await pool.query('SELECT sos_routing FROM eventi WHERE id = $1', [id]);
+    if (r.rows.length === 0) return res.status(404).json({ error: 'Evento non trovato' });
+    res.json({ sos_routing: r.rows[0].sos_routing || null });
+  } catch (err) { next(err); }
+});
+
+// PATCH configurazione routing SOS
+// body: { sos_routing: { "1": {medico:"auto"|"no", resp_ps, resp_trasf, addetti_vicini:int}, ... } | null }
+router.patch('/api/eventi/:id/sos-routing', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { sos_routing } = req.body || {};
+    // Validazione leggera
+    if (sos_routing !== null && sos_routing !== undefined && typeof sos_routing !== 'object') {
+      return res.status(400).json({ error: 'sos_routing deve essere un oggetto o null' });
+    }
+    const r = await pool.query(
+      'UPDATE eventi SET sos_routing = $1::jsonb WHERE id = $2 RETURNING sos_routing',
+      [sos_routing ? JSON.stringify(sos_routing) : null, id]
+    );
+    if (r.rows.length === 0) return res.status(404).json({ error: 'Evento non trovato' });
+    res.json({ success: true, sos_routing: r.rows[0].sos_routing });
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

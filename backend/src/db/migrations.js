@@ -263,6 +263,12 @@ async function runMigrations() {
       ADD COLUMN IF NOT EXISTS priorita INTEGER;
     `);
 
+    // Configurazione routing SOS per-evento (JSONB). NULL = tutti "no" (default).
+    await client.query(`
+      ALTER TABLE eventi
+      ADD COLUMN IF NOT EXISTS sos_routing JSONB;
+    `);
+
     // Aggiunge id_addetto a push_subscriptions per notifiche mirate ai marshalls
     await client.query(`
       ALTER TABLE push_subscriptions

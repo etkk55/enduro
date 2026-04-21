@@ -93,7 +93,7 @@ router.post('/api/app/sos', async (req, res, next) => {
 
     console.log(`SOS RICEVUTO: Pilota #${numero_pilota} - Gara ${codice_gara} - Tipo: ${tipoCanonico} - P${priorita}`);
 
-    // Push SOLO al DdG (auto-routing addetti disabilitato: decide il DdG chi inoltrare)
+    // Push al DdG (sempre)
     try {
       await inviaPushADestinatari(
         codice_gara,
@@ -106,9 +106,72 @@ router.post('/api/app/sos', async (req, res, next) => {
       console.log('Push SOS failed (non bloccante):', pushErr.message);
     }
 
+    // Routing automatico addetti in base alla config per-evento sos_routing
+    // Struttura: { "1": { "medico": "auto", "resp_ps": "no", "resp_trasf": "no", "addetti_vicini": 3 }, ...}
+    let addettiNotificati = 0;
+    try {
+      const cfg = evento.sos_routing || {};
+      const rule = cfg[String(priorita)] || {};
+      const anyAuto = rule.medico === 'auto' || rule.resp_ps === 'auto' || rule.resp_trasf === 'auto' || (parseInt(rule.addetti_vicini || 0) > 0);
+      if (anyAuto) {
+        // Nome pilota per alert
+        let pilotaNome = null;
+        try {
+          const pr = await pool.query(
+            `SELECT nome, cognome FROM piloti WHERE numero_gara = $1 AND id_evento = $2 LIMIT 1`,
+            [parseInt(numero_pilota), evento.id]
+          );
+          if (pr.rows.length > 0) {
+            pilotaNome = `${pr.rows[0].cognome || ''} ${pr.rows[0].nome || ''}`.trim();
+          }
+        } catch (e) {}
+
+        // Seleziona addetti secondo config
+        const topN = Math.max(0, parseInt(rule.addetti_vicini || 0));
+        const tutti = await calcolaAddettiPerSOS(evento.id, gps_lat, gps_lon, Math.max(topN, 1));
+        const selezionati = tutti.filter(a => {
+          if (a.ruolo === 'medico') return rule.medico === 'auto';
+          if (a.ruolo === 'resp_ps') return rule.resp_ps === 'auto';
+          if (a.ruolo === 'resp_trasf') return rule.resp_trasf === 'auto';
+          if (a.ruolo === 'addetto') return topN > 0;
+          return false;
+        }).slice(0, 50); // safety cap
+        // Per gli addetti generici, limita a topN rispettando l'ordine di calcolaAddettiPerSOS (già ordinato per distanza)
+        const addettiGenerici = selezionati.filter(a => a.ruolo === 'addetto').slice(0, topN);
+        const obbligatori = selezionati.filter(a => a.ruolo !== 'addetto');
+        const finali = [...obbligatori, ...addettiGenerici];
+
+        const idMessaggio = result.rows[0].id;
+        for (const a of finali) {
+          try {
+            await pool.query(
+              `INSERT INTO addetti_alerts (id_addetto, id_messaggio, tipo, testo, pilota_numero, pilota_nome, gps_lat, gps_lon, distanza_m, tipo_emergenza, priorita)
+               VALUES ($1, $2, 'sos', $3, $4, $5, $6, $7, $8, $9, $10)`,
+              [a.id, idMessaggio, testoCompleto, parseInt(numero_pilota), pilotaNome, gps_lat || null, gps_lon || null, a.distanza_m || null, tipoCanonico, priorita]
+            );
+            const distTxt = a.distanza_m != null ? ` · ${a.distanza_m}m` : '';
+            const nomeTxt = pilotaNome ? ` ${pilotaNome}` : '';
+            await inviaPushAdAddetto(
+              a.id,
+              `P${priorita} · ${tipoCanonico.replace(/_/g, ' ').toUpperCase()} · #${numero_pilota}${nomeTxt}`,
+              `${testoCompleto.substring(0, 80)}${distTxt}`,
+              '/',
+              { tipo: 'sos', tipo_emergenza: tipoCanonico, priorita, id_messaggio: idMessaggio, gps_lat, gps_lon }
+            );
+            addettiNotificati++;
+          } catch (e) {
+            console.log(`Alert/push addetto ${a.id} fallito:`, e.message);
+          }
+        }
+      }
+    } catch (routErr) {
+      console.log('Routing automatico fallito (non bloccante):', routErr.message);
+    }
+
     res.json({
       success: true,
       messaggio: result.rows[0],
+      addetti_notificati: addettiNotificati,
       alert: 'SOS inviato alla Direzione Gara'
     });
   } catch (err) {

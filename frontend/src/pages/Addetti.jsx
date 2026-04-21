@@ -30,6 +30,7 @@ export default function Addetti() {
   const [savingForm, setSavingForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [qrAddetto, setQrAddetto] = useState(null);
+  const [printDialog, setPrintDialog] = useState(null); // { ddgStr, includeRetro } in edit
 
   // Carica eventi al mount (con default evento attivo)
   useEffect(() => {
@@ -74,13 +75,17 @@ export default function Addetti() {
 
   function handlePrintAllQR() {
     if (!addetti || addetti.length === 0) return;
-    // Apri la finestra SUBITO dentro il gesto utente: prompt/confirm dopo invaliderebbero il permesso popup
+    // Apri dialog in-page per raccogliere opzioni (prompt/confirm nativi spariscono in background tab)
+    setPrintDialog({ ddgStr: '', includeRetro: true });
+  }
+
+  function executePrint({ ddgStr, includeRetro }) {
+    if (!addetti || addetti.length === 0) return;
     const win = window.open('', '_blank');
     if (!win) {
       alert('Il browser ha bloccato la finestra di stampa. Consenti i popup per questo sito e riprova.');
       return;
     }
-    win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Preparazione badge…</title></head><body style="font-family:sans-serif;text-align:center;padding:40px;color:#666;">Preparazione in corso…</body></html>');
 
     const evento = eventi.find(e => e.id === eventoSelezionato);
     const nomeEvento = evento?.nome_evento || evento?.codice_gara || 'Evento';
@@ -102,10 +107,6 @@ export default function Addetti() {
     // Medico auto-lookup (primo medico nella lista)
     const medico = addetti.find(a => a.ruolo === 'medico');
     const medicoRif = medico ? `${medico.nome} ${medico.cognome}${medico.telefono ? ' · ' + medico.telefono : ''}` : '';
-
-    // Prompt: riferimenti DdG in un'unica stringa
-    const ddgStr = prompt('Riferimento Direttore di Gara (Nome, Telefono). Es. "Mario Rossi · +39 347 1234567".\nLascia vuoto per ometterlo.', '') || '';
-    const includeRetro = confirm('Stampare anche il RETRO con istruzioni, DdG, Medico e info gara?\n\nOK = fronte + retro (duplex, capovolgi lato corto)\nAnnulla = solo fronte');
 
     // Ordina: medico, resp_ps, resp_trasf, addetto — poi cognome
     const ordine = { medico: 0, resp_ps: 1, resp_trasf: 2, addetto: 3 };
@@ -646,6 +647,66 @@ export default function Addetti() {
       {qrAddetto && (
         <QRModal addetto={qrAddetto} onClose={() => setQrAddetto(null)} onRegen={() => handleRegenToken(qrAddetto)} />
       )}
+
+      {/* PRINT DIALOG */}
+      {printDialog && (
+        <PrintBadgeDialog
+          value={printDialog}
+          onChange={setPrintDialog}
+          onCancel={() => setPrintDialog(null)}
+          onConfirm={() => { const opts = printDialog; setPrintDialog(null); executePrint(opts); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function PrintBadgeDialog({ value, onChange, onCancel, onConfirm }) {
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={onCancel}>
+      <div className="bg-surface rounded-xl max-w-md w-full p-6 space-y-4" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold flex items-center gap-2"><Printer className="w-5 h-5 text-rose-600" /> Stampa badge addetti</h2>
+          <button onClick={onCancel} className="p-1 hover:bg-surface-2 rounded"><X className="w-5 h-5" /></button>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold uppercase text-content-tertiary mb-1">
+            Riferimento Direttore di Gara
+          </label>
+          <input
+            type="text"
+            value={value.ddgStr}
+            onChange={e => onChange({ ...value, ddgStr: e.target.value })}
+            placeholder='Es. "Mario Rossi · +39 347 1234567"'
+            className="w-full px-3 py-2 rounded-md border border-border bg-surface text-sm"
+            autoFocus
+          />
+          <p className="text-xs text-content-tertiary mt-1">Stampato sul retro di ogni badge. Lascia vuoto per ometterlo.</p>
+        </div>
+
+        <label className="flex items-start gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={value.includeRetro}
+            onChange={e => onChange({ ...value, includeRetro: e.target.checked })}
+            className="mt-1"
+          />
+          <div>
+            <div className="text-sm font-semibold">Stampa anche il retro</div>
+            <div className="text-xs text-content-tertiary">Istruzioni, DdG, Medico, data/luogo gara. Per duplex: "capovolgi lato corto".</div>
+          </div>
+        </label>
+
+        <div className="flex gap-2 pt-2">
+          <button onClick={onCancel} className="flex-1 px-4 py-2 rounded-md bg-surface-2 text-content-secondary text-sm font-semibold hover:bg-surface-3">
+            Annulla
+          </button>
+          <button onClick={onConfirm} className="flex-1 px-4 py-2 rounded-md bg-rose-600 text-white text-sm font-semibold hover:bg-rose-700 flex items-center justify-center gap-2">
+            <Printer className="w-4 h-4" /> Stampa
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

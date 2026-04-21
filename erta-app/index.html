@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.1.19</title>
+  <title>ERTA v1.1.20</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1131,14 +1131,21 @@
       position: relative;
     }
 
-    /* SVG ring countdown (GPU-accelerated) */
+    /* Wrapper relativo attorno al bottone per centrare il ring */
+    .sos-btn-wrap {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 6px auto 0;
+    }
+    /* SVG ring countdown (GPU-accelerated) - centrato attorno al bottone */
     .sos-ring {
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, calc(-50% + 14px)) rotate(-90deg);
-      width: 170px;
-      height: 170px;
+      transform: translate(-50%, -50%) rotate(-90deg);
+      width: 160px;
+      height: 160px;
       pointer-events: none;
       opacity: 0;
       transition: opacity 150ms ease-out;
@@ -1183,7 +1190,6 @@
       user-select: none;
       -webkit-user-select: none;
       will-change: transform;
-      margin: 4px auto 0;
     }
     .sos-btn:active {
       transform: scale(0.95);
@@ -5285,7 +5291,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.19</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.20</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -5308,7 +5314,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.1.19</div>
+    <div class="login-version">ERTA · v1.1.20</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -5643,17 +5649,19 @@
 
       <!-- Tasto SOS (disabilitato finché non è selezionata una categoria) -->
       <div class="sos-container sos-disabled" id="sosContainer">
-        <h4 class="sos-cat-title" style="margin-top:10px;">2. Tieni premuto 3 secondi per inviare</h4>
-        <svg class="sos-ring" id="sosRing" viewBox="0 0 220 220" aria-hidden="true">
-          <circle class="track" cx="110" cy="110" r="100"></circle>
-          <circle class="fill" cx="110" cy="110" r="100"></circle>
-        </svg>
+        <h4 class="sos-cat-title">2. Tieni premuto 3 secondi</h4>
+        <div class="sos-btn-wrap">
+          <svg class="sos-ring" id="sosRing" viewBox="0 0 220 220" aria-hidden="true">
+            <circle class="track" cx="110" cy="110" r="100"></circle>
+            <circle class="fill" cx="110" cy="110" r="100"></circle>
+          </svg>
+          <button class="sos-btn" id="sosBtn" disabled
+                  onmousedown="startSOS()" onmouseup="cancelSOS()" onmouseleave="cancelSOS()"
+                  ontouchstart="startSOS()" ontouchend="cancelSOS()" ontouchcancel="cancelSOS()">
+            🆘
+          </button>
+        </div>
         <p class="sos-label" id="sosLabel">Seleziona prima il tipo di emergenza</p>
-        <button class="sos-btn" id="sosBtn" disabled
-                onmousedown="startSOS()" onmouseup="cancelSOS()" onmouseleave="cancelSOS()"
-                ontouchstart="startSOS()" ontouchend="cancelSOS()" ontouchcancel="cancelSOS()">
-          🆘
-        </button>
       </div>
 
       <div class="segnala-form" style="margin-top: 15px;">

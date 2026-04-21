@@ -214,11 +214,12 @@ export default function SimulazioneMappa() {
     const now = Date.now();
     let allarmi = 0, fuori = 0, fermi = 0;
 
-    // Base: ogni tick (80ms) avanza ~0.06% tracciato a 1x (5x piu' lento di prima).
-    // A 10x ~0.6%. Step molto piccoli = movimento fluido e realistico.
+    // Base: 1x ora molto lento (~0.018% tracciato per tick 80ms).
     const currentSpeed = speedRef.current;
-    const baseStepPct = 0.0006 * currentSpeed;
+    const baseStepPct = 0.00018 * currentSpeed;
     const baseStep = Math.max(1, Math.floor(coords.length * baseStepPct));
+    // Lookahead per calcolo bearing: guarda avanti N punti per smoothare la direzione
+    const lookahead = Math.max(3, Math.floor(coords.length * 0.005));
 
     pilotiRef.current = pilotiRef.current.map(p => {
       // Cambio stato random a intervalli
@@ -235,14 +236,22 @@ export default function SimulazioneMappa() {
 
       if (p.stato === 'in_moto') {
         // Avanza in SENSO ORARIO (index crescente su questo tracciato)
-        const jitter = 0.75 + Math.random() * 0.5; // 0.75..1.25 variabilità piloti
+        const jitter = 0.75 + Math.random() * 0.5;
         const step = Math.max(1, Math.floor(baseStep * jitter));
         p.trackIdx = (p.trackIdx + step) % coords.length;
         const [lon, lat] = coords[p.trackIdx];
-        p.heading = bearing(prevLat, prevLon, lat, lon);
         p.lat = lat; p.lon = lon;
+        // Bearing target calcolato guardando avanti `lookahead` punti (evita rumore corte)
+        const aheadIdx = (p.trackIdx + lookahead) % coords.length;
+        const [aLon, aLat] = coords[aheadIdx];
+        const targetHeading = bearing(lat, lon, aLat, aLon);
+        // Smoothing angolare: EMA con weight 0.15 sul nuovo valore, considerando wrap 0/360
+        const prev = p.heading ?? targetHeading;
+        let delta = targetHeading - prev;
+        if (delta > 180) delta -= 360;
+        if (delta < -180) delta += 360;
+        p.heading = (prev + delta * 0.15 + 360) % 360;
         p.speedKmh = 30 + Math.random() * 60;
-        // Clear offset fuori percorso
         p.fpOffset = null;
       } else if (p.stato === 'fuori_percorso') {
         // Sta fermo appena fuori dal tracciato (offset fisso ~20-60m perpendicolare al bearing)

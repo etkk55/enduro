@@ -5,7 +5,7 @@ import { Play, Pause, RotateCcw, AlertTriangle, Navigation, Activity } from 'luc
 
 // Velocità simulazione (moltiplicatore)
 const SPEED_PRESETS = [1, 2, 5, 10];
-const PILOTI_COUNT_DEFAULT = 20;
+const PILOTI_COUNT_DEFAULT = 5;
 const TRAIL_LEN = 14; // ultime N posizioni per scia
 const TICK_MS = 80;  // polling rapido per movimento fluido
 const FUORI_PERCORSO_THRESHOLD_M = 50; // > 50m dal tracciato
@@ -83,6 +83,7 @@ export default function SimulazioneMappa() {
   const [speed, setSpeed] = useState(1);
   const [pilotiCount, setPilotiCount] = useState(PILOTI_COUNT_DEFAULT);
   const [selected, setSelected] = useState(null); // numero pilota per tooltip
+  const [mapReady, setMapReady] = useState(false);
   const [alertsCount, setAlertsCount] = useState({ allarmi: 0, fuori: 0, fermi: 0, notifichePush: 0 });
 
   const mapRef = useRef(null);
@@ -150,12 +151,14 @@ export default function SimulazioneMappa() {
       }).addTo(map);
       leafletRef.current.map = map;
       leafletRef.current.L = L;
+      setMapReady(true);
     })();
     return () => { cancelled = true; };
   }, []);
 
-  // Disegna tracciato quando caricato
+  // Disegna tracciato e zoom automatico quando sia mappa che tracciato sono pronti
   useEffect(() => {
+    if (!mapReady) return;
     const { map, L, track } = leafletRef.current;
     if (!map || !L) return;
     if (track) { map.removeLayer(track); leafletRef.current.track = null; }
@@ -164,7 +167,9 @@ export default function SimulazioneMappa() {
     const poly = L.polyline(latlngs, { color: '#2563eb', weight: 4, opacity: 0.85 }).addTo(map);
     leafletRef.current.track = poly;
     map.fitBounds(poly.getBounds(), { padding: [30, 30] });
-  }, [tracciato]);
+    // Safety: se la mappa non è ancora dimensionata correttamente, ri-fit dopo un tick
+    setTimeout(() => { try { map.invalidateSize(); map.fitBounds(poly.getBounds(), { padding: [30, 30] }); } catch(e){} }, 150);
+  }, [tracciato, mapReady]);
 
   function resetSimulation() {
     stopSim();

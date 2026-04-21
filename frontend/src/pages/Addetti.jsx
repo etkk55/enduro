@@ -74,6 +74,14 @@ export default function Addetti() {
 
   function handlePrintAllQR() {
     if (!addetti || addetti.length === 0) return;
+    // Apri la finestra SUBITO dentro il gesto utente: prompt/confirm dopo invaliderebbero il permesso popup
+    const win = window.open('', '_blank');
+    if (!win) {
+      alert('Il browser ha bloccato la finestra di stampa. Consenti i popup per questo sito e riprova.');
+      return;
+    }
+    win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Preparazione badge…</title></head><body style="font-family:sans-serif;text-align:center;padding:40px;color:#666;">Preparazione in corso…</body></html>');
+
     const evento = eventi.find(e => e.id === eventoSelezionato);
     const nomeEvento = evento?.nome_evento || evento?.codice_gara || 'Evento';
     const luogoEvento = evento?.luogo || '';
@@ -303,7 +311,8 @@ export default function Addetti() {
   <script>window.onload = () => setTimeout(() => window.print(), 600);</script>
 </body></html>`;
 
-    const win = window.open('', '_blank');
+    // Sostituisci "Preparazione in corso" con il documento completo
+    win.document.open();
     win.document.write(html);
     win.document.close();
   }

@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.1.18</title>
+  <title>ERTA v1.1.19</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -607,7 +607,7 @@
     /* ==================== TAB CONTENT ==================== */
     .tab-content {
       display: none;
-      padding: 16px;
+      padding: 12px 16px calc(var(--safe-bottom) + 80px);
       animation: fadeInUp 200ms ease-out;
     }
 
@@ -1059,13 +1059,13 @@
       background: var(--bg-surface);
       border-radius: var(--r-xl);
       border: 1px solid var(--border-subtle);
-      padding: 14px 12px;
-      margin-bottom: 12px;
+      padding: 10px 10px;
+      margin-bottom: 10px;
     }
     .sos-cat-title {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-secondary);
-      margin: 0 0 10px;
+      margin: 0 0 8px;
       font-weight: 600;
       letter-spacing: 0.3px;
       text-transform: uppercase;
@@ -1073,14 +1073,14 @@
     .sos-cat-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
+      gap: 6px;
     }
     .sos-cat {
       position: relative;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      min-height: 90px;
-      padding: 10px 8px 8px;
+      min-height: 66px;
+      padding: 6px 6px 6px;
       background: var(--bg-surface-2);
       border: 2px solid var(--border-default);
       border-radius: var(--r-md);
@@ -1094,22 +1094,22 @@
       border-width: 3px;
       background: rgba(255,255,255,0.04);
     }
-    .sos-cat-ico { font-size: 28px; line-height: 1; margin-bottom: 4px; }
-    .sos-cat-lbl { font-size: 10.5px; font-weight: 800; text-align: center; line-height: 1.15; letter-spacing: 0.3px; }
-    .sos-cat-sub { font-size: 9px; color: var(--text-tertiary); text-align: center; margin-top: 2px; line-height: 1.1; }
+    .sos-cat-ico { font-size: 22px; line-height: 1; margin-bottom: 2px; }
+    .sos-cat-lbl { font-size: 10px; font-weight: 800; text-align: center; line-height: 1.1; letter-spacing: 0.3px; }
+    .sos-cat-sub { font-size: 8.5px; color: var(--text-tertiary); text-align: center; margin-top: 1px; line-height: 1.1; }
     .sos-cat-prio {
-      position: absolute; top: 4px; right: 6px;
-      font-size: 9px; font-weight: 900;
+      position: absolute; top: 3px; right: 5px;
+      font-size: 8.5px; font-weight: 900;
       color: rgba(255,255,255,0.55);
       letter-spacing: 0.3px;
     }
-    .sos-cat.prio-1 { border-color: #dc2626; } .sos-cat.prio-1.selected { background: rgba(220,38,38,0.12); }
-    .sos-cat.prio-2 { border-color: #ea580c; } .sos-cat.prio-2.selected { background: rgba(234,88,12,0.12); }
-    .sos-cat.prio-3 { border-color: #f59e0b; } .sos-cat.prio-3.selected { background: rgba(245,158,11,0.12); }
-    .sos-cat.prio-4 { border-color: #3b82f6; } .sos-cat.prio-4.selected { background: rgba(59,130,246,0.12); }
-    .sos-cat.prio-5 { border-color: #22c55e; } .sos-cat.prio-5.selected { background: rgba(34,197,94,0.12); }
-    /* Last item occupies full width when grid has odd number */
-    .sos-cat-grid .sos-cat:nth-child(5) { grid-column: span 2; min-height: 70px; flex-direction: row; gap: 10px; }
+    .sos-cat.prio-1 { border-color: #dc2626; } .sos-cat.prio-1.selected { background: rgba(220,38,38,0.14); }
+    .sos-cat.prio-2 { border-color: #ea580c; } .sos-cat.prio-2.selected { background: rgba(234,88,12,0.14); }
+    .sos-cat.prio-3 { border-color: #f59e0b; } .sos-cat.prio-3.selected { background: rgba(245,158,11,0.14); }
+    .sos-cat.prio-4 { border-color: #3b82f6; } .sos-cat.prio-4.selected { background: rgba(59,130,246,0.14); }
+    .sos-cat.prio-5 { border-color: #22c55e; } .sos-cat.prio-5.selected { background: rgba(34,197,94,0.14); }
+    /* Quinta card (info) occupa tutta la riga orizzontale */
+    .sos-cat-grid .sos-cat:nth-child(5) { grid-column: span 2; min-height: 50px; flex-direction: row; gap: 8px; padding: 6px 10px; }
     .sos-cat-grid .sos-cat:nth-child(5) .sos-cat-ico { margin-bottom: 0; }
 
     /* Stato disabilitato contenitore SOS */
@@ -1123,11 +1123,11 @@
     /* ==================== SOS ==================== */
     .sos-container {
       text-align: center;
-      padding: 24px 16px;
+      padding: 10px 12px 14px;
       background: var(--bg-surface);
       border-radius: var(--r-xl);
       border: 1px solid var(--border-subtle);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       position: relative;
     }
 
@@ -1136,9 +1136,9 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%) rotate(-90deg);
-      width: 220px;
-      height: 220px;
+      transform: translate(-50%, calc(-50% + 14px)) rotate(-90deg);
+      width: 170px;
+      height: 170px;
       pointer-events: none;
       opacity: 0;
       transition: opacity 150ms ease-out;
@@ -1170,19 +1170,20 @@
     .sos-btn {
       position: relative;
       z-index: 1;
-      width: 150px;
-      height: 150px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       background: var(--danger);
       color: white;
       border: none;
-      font-size: 60px;
+      font-size: 48px;
       cursor: pointer;
-      box-shadow: 0 0 0 6px rgba(239,68,68,0.22), var(--shadow-lg);
+      box-shadow: 0 0 0 5px rgba(239,68,68,0.22), var(--shadow-lg);
       transition: box-shadow 200ms ease-out, transform 120ms ease-out;
       user-select: none;
       -webkit-user-select: none;
       will-change: transform;
+      margin: 4px auto 0;
     }
     .sos-btn:active {
       transform: scale(0.95);
@@ -5284,7 +5285,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.18</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.19</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -5307,7 +5308,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.1.18</div>
+    <div class="login-version">ERTA · v1.1.19</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>

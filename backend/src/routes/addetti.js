@@ -2,6 +2,7 @@ const router = require('express').Router();
 const crypto = require('crypto');
 const pool = require('../db/pool');
 const { distanza } = require('../helpers/haversine');
+const { inviaPushAdAddetto } = require('../helpers/pushNotifications');
 
 // Util: genera token URL-safe (32 caratteri base64url)
 function generateToken() {
@@ -267,6 +268,64 @@ router.patch('/api/addetti/alerts/:id_alert/preso-in-carico', async (req, res, n
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Alert non trovato' });
     res.json({ success: true, alert: result.rows[0] });
+  } catch (err) { next(err); }
+});
+
+// POST inoltra un SOS a un addetto specifico (da DdG)
+// Crea un alert nella sua app ERTA + invia push notification
+router.post('/api/addetti/:id/inoltra-sos', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { id_messaggio, tipo, testo, numero_pilota, nome_pilota, gps_lat, gps_lon } = req.body || {};
+
+    const aRes = await pool.query('SELECT id, nome, cognome, id_evento FROM addetti WHERE id = $1', [id]);
+    if (aRes.rows.length === 0) return res.status(404).json({ error: 'Addetto non trovato' });
+
+    // Calcola distanza se addetto ha posizione nota
+    let distanza_m = null;
+    if (gps_lat != null && gps_lon != null) {
+      try {
+        const posRes = await pool.query(
+          'SELECT ultima_lat, ultima_lon FROM addetti WHERE id = $1 AND ultima_lat IS NOT NULL AND ultima_lon IS NOT NULL',
+          [id]
+        );
+        if (posRes.rows.length > 0) {
+          distanza_m = Math.round(distanza(parseFloat(gps_lat), parseFloat(gps_lon), parseFloat(posRes.rows[0].ultima_lat), parseFloat(posRes.rows[0].ultima_lon)));
+        }
+      } catch (e) {}
+    }
+
+    const alertRes = await pool.query(
+      `INSERT INTO addetti_alerts (id_addetto, id_messaggio, tipo, testo, pilota_numero, pilota_nome, gps_lat, gps_lon, distanza_m)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [
+        id,
+        id_messaggio || null,
+        tipo || 'sos',
+        testo || '',
+        numero_pilota ? parseInt(numero_pilota) : null,
+        nome_pilota || null,
+        gps_lat || null,
+        gps_lon || null,
+        distanza_m
+      ]
+    );
+
+    try {
+      const distTxt = distanza_m != null ? ` · ${distanza_m}m` : '';
+      const nomeTxt = nome_pilota ? ` ${nome_pilota}` : '';
+      await inviaPushAdAddetto(
+        id,
+        `🆘 ${tipo || 'SOS'} Pilota #${numero_pilota || '?'}${nomeTxt}`,
+        `${(testo || '').substring(0, 80)}${distTxt}`,
+        '/',
+        { tipo: 'sos_inoltrato', id_messaggio: id_messaggio || null, gps_lat, gps_lon }
+      );
+    } catch (pushErr) {
+      console.log(`Push inoltro SOS ad addetto ${id} fallito:`, pushErr.message);
+    }
+
+    res.json({ success: true, alert: alertRes.rows[0] });
   } catch (err) { next(err); }
 });
 

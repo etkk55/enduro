@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.1.14</title>
+  <title>ERTA v1.1.15</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1879,6 +1879,57 @@
       background: var(--bg-base);
       padding-bottom: calc(20px + var(--safe-bottom));
     }
+    .addetto-tabs {
+      position: sticky;
+      top: 0;
+      z-index: 35;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .addetto-tab-btn {
+      padding: 12px 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-tertiary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      position: relative;
+      transition: color 150ms;
+    }
+    .addetto-tab-btn .ico { font-size: 18px; line-height: 1; }
+    .addetto-tab-btn.active { color: var(--danger); }
+    .addetto-tab-btn.active::after {
+      content: '';
+      position: absolute;
+      left: 25%; right: 25%; bottom: 0;
+      height: 3px; background: var(--danger);
+      border-radius: 3px 3px 0 0;
+    }
+    .addetto-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      background: var(--danger);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 10px;
+      margin-left: 4px;
+    }
+    .addetto-tab-content { padding: 0; }
+    .addetto-tab-content.hidden { display: none; }
     .addetto-topbar {
       position: sticky;
       top: 0;
@@ -5167,7 +5218,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.14</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.15</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -5190,7 +5241,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.1.14</div>
+    <div class="login-version">ERTA · v1.1.15</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -6093,27 +6144,55 @@
       <div class="addetto-evento" id="addettoEvento">—</div>
     </header>
 
+    <nav class="addetto-tabs">
+      <button type="button" id="btnAddettoStato" class="addetto-tab-btn active" onclick="showAddettoTab('stato')">
+        <span class="ico">📡</span>Stato
+      </button>
+      <button type="button" id="btnAddettoMessaggi" class="addetto-tab-btn" onclick="showAddettoTab('messaggi')">
+        <span class="ico">💬</span>Messaggi <span id="addettoMessaggiBadge" class="addetto-badge" style="display:none;">0</span>
+      </button>
+    </nav>
+
     <main class="addetto-main">
-      <section class="addetto-card">
-        <h3>📡 Stato connessione</h3>
-        <div class="addetto-gps-status" id="addettoGpsStatus">Acquisizione GPS…</div>
-        <p class="addetto-help">La tua posizione viene inviata alla Direzione Gara ogni 30 secondi per permettere un intervento rapido in caso di emergenza.</p>
-      </section>
+      <div class="addetto-tab-content" id="tabAddettoStato">
+        <section class="addetto-card">
+          <h3>📡 Stato connessione</h3>
+          <div class="addetto-gps-status" id="addettoGpsStatus">Acquisizione GPS…</div>
+          <p class="addetto-help">La tua posizione viene inviata alla Direzione Gara ogni 30 secondi per permettere un intervento rapido in caso di emergenza.</p>
+        </section>
+        <section class="addetto-card">
+          <h3>ℹ️ Istruzioni</h3>
+          <ul class="addetto-tips">
+            <li>Tieni l'app aperta per ricevere gli allarmi in tempo reale</li>
+            <li>Se ricevi un SOS, conferma la presa in carico via telefono con la DdG</li>
+            <li>In caso di problemi con questa app, usa il numero di emergenza della DdG</li>
+          </ul>
+        </section>
+      </div>
 
-      <section class="addetto-card">
-        <h3>🆘 Allarmi recenti</h3>
-        <div id="addettoAlertsList"><p class="addetto-help">Nessun allarme in corso. Riceverai una notifica push se arriva un SOS.</p></div>
-      </section>
-
-      <section class="addetto-card">
-        <h3>ℹ️ Istruzioni</h3>
-        <ul class="addetto-tips">
-          <li>Tieni l'app aperta per ricevere gli allarmi in tempo reale</li>
-          <li>Se ricevi un SOS, conferma la presa in carico via telefono con la DdG</li>
-          <li>In caso di problemi con questa app, usa il numero di emergenza della DdG</li>
-        </ul>
-      </section>
+      <div class="addetto-tab-content hidden" id="tabAddettoMessaggi">
+        <section class="addetto-card">
+          <h3>🆘 Messaggi ricevuti</h3>
+          <div id="addettoAlertsList"><p class="addetto-help">Nessun messaggio ricevuto. Riceverai una notifica push se arriva un SOS.</p></div>
+        </section>
+      </div>
     </main>
+  </div>
+
+  <!-- Popup nuovo messaggio addetto (FUORI da #appAddetto) -->
+  <div class="popup-overlay" id="addettoNewAlertPopup" onclick="if(event.target===this)chiudiNuovoAlertPopup()">
+    <div class="altro-sheet" style="max-width:500px; position:relative;">
+      <button type="button" onclick="chiudiNuovoAlertPopup()" aria-label="Chiudi" style="position:absolute; top:8px; right:8px; width:36px; height:36px; border-radius:50%; border:none; background:var(--bg-surface-2); color:var(--text-primary); font-size:20px; font-weight:700; cursor:pointer; z-index:10;">✕</button>
+      <div class="altro-grip"></div>
+      <h3 id="nuovoAlertTitle" style="margin-bottom:8px; font-size:18px; color:var(--danger);">🆘 Nuovo messaggio</h3>
+      <div id="nuovoAlertBody" style="color:var(--text-primary); font-size:14px; line-height:1.55; margin-bottom:10px;"></div>
+      <div id="nuovoAlertMeta" style="color:var(--text-tertiary); font-size:12px; margin-bottom:14px;"></div>
+      <div style="display:flex; gap:8px;">
+        <a id="nuovoAlertMapsBtn" href="#" target="_blank" rel="noopener" class="ddg-btn" style="flex:1; background:var(--info); text-decoration:none; text-align:center; display:none;">🗺️ Apri mappa</a>
+        <button type="button" id="nuovoAlertTakeBtn" class="ddg-btn" style="flex:1; background:var(--success);">Prendi in carico</button>
+      </div>
+      <button type="button" onclick="chiudiNuovoAlertPopup()" class="ddg-btn" style="width:100%; margin-top:10px; background:var(--bg-surface-2); color:var(--text-secondary); border:1px solid var(--border-default);">Chiudi</button>
+    </div>
   </div>
 
   <div id="appPublic" style="display: none;">
@@ -13503,13 +13582,97 @@ ${mapsLink}`;
     }
 
     let addettoAlertsInterval = null;
+    let _addettoAlertKnownIds = new Set();
+    let _addettoAlertFirstLoad = true;
+    let _addettoActiveTab = 'stato';
+    let _addettoUnreadCount = 0;
+
+    function showAddettoTab(tab) {
+      _addettoActiveTab = tab;
+      document.getElementById('btnAddettoStato').classList.toggle('active', tab === 'stato');
+      document.getElementById('btnAddettoMessaggi').classList.toggle('active', tab === 'messaggi');
+      document.getElementById('tabAddettoStato').classList.toggle('hidden', tab !== 'stato');
+      document.getElementById('tabAddettoMessaggi').classList.toggle('hidden', tab !== 'messaggi');
+      if (tab === 'messaggi') {
+        _addettoUnreadCount = 0;
+        aggiornaAddettoBadge();
+      }
+    }
+    window.showAddettoTab = showAddettoTab;
+
+    function aggiornaAddettoBadge() {
+      const b = document.getElementById('addettoMessaggiBadge');
+      if (!b) return;
+      if (_addettoUnreadCount > 0) {
+        b.textContent = String(_addettoUnreadCount);
+        b.style.display = 'inline-flex';
+      } else {
+        b.style.display = 'none';
+      }
+    }
+
+    function mostraNuovoAlertPopup(alert) {
+      const titleEl = document.getElementById('nuovoAlertTitle');
+      const bodyEl = document.getElementById('nuovoAlertBody');
+      const metaEl = document.getElementById('nuovoAlertMeta');
+      const mapsBtn = document.getElementById('nuovoAlertMapsBtn');
+      const takeBtn = document.getElementById('nuovoAlertTakeBtn');
+      if (!titleEl || !bodyEl) return;
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      titleEl.textContent = `🆘 ${alert.tipo === 'sos' ? 'SOS' : 'Allarme'} Pilota #${alert.pilota_numero || '?'}${alert.pilota_nome ? ' ' + alert.pilota_nome : ''}`;
+      bodyEl.innerHTML = alert.testo ? esc(alert.testo) : '<em>Nessun testo</em>';
+      const when = new Date(alert.created_at).toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+      const dist = alert.distanza_m != null ? ` · 📏 ${alert.distanza_m < 1000 ? alert.distanza_m + 'm' : (alert.distanza_m/1000).toFixed(1) + 'km'}` : '';
+      metaEl.textContent = `Ricevuto ${when}${dist}`;
+      if (alert.gps_lat != null && alert.gps_lon != null) {
+        mapsBtn.href = `https://www.google.com/maps?q=${alert.gps_lat},${alert.gps_lon}`;
+        mapsBtn.style.display = 'inline-flex';
+      } else {
+        mapsBtn.style.display = 'none';
+      }
+      takeBtn.onclick = () => { prendiInCaricoAlert(alert.id); chiudiNuovoAlertPopup(); };
+      document.getElementById('addettoNewAlertPopup').classList.add('active');
+      try { if (navigator.vibrate) navigator.vibrate([300,100,300,100,300]); } catch(e) {}
+    }
+    window.mostraNuovoAlertPopup = mostraNuovoAlertPopup;
+
+    function chiudiNuovoAlertPopup() {
+      document.getElementById('addettoNewAlertPopup').classList.remove('active');
+    }
+    window.chiudiNuovoAlertPopup = chiudiNuovoAlertPopup;
+
     async function caricaAddettoAlerts() {
       if (!currentAddetto) return;
       try {
         const res = await fetch(`${API_BASE}/api/addetti/${currentAddetto.id}/alerts`);
         if (!res.ok) return;
         const alerts = await res.json();
-        renderAddettoAlerts(alerts || []);
+        const list = Array.isArray(alerts) ? alerts : [];
+
+        // Rileva NUOVI messaggi (non presenti al precedente polling)
+        const newOnes = [];
+        for (const a of list) {
+          if (!_addettoAlertKnownIds.has(a.id)) {
+            _addettoAlertKnownIds.add(a.id);
+            if (!_addettoAlertFirstLoad) newOnes.push(a);
+          }
+        }
+        _addettoAlertFirstLoad = false;
+
+        if (newOnes.length > 0) {
+          // Conta solo non presi in carico come "non letti"
+          _addettoUnreadCount += newOnes.filter(a => !a.preso_in_carico).length;
+          aggiornaAddettoBadge();
+          // Popup sull'ULTIMO messaggio ricevuto (più recente)
+          const latest = newOnes.sort((x,y) => new Date(y.created_at) - new Date(x.created_at))[0];
+          if (latest) mostraNuovoAlertPopup(latest);
+          // Auto-switch alla tab messaggi
+          if (_addettoActiveTab !== 'messaggi') {
+            // lascio la tab ma notifico col popup
+          }
+        }
+
+        renderAddettoAlerts(list);
       } catch (err) { console.error('Errore alerts:', err); }
     }
 

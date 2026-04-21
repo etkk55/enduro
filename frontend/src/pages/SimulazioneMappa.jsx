@@ -192,7 +192,7 @@ export default function SimulazioneMappa() {
     const coords = tracciato; // [[lon,lat], ...]
     const list = [];
     for (let i = 0; i < pilotiCount; i++) {
-      const idx = Math.floor((coords.length / pilotiCount) * i);
+      const idx = Math.floor(Math.random() * coords.length);
       const [lon, lat] = coords[idx];
       list.push({
         id: i + 1,
@@ -373,7 +373,7 @@ export default function SimulazioneMappa() {
     const target = pilotiCount;
     if (current.length === target) return;
     if (target > current.length) {
-      // Aggiungi nuovi piloti in posizioni distribuite lungo il tracciato
+      // Aggiungi nuovi piloti in posizioni CASUALI lungo il tracciato
       const coords = tracciato;
       const newOnes = [];
       const existingIds = new Set(current.map(p => p.id));
@@ -383,7 +383,7 @@ export default function SimulazioneMappa() {
       for (let i = current.length; i < target; i++) {
         while (existingIds.has(nextId)) nextId++;
         while (existingNumbers.has(nextNumero)) nextNumero++;
-        const idx = Math.floor((coords.length / target) * i);
+        const idx = Math.floor(Math.random() * coords.length);
         const [lon, lat] = coords[idx];
         newOnes.push({
           id: nextId, numero: nextNumero, lat, lon,

@@ -78,6 +78,23 @@ export default function Addetti() {
     const nomeEvento = evento?.nome_evento || evento?.codice_gara || 'Evento';
     const ruoloEmoji = { medico: '🩺', resp_ps: '🏁', resp_trasf: '🛣️', addetto: '👷' };
     const ruoloLabel = { medico: 'Medico di Gara', resp_ps: 'Responsabile PS', resp_trasf: 'Resp. Trasferimenti', addetto: 'Addetto' };
+    // Colori bordo per ruolo (RGB)
+    const ruoloColor = {
+      medico: '#dc2626',     // rosso
+      resp_ps: '#d97706',    // ambra
+      resp_trasf: '#2563eb', // blu
+      addetto: '#6b7280'     // grigio
+    };
+    const ruoloBg = {
+      medico: '#fde2e2',
+      resp_ps: '#fef3c7',
+      resp_trasf: '#dbeafe',
+      addetto: '#e5e7eb'
+    };
+
+    // Opzioni interattive
+    const numEmergenza = prompt('Numero di emergenza DdG (stampato su ogni badge). Lascia vuoto per ometterlo.', '+39 ') || '';
+    const includeRetro = confirm('Stampare anche il RETRO con le istruzioni?\n\nOK = fronte + retro (duplex short-edge)\nAnnulla = solo fronte');
 
     // Ordina: medico, resp_ps, resp_trasf, addetto — poi cognome
     const ordine = { medico: 0, resp_ps: 1, resp_trasf: 2, addetto: 3 };
@@ -89,100 +106,213 @@ export default function Addetti() {
 
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-    const cards = sorted.map(a => {
-      const url = `${ERTA_URL}/?t=${a.token}`;
-      const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=2&data=${encodeURIComponent(url)}`;
-      const dettaglio = a.nome_ps ? `PS: ${a.nome_ps}` : (a.nome_settore ? a.nome_settore : '');
-      return `
-        <div class="card">
-          <div class="card-head">
-            <span class="ruolo">${ruoloEmoji[a.ruolo] || '👷'} ${ruoloLabel[a.ruolo] || 'Addetto'}</span>
-          </div>
-          <div class="nome">${esc(a.nome)} ${esc(a.cognome)}</div>
-          ${dettaglio ? `<div class="det">${esc(dettaglio)}</div>` : '<div class="det">&nbsp;</div>'}
-          <img class="qr" src="${qrSrc}" alt="QR" />
-          <div class="istruz">Inquadra con la fotocamera</div>
-          ${a.telefono ? `<div class="tel">📞 ${esc(a.telefono)}</div>` : ''}
-        </div>`;
-    }).join('');
+    // Formato carta di credito: 85×54mm, 2 col × 5 righe = 10 per A4
+    const CARDS_PER_PAGE = 10;
+    const pageCount = Math.ceil(sorted.length / CARDS_PER_PAGE);
 
-    // Riempi l'ultima pagina con card vuote per avere sempre griglia completa
-    const vuote = (8 - (sorted.length % 8)) % 8;
-    const fillers = Array.from({ length: vuote }, () => '<div class="card empty"></div>').join('');
+    const makeFrontCard = (a) => {
+      const url = `${ERTA_URL}/?t=${a.token}`;
+      // ecc=H (30%) per permettere logo centrale senza rompere QR
+      const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=1&ecc=H&data=${encodeURIComponent(url)}`;
+      const dettaglio = a.nome_ps ? `PS: ${a.nome_ps}` : (a.nome_settore ? a.nome_settore : '');
+      const color = ruoloColor[a.ruolo] || ruoloColor.addetto;
+      const bg = ruoloBg[a.ruolo] || ruoloBg.addetto;
+      return `
+        <div class="card" style="border-color:${color};">
+          <div class="stripe" style="background:${color};">
+            <span class="ruolo" style="color:${color}; background:${bg};">${ruoloEmoji[a.ruolo] || '👷'} ${ruoloLabel[a.ruolo] || 'Addetto'}</span>
+          </div>
+          <div class="body">
+            <div class="left">
+              <div class="nome">${esc(a.nome)} ${esc(a.cognome)}</div>
+              ${dettaglio ? `<div class="det">${esc(dettaglio)}</div>` : ''}
+              ${a.telefono ? `<div class="tel">📞 ${esc(a.telefono)}</div>` : ''}
+              <div class="brand">ERTA · FMI</div>
+            </div>
+            <div class="qr-wrap">
+              <img class="qr" src="${qrSrc}" alt="QR" />
+              <div class="qr-logo">FMI</div>
+            </div>
+          </div>
+          <div class="foot">Inquadra il QR con la fotocamera per accedere ad ERTA</div>
+        </div>`;
+    };
+
+    const makeBackCard = (a) => {
+      const color = ruoloColor[a.ruolo] || ruoloColor.addetto;
+      return `
+        <div class="card back" style="border-color:${color};">
+          <div class="back-title">ISTRUZIONI ERTA</div>
+          <ol class="back-list">
+            <li>Inquadra il QR lato fronte con la fotocamera del telefono</li>
+            <li>Tocca la notifica per aprire ERTA</li>
+            <li>Consenti <b>Posizione</b> e <b>Notifiche</b></li>
+            <li>Aggiungi l'app alla <b>schermata Home</b></li>
+          </ol>
+          ${numEmergenza ? `<div class="back-emerg">🆘 Emergenza DdG: <b>${esc(numEmergenza)}</b></div>` : ''}
+          <div class="back-event">${esc(nomeEvento)}</div>
+        </div>`;
+    };
+
+    // Suddividi in pagine (fronti)
+    const pagesHtml = [];
+    for (let p = 0; p < pageCount; p++) {
+      const slice = sorted.slice(p * CARDS_PER_PAGE, (p + 1) * CARDS_PER_PAGE);
+      const filler = CARDS_PER_PAGE - slice.length;
+      const frontCards = slice.map(makeFrontCard).join('') +
+        Array.from({ length: filler }, () => '<div class="card empty"></div>').join('');
+      pagesHtml.push(`<section class="page"><div class="grid">${frontCards}</div></section>`);
+
+      if (includeRetro) {
+        // Retro: per allineamento duplex "flip on short edge", inverte colonne per ogni riga
+        // Griglia 2 col: card[0,1] → back[1,0]; card[2,3] → back[3,2]; ecc.
+        const mirrored = [];
+        for (let r = 0; r < 5; r++) {
+          const i = r * 2;
+          mirrored.push(slice[i + 1] || null);
+          mirrored.push(slice[i] || null);
+        }
+        const backCards = mirrored.map(a => a ? makeBackCard(a) : '<div class="card empty"></div>').join('');
+        pagesHtml.push(`<section class="page back-page"><div class="grid">${backCards}</div></section>`);
+      }
+    }
 
     const html = `<!DOCTYPE html>
 <html lang="it"><head>
 <meta charset="utf-8">
-<title>QR Addetti — ${esc(nomeEvento)}</title>
+<title>Badge ERTA — ${esc(nomeEvento)}</title>
 <style>
-  @page { size: A4; margin: 8mm; }
+  @page { size: A4; margin: 10mm; }
   * { box-sizing: border-box; }
   body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 0; color: #111; }
-  .intestazione { text-align: center; padding: 6mm 0 3mm; border-bottom: 1px dashed #bbb; margin-bottom: 4mm; }
-  .intestazione h1 { margin: 0; font-size: 14pt; }
-  .intestazione .sub { font-size: 10pt; color: #666; margin-top: 2px; }
+  .page { width: 190mm; margin: 0 auto; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
   .grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 66mm;
-    gap: 0;
+    grid-template-columns: repeat(2, 85mm);
+    grid-auto-rows: 54mm;
+    gap: 3mm 6mm;
+    justify-content: center;
+    align-content: start;
+    padding-top: 2mm;
   }
   .card {
-    border: 1px dashed #888;
-    padding: 4mm 3mm;
-    text-align: center;
+    width: 85mm; height: 54mm;
+    border: 0.6mm solid #888;
+    border-radius: 2mm;
+    padding: 2mm 3mm;
     display: flex;
     flex-direction: column;
-    align-items: center;
     position: relative;
     page-break-inside: avoid;
+    background: #fff;
+    overflow: hidden;
   }
-  .card.empty { border-style: dashed; border-color: #ddd; }
-  /* Segni di taglio agli angoli di ogni card */
-  .card::before, .card::after {
-    content: '';
-    position: absolute;
-    background: #000;
+  .card.empty { border: 0.4mm dashed #ddd; }
+  .stripe {
+    height: 4mm;
+    margin: -2mm -3mm 1.5mm;
+    position: relative;
   }
-  .card::before { top: 0; left: 0; width: 5mm; height: 0.3mm; box-shadow: 0 66mm 0 #000; }
-  .card::after { top: 0; left: 0; width: 0.3mm; height: 5mm; box-shadow: calc(100% - 0.3mm) 0 0 #000; }
-  .card-head .ruolo {
-    font-size: 8pt;
-    background: #fde2e2;
-    color: #991b1b;
-    padding: 1mm 2mm;
-    border-radius: 2mm;
-    font-weight: 600;
+  .ruolo {
+    position: absolute; left: 3mm; top: 4.5mm;
+    font-size: 6.5pt; font-weight: 700;
+    padding: 0.5mm 1.5mm; border-radius: 1mm;
+    white-space: nowrap;
   }
-  .nome { font-size: 11pt; font-weight: 700; margin-top: 2mm; line-height: 1.2; }
-  .det { font-size: 8pt; color: #666; margin-top: 1mm; line-height: 1.1; min-height: 3mm; }
-  .qr { width: 38mm; height: 38mm; margin: 2mm 0 1mm; }
-  .istruz { font-size: 7pt; color: #888; margin-top: 0.5mm; }
-  .tel { font-size: 8pt; color: #333; margin-top: 1mm; font-family: monospace; }
-  /* Segni taglio nei 4 angoli del foglio */
-  .crop { position: fixed; width: 8mm; height: 8mm; }
-  .crop.tl { top: 2mm; left: 2mm; border-top: 0.3mm solid #000; border-left: 0.3mm solid #000; }
-  .crop.tr { top: 2mm; right: 2mm; border-top: 0.3mm solid #000; border-right: 0.3mm solid #000; }
-  .crop.bl { bottom: 2mm; left: 2mm; border-bottom: 0.3mm solid #000; border-left: 0.3mm solid #000; }
-  .crop.br { bottom: 2mm; right: 2mm; border-bottom: 0.3mm solid #000; border-right: 0.3mm solid #000; }
-  @media print {
-    .no-print { display: none; }
+  .body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 28mm;
+    gap: 2mm;
+    align-items: start;
+    padding-top: 3mm;
   }
+  .left { display: flex; flex-direction: column; gap: 0.8mm; min-width: 0; }
+  .nome { font-size: 10.5pt; font-weight: 700; line-height: 1.1; }
+  .det { font-size: 7.5pt; color: #444; line-height: 1.15; }
+  .tel { font-size: 8pt; color: #111; font-family: monospace; margin-top: 0.5mm; }
+  .brand { font-size: 6pt; color: #888; margin-top: auto; letter-spacing: 0.5px; }
+  .qr-wrap { position: relative; width: 28mm; height: 28mm; }
+  .qr { width: 28mm; height: 28mm; display: block; }
+  .qr-logo {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    color: #dc2626;
+    font-size: 6pt; font-weight: 900;
+    padding: 0.4mm 1.2mm;
+    border-radius: 0.6mm;
+    border: 0.3mm solid #dc2626;
+    letter-spacing: 0.3px;
+  }
+  .foot {
+    font-size: 6pt; color: #666; text-align: center;
+    margin-top: 1mm; padding-top: 1mm;
+    border-top: 0.2mm dashed #ccc;
+  }
+  /* RETRO */
+  .back-page .card.back {
+    justify-content: flex-start;
+    padding: 3mm 4mm;
+  }
+  .back-title { font-size: 9pt; font-weight: 800; text-align: center; letter-spacing: 1px; margin-bottom: 2mm; }
+  .back-list { font-size: 7.5pt; line-height: 1.35; margin: 0; padding-left: 4mm; color: #222; }
+  .back-list li { margin-bottom: 0.8mm; }
+  .back-emerg {
+    margin-top: 2mm; padding: 1.5mm 2mm;
+    background: #fef2f2; border: 0.3mm solid #dc2626; border-radius: 1mm;
+    font-size: 8pt; text-align: center; color: #991b1b;
+  }
+  .back-event { font-size: 6.5pt; color: #888; text-align: center; margin-top: auto; padding-top: 1.5mm; border-top: 0.2mm dashed #ccc; }
+  /* Crop marks agli angoli del foglio */
+  .crop { position: fixed; width: 6mm; height: 6mm; }
+  .crop.tl { top: 3mm; left: 3mm; border-top: 0.3mm solid #000; border-left: 0.3mm solid #000; }
+  .crop.tr { top: 3mm; right: 3mm; border-top: 0.3mm solid #000; border-right: 0.3mm solid #000; }
+  .crop.bl { bottom: 3mm; left: 3mm; border-bottom: 0.3mm solid #000; border-left: 0.3mm solid #000; }
+  .crop.br { bottom: 3mm; right: 3mm; border-bottom: 0.3mm solid #000; border-right: 0.3mm solid #000; }
+  .hint { text-align: center; font-size: 8pt; color: #666; padding: 2mm 0 4mm; }
+  @media print { .no-print { display: none !important; } }
 </style>
 </head><body>
   <div class="crop tl"></div><div class="crop tr"></div>
   <div class="crop bl"></div><div class="crop br"></div>
-  <div class="intestazione">
-    <h1>QR Accesso ERTA — ${esc(nomeEvento)}</h1>
-    <div class="sub">${sorted.length} addetti · Stampato il ${new Date().toLocaleDateString('it-IT')}</div>
-  </div>
-  <div class="grid">${cards}${fillers}</div>
-  <script>window.onload = () => setTimeout(() => window.print(), 500);</script>
+  <div class="hint no-print">Badge formato carta di credito (85×54mm) · 10 per A4 · ${includeRetro ? 'Stampa fronte/retro — selezionare "Capovolgi lato corto"' : 'Solo fronte'}</div>
+  ${pagesHtml.join('')}
+  <script>window.onload = () => setTimeout(() => window.print(), 600);</script>
 </body></html>`;
 
     const win = window.open('', '_blank');
     win.document.write(html);
     win.document.close();
+  }
+
+  function handleExportCSV() {
+    if (!addetti || addetti.length === 0) return;
+    const evento = eventi.find(e => e.id === eventoSelezionato);
+    const nomeFile = (evento?.codice_gara || 'evento').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const ruoloLabel = { medico: 'Medico', resp_ps: 'Resp. PS', resp_trasf: 'Resp. Trasferimenti', addetto: 'Addetto' };
+    const headers = ['Ruolo', 'Cognome', 'Nome', 'Telefono', 'PS', 'Settore', 'Note', 'URL_ERTA'];
+    const csvCell = (v) => {
+      const s = String(v ?? '');
+      return /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const rows = addetti.map(a => [
+      ruoloLabel[a.ruolo] || 'Addetto',
+      a.cognome, a.nome, a.telefono || '',
+      a.nome_ps || '', a.nome_settore || '', a.note || '',
+      `${ERTA_URL}/?t=${a.token}`
+    ].map(csvCell).join(';'));
+    const csv = '\ufeff' + [headers.join(';'), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `addetti_${nomeFile}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   function resetForm() {
@@ -397,9 +527,17 @@ export default function Addetti() {
               onClick={handlePrintAllQR}
               disabled={addetti.length === 0}
               className="text-xs px-3 py-1.5 rounded-md bg-rose-600 text-white font-semibold hover:bg-rose-700 disabled:opacity-40 flex items-center gap-1"
-              title="Stampa tutti i QR code su A4 (8 per pagina, con segni di taglio)"
+              title="Stampa badge 85×54mm (10 per A4), con bordo colorato per ruolo, logo FMI, retro con istruzioni opzionale"
             >
-              <Printer className="w-3 h-3" /> Stampa tutti i QR
+              <Printer className="w-3 h-3" /> Stampa badge
+            </button>
+            <button
+              onClick={handleExportCSV}
+              disabled={addetti.length === 0}
+              className="text-xs px-3 py-1.5 rounded-md bg-surface-2 text-content-primary font-semibold hover:bg-surface-3 disabled:opacity-40 flex items-center gap-1"
+              title="Esporta lista addetti in formato CSV (compatibile Excel)"
+            >
+              ⬇ CSV
             </button>
             <button onClick={loadAddetti} className="text-xs text-content-tertiary hover:text-content-primary flex items-center gap-1">
               <RefreshCw className="w-3 h-3" /> Aggiorna

@@ -325,12 +325,15 @@ export default function SimulazioneMappa() {
       let marker = lf.markers.get(p.id);
       const icon = L.divIcon({ html: markerSVG(p), className: 'sim-divicon', iconSize: [52, 74], iconAnchor: [26, 56] });
       if (!marker) {
-        marker = L.marker([p.lat, p.lon], { icon }).addTo(lf.map);
-        marker.on('click', () => setSelected(p.id));
+        marker = L.marker([p.lat, p.lon], { icon, bubblingMouseEvents: false, interactive: true }).addTo(lf.map);
+        marker.pilotId = p.id;
+        marker.on('click', function(e) {
+          if (e.originalEvent) { e.originalEvent.stopPropagation(); }
+          setSelected(this.pilotId);
+        });
         lf.markers.set(p.id, marker);
       } else {
         marker.setIcon(icon);
-        // Tween: Leaflet non ha nativo. Aggiorno via CSS transition sul layer
         marker.setLatLng([p.lat, p.lon]);
       }
 
@@ -458,11 +461,12 @@ export default function SimulazioneMappa() {
   return (
     <div className="flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
       <style>{`
-        /* Smoothing marker: transition CSS fa scorrere il transform che Leaflet applica */
-        .leaflet-marker-icon.sim-divicon {
-          transition: transform 120ms linear;
-          will-change: transform;
-        }
+        /* Smoothing marker: transition leggera per interpolare i tick.
+           Evitato sul transform principale perche' interferisce con l'hit
+           testing del click; animiamo solo gli SVG interni. */
+        .sim-divicon svg { transition: transform 120ms linear; }
+        .sim-divicon { cursor: pointer; }
+        .sim-divicon .sim-marker { pointer-events: auto; }
       `}</style>
       {/* Toolbar */}
       <header className="flex items-center gap-3 px-4 py-2 border-b border-border-subtle bg-surface flex-wrap">

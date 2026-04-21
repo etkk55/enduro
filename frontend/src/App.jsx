@@ -32,6 +32,7 @@ const SetupGaraFicr = lazy(() => import('./pages/SetupGaraFicr'));
 const Addetti = lazy(() => import('./pages/Addetti'));
 const Mappa = lazy(() => import('./pages/Mappa'));
 const SosRouting = lazy(() => import('./pages/SosRouting'));
+const SimulazioneMappa = lazy(() => import('./pages/SimulazioneMappa'));
 
 function PageLoader() {
   return (
@@ -63,6 +64,7 @@ const NAV_GROUPS = [
       { to: '/piloti', icon: Users, label: 'Piloti' },
       { to: '/setup-gara', icon: Settings, label: 'Setup Gara' },
       { to: '/controllo-gara', icon: Activity, label: 'Simulazione Gara' },
+      { to: '/simulazione-mappa', icon: MapPin, label: 'Simulazione Mappa' },
       { to: '/import-ficr', icon: Download, label: 'Import FICR' },
     ],
   },
@@ -188,7 +190,7 @@ function AppLayout({ children, onOpenPalette }) {
           collapsed={collapsed}
           footer={(isCollapsed) => (
             <div className={cn('text-xs text-content-tertiary font-mono', isCollapsed ? 'text-center' : 'px-2')}>
-              v1.2.09
+              v1.2.10
             </div>
           )}
         />
@@ -270,6 +272,7 @@ export default function App() {
               <Route path="/addetti" element={<Addetti />} />
               <Route path="/mappa" element={<Mappa />} />
               <Route path="/sos-routing" element={<SosRouting />} />
+              <Route path="/simulazione-mappa" element={<SimulazioneMappa />} />
               <Route path="/import-ficr" element={<ImportFicr />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -42,6 +42,7 @@ const TIPI_EMERGENZA = {
   emergenza_medica:  { priorita: 1, legacy: false },
   incidente:         { priorita: 2, legacy: false },
   ostacolo_percorso: { priorita: 3, legacy: false },
+  fuori_percorso:    { priorita: 3, legacy: false }, // rilevamento automatico GPS + simulazione
   guasto_meccanico:  { priorita: 4, legacy: false },
   info_non_urgente:  { priorita: 5, legacy: false },
   // Legacy aliases

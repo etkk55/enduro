@@ -91,6 +91,8 @@ export default function SimulazioneMappa() {
   const pilotiRef = useRef([]); // stato simulazione senza rerender
   const tickRef = useRef(null);
   const lastNotificatoRef = useRef(new Set()); // id piloti già notificati come fuori percorso
+  const speedRef = useRef(1); // letto dentro tick per evitare stale closure
+  useEffect(() => { speedRef.current = speed; }, [speed]);
 
   // Carica eventi
   useEffect(() => {
@@ -213,7 +215,8 @@ export default function SimulazioneMappa() {
     let allarmi = 0, fuori = 0, fermi = 0;
 
     // Base: ogni tick (80ms) avanza ~0.3% tracciato a 1x. A 10x ~3%. Step piccoli = movimento fluido.
-    const baseStepPct = 0.003 * speed;
+    const currentSpeed = speedRef.current; // sempre aggiornato, evita stale closure
+    const baseStepPct = 0.003 * currentSpeed;
     const baseStep = Math.max(1, Math.floor(coords.length * baseStepPct));
 
     pilotiRef.current = pilotiRef.current.map(p => {

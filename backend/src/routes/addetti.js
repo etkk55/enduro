@@ -308,7 +308,7 @@ router.post('/api/eventi/:id_evento/addetti/invalidate-tokens', async (req, res,
 router.post('/api/addetti/:id/inoltra-sos', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { id_messaggio, tipo, testo, numero_pilota, nome_pilota, gps_lat, gps_lon } = req.body || {};
+    const { id_messaggio, tipo, testo, numero_pilota, nome_pilota, gps_lat, gps_lon, tipo_emergenza, priorita } = req.body || {};
 
     const aRes = await pool.query('SELECT id, nome, cognome, id_evento FROM addetti WHERE id = $1', [id]);
     if (aRes.rows.length === 0) return res.status(404).json({ error: 'Addetto non trovato' });
@@ -328,8 +328,8 @@ router.post('/api/addetti/:id/inoltra-sos', async (req, res, next) => {
     }
 
     const alertRes = await pool.query(
-      `INSERT INTO addetti_alerts (id_addetto, id_messaggio, tipo, testo, pilota_numero, pilota_nome, gps_lat, gps_lon, distanza_m)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      `INSERT INTO addetti_alerts (id_addetto, id_messaggio, tipo, testo, pilota_numero, pilota_nome, gps_lat, gps_lon, distanza_m, tipo_emergenza, priorita)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
       [
         id,
         id_messaggio || null,
@@ -339,7 +339,9 @@ router.post('/api/addetti/:id/inoltra-sos', async (req, res, next) => {
         nome_pilota || null,
         gps_lat || null,
         gps_lon || null,
-        distanza_m
+        distanza_m,
+        tipo_emergenza || null,
+        priorita != null ? parseInt(priorita) : null
       ]
     );
 

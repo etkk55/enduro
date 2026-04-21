@@ -251,6 +251,18 @@ async function runMigrations() {
       ADD COLUMN IF NOT EXISTS token_expires_at TIMESTAMP;
     `);
 
+    // Categoria/priorità SOS (5 categorie: medica/incidente/ostacolo/guasto/info)
+    await client.query(`
+      ALTER TABLE messaggi_piloti
+      ADD COLUMN IF NOT EXISTS tipo_emergenza VARCHAR(30),
+      ADD COLUMN IF NOT EXISTS priorita INTEGER;
+    `);
+    await client.query(`
+      ALTER TABLE addetti_alerts
+      ADD COLUMN IF NOT EXISTS tipo_emergenza VARCHAR(30),
+      ADD COLUMN IF NOT EXISTS priorita INTEGER;
+    `);
+
     // Aggiunge id_addetto a push_subscriptions per notifiche mirate ai marshalls
     await client.query(`
       ALTER TABLE push_subscriptions

@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1a2e">
-  <title>ERTA v1.1.16</title>
+  <title>ERTA v1.1.17</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVFhH7ZZLaxRBFIW/qu6ZSUgm+IgGNYKKKIoLceFKXLhx4R9w7y9w58qdP8C1C3HjQlAQfCCKiohRSTLpnum+LupWT890EjPJJAjeRdNVXXXuuVX3VsH/+GMQTt3u4MTKFo5tbGzw8NEDtre3+z6q1Srnz1/g8pWrlMr+wNzcHOvr68Px1s42T548Zm7uq/n0xlC6e7hb4d6vb/Ly1QuKxeJAYJPJBLdu3+HchYs4bux8xw/UoyZbW1vUarUhgBtcv3GTCzOzuC4/cL6DvV3k4vKP8U2bX4d4I/lJsxh8f+Ny5MRpjp84ResveDBWr+PYFfzIwYu8X1rCdV3K5TKWZfHh/TsWFj4xOTmJ7/vYdvz0YqlMrV7DsizCMPj5fgcCP2BkpIwfhARBQOtvm1KpxMjICH4QEEdEKWtQqVTxvGIG4LoOjuNgmdeGbJPnSwMQYuwWQ9pDMHxd1xO4M3T7nGIYT0KAETLsWbwoCKk3GjSbTVzHwbZtbMsmDAJqtTqua1OtVrAtu9e8HiU2bUJkSGxsBRDWw5C7d+/x+PFjDh06xNGjRzlz5gyzs7NUq1UePnzIgwcPOHfuHFeuXGFiYoLFxUVWV1dTMZJYS9BoNPpI7C+E6CFZlmXbNicnJ/A8r4dqrVZnc3Oz12fwenr9Yv+kFqgYBvR9g3A9n1J5hCAIieMo8w59LoHEJuxvPBbR68vIaNgT99exLft3JohjSo6D5Vg4tkUYhv3E2O+lIpZl9cPqjn7PL9YoFQsD48T+JBHi+P4gvDAKiOL+e8fxcByHOI5pt1tE0d/jOBYG/iDsH7t+v0/o+gPYEhNFYa8vDAPCsNMLDCcj9AlwHAfHsbBsK41AHIWDzxn7RxB/kNa/R/IH+N/+7ALAD/EHKBzx6fTDAAAAAElFTkSuQmCC">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1053,6 +1053,72 @@
     .orario-row.partenza .orario-time { color: var(--info); }
     .orario-row.co .orario-time { color: var(--warning); }
     .orario-row.arrivo .orario-time { color: var(--success); }
+
+    /* ==================== SOS - Selezione categoria ==================== */
+    .sos-cat-wrapper {
+      background: var(--bg-surface);
+      border-radius: var(--r-xl);
+      border: 1px solid var(--border-subtle);
+      padding: 14px 12px;
+      margin-bottom: 12px;
+    }
+    .sos-cat-title {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin: 0 0 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .sos-cat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .sos-cat {
+      position: relative;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 90px;
+      padding: 10px 8px 8px;
+      background: var(--bg-surface-2);
+      border: 2px solid var(--border-default);
+      border-radius: var(--r-md);
+      color: var(--text-primary);
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 120ms, border-color 120ms, background 120ms;
+    }
+    .sos-cat:active { transform: scale(0.97); }
+    .sos-cat.selected {
+      border-width: 3px;
+      background: rgba(255,255,255,0.04);
+    }
+    .sos-cat-ico { font-size: 28px; line-height: 1; margin-bottom: 4px; }
+    .sos-cat-lbl { font-size: 10.5px; font-weight: 800; text-align: center; line-height: 1.15; letter-spacing: 0.3px; }
+    .sos-cat-sub { font-size: 9px; color: var(--text-tertiary); text-align: center; margin-top: 2px; line-height: 1.1; }
+    .sos-cat-prio {
+      position: absolute; top: 4px; right: 6px;
+      font-size: 9px; font-weight: 900;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.3px;
+    }
+    .sos-cat.prio-1 { border-color: #dc2626; } .sos-cat.prio-1.selected { background: rgba(220,38,38,0.12); }
+    .sos-cat.prio-2 { border-color: #ea580c; } .sos-cat.prio-2.selected { background: rgba(234,88,12,0.12); }
+    .sos-cat.prio-3 { border-color: #f59e0b; } .sos-cat.prio-3.selected { background: rgba(245,158,11,0.12); }
+    .sos-cat.prio-4 { border-color: #3b82f6; } .sos-cat.prio-4.selected { background: rgba(59,130,246,0.12); }
+    .sos-cat.prio-5 { border-color: #22c55e; } .sos-cat.prio-5.selected { background: rgba(34,197,94,0.12); }
+    /* Last item occupies full width when grid has odd number */
+    .sos-cat-grid .sos-cat:nth-child(5) { grid-column: span 2; min-height: 70px; flex-direction: row; gap: 10px; }
+    .sos-cat-grid .sos-cat:nth-child(5) .sos-cat-ico { margin-bottom: 0; }
+
+    /* Stato disabilitato contenitore SOS */
+    .sos-container.sos-disabled .sos-btn {
+      opacity: 0.35;
+      pointer-events: none;
+      filter: grayscale(0.5);
+    }
+    .sos-container.sos-disabled .sos-label { color: var(--text-tertiary); font-style: italic; }
 
     /* ==================== SOS ==================== */
     .sos-container {
@@ -5218,7 +5284,7 @@
     <div class="banner-container">
       <img src="EN-RAS_banner.png" alt="EN-RAS Enduro Race Assistant" class="splash-banner">
     </div>
-    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.16</div>
+    <div style="text-align: center; color: #fff; font-size: 12px; margin: 10px 0;">v1.1.17</div>
 
     <div class="features-list">
       <p>Ti collega direttamente alla Direzione Gara.<br>Ricevi in tempo reale:</p>
@@ -5241,7 +5307,7 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login">
     <div class="login-brand"><span class="dot"></span></div>
-    <div class="login-version">ERTA · v1.1.16</div>
+    <div class="login-version">ERTA · v1.1.17</div>
     <div class="login-header">
       <h1>🏁 ACCESSO GARA</h1>
       <p>Seleziona la modalità di accesso</p>
@@ -5537,42 +5603,59 @@
 
     <!-- Tab: Segnala (NUOVO) -->
     <div class="tab-content" id="tabSegnala">
-      <!-- Tasto SOS -->
-      <div class="sos-container">
+      <!-- Selezione categoria emergenza (OBBLIGATORIA prima di inviare SOS) -->
+      <div class="sos-cat-wrapper">
+        <h4 class="sos-cat-title">1. Seleziona il tipo di emergenza</h4>
+        <div class="sos-cat-grid" id="sosCatGrid">
+          <button type="button" class="sos-cat prio-1" data-tipo="emergenza_medica" onclick="selezionaTipoSOS('emergenza_medica')">
+            <div class="sos-cat-ico">🚨</div>
+            <div class="sos-cat-lbl">EMERGENZA MEDICA</div>
+            <div class="sos-cat-sub">Ferito, incoscienza, sangue</div>
+            <div class="sos-cat-prio">P1</div>
+          </button>
+          <button type="button" class="sos-cat prio-2" data-tipo="incidente" onclick="selezionaTipoSOS('incidente')">
+            <div class="sos-cat-ico">💥</div>
+            <div class="sos-cat-lbl">INCIDENTE / CADUTA</div>
+            <div class="sos-cat-sub">Caduta grave, pilota bloccato</div>
+            <div class="sos-cat-prio">P2</div>
+          </button>
+          <button type="button" class="sos-cat prio-3" data-tipo="ostacolo_percorso" onclick="selezionaTipoSOS('ostacolo_percorso')">
+            <div class="sos-cat-ico">⚠️</div>
+            <div class="sos-cat-lbl">OSTACOLO PERCORSO</div>
+            <div class="sos-cat-sub">Albero, buca, pilota avanti</div>
+            <div class="sos-cat-prio">P3</div>
+          </button>
+          <button type="button" class="sos-cat prio-4" data-tipo="guasto_meccanico" onclick="selezionaTipoSOS('guasto_meccanico')">
+            <div class="sos-cat-ico">🔧</div>
+            <div class="sos-cat-lbl">GUASTO / FORATURA</div>
+            <div class="sos-cat-sub">Foratura, rottura meccanica</div>
+            <div class="sos-cat-prio">P4</div>
+          </button>
+          <button type="button" class="sos-cat prio-5" data-tipo="info_non_urgente" onclick="selezionaTipoSOS('info_non_urgente')">
+            <div class="sos-cat-ico">ℹ️</div>
+            <div class="sos-cat-lbl">INFO NON URGENTE</div>
+            <div class="sos-cat-sub">Segnalazione generica</div>
+            <div class="sos-cat-prio">P5</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tasto SOS (disabilitato finché non è selezionata una categoria) -->
+      <div class="sos-container sos-disabled" id="sosContainer">
+        <h4 class="sos-cat-title" style="margin-top:10px;">2. Tieni premuto 3 secondi per inviare</h4>
         <svg class="sos-ring" id="sosRing" viewBox="0 0 220 220" aria-hidden="true">
           <circle class="track" cx="110" cy="110" r="100"></circle>
           <circle class="fill" cx="110" cy="110" r="100"></circle>
         </svg>
-        <p class="sos-label">TIENI PREMUTO 3 SEC PER SOS</p>
-        <button class="sos-btn" id="sosBtn"
+        <p class="sos-label" id="sosLabel">Seleziona prima il tipo di emergenza</p>
+        <button class="sos-btn" id="sosBtn" disabled
                 onmousedown="startSOS()" onmouseup="cancelSOS()" onmouseleave="cancelSOS()"
                 ontouchstart="startSOS()" ontouchend="cancelSOS()" ontouchcancel="cancelSOS()">
           🆘
         </button>
       </div>
 
-      <!-- Tipo Emergenza -->
       <div class="segnala-form" style="margin-top: 15px;">
-        <h4 style="margin-bottom: 10px; font-size: 14px; color: #888;">Tipo segnalazione:</h4>
-        <div class="tipo-selector">
-          <label class="tipo-option">
-            <input type="radio" name="tipoMsg" value="assistenza" checked>
-            <span>🔧 Assistenza</span>
-          </label>
-          <label class="tipo-option">
-            <input type="radio" name="tipoMsg" value="pericolo">
-            <span>⚠️ Pericolo</span>
-          </label>
-          <label class="tipo-option">
-            <input type="radio" name="tipoMsg" value="info">
-            <span>ℹ️ Info</span>
-          </label>
-          <label class="tipo-option">
-            <input type="radio" name="tipoMsg" value="altro">
-            <span>💬 Altro</span>
-          </label>
-        </div>
-
         <div class="gps-status" id="gpsStatus">
           📍 GPS: In attesa...
         </div>
@@ -9186,10 +9269,56 @@
       }
     }
     
+    // ==================== Categoria SOS (pilota) ====================
+    // Map client-side: priorità canonica per ogni categoria. Il backend ricalcola e valida.
+    const SOS_PRIORITA = {
+      emergenza_medica: 1,
+      incidente: 2,
+      ostacolo_percorso: 3,
+      guasto_meccanico: 4,
+      info_non_urgente: 5
+    };
+    const SOS_LABEL = {
+      emergenza_medica: 'EMERGENZA MEDICA',
+      incidente: 'INCIDENTE',
+      ostacolo_percorso: 'OSTACOLO PERCORSO',
+      guasto_meccanico: 'GUASTO MECCANICO',
+      info_non_urgente: 'INFO NON URGENTE'
+    };
+    let _sosTipoSelezionato = null;
+
+    function selezionaTipoSOS(tipo) {
+      if (!SOS_PRIORITA[tipo]) return;
+      _sosTipoSelezionato = tipo;
+      // Aggiorna UI: evidenzia card selezionata
+      document.querySelectorAll('#sosCatGrid .sos-cat').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.tipo === tipo);
+      });
+      // Abilita il tasto SOS
+      const container = document.getElementById('sosContainer');
+      const btn = document.getElementById('sosBtn');
+      const label = document.getElementById('sosLabel');
+      if (container) container.classList.remove('sos-disabled');
+      if (btn) btn.disabled = false;
+      if (label) label.textContent = `TIENI PREMUTO 3 SEC · ${SOS_LABEL[tipo]}`;
+      if (typeof haptic === 'function') haptic(15);
+    }
+    window.selezionaTipoSOS = selezionaTipoSOS;
+
     // SOS - Pressione inizia
     let sosVibrationInterval = null;
     let sosCountdownInterval = null;
     function startSOS() {
+      // Richiede categoria selezionata
+      if (!_sosTipoSelezionato) {
+        if (navigator.vibrate) navigator.vibrate([30, 30, 30]);
+        const container = document.getElementById('sosContainer');
+        if (container) {
+          container.style.outline = '2px solid #ef4444';
+          setTimeout(() => { container.style.outline = ''; }, 500);
+        }
+        return;
+      }
       sosStartTime = Date.now();
       const btn = document.getElementById('sosBtn');
       const container = btn.closest('.sos-container');
@@ -9281,9 +9410,11 @@
         });
       }
       
-      // Prendi tipo selezionato
-      const tipoSelezionato = document.querySelector('input[name="tipoMsg"]:checked')?.value || 'sos';
-      
+      // Categoria selezionata (obbligatoria) + priorità derivata
+      const tipoSelezionato = _sosTipoSelezionato || 'ostacolo_percorso';
+      const prioritaSelezionata = SOS_PRIORITA[tipoSelezionato] || 3;
+      const labelSelezionata = SOS_LABEL[tipoSelezionato] || tipoSelezionato.toUpperCase();
+
       // INVIA SOS SUBITO (senza popup)
       try {
         const response = await fetch(`${API_BASE}/api/app/sos`, {
@@ -9292,22 +9423,23 @@
           body: JSON.stringify({
             codice_accesso: currentUser.codice,
             numero_pilota: currentUser.numero,
-            testo: `SOS ${tipoSelezionato.toUpperCase()}`,
+            testo: `P${prioritaSelezionata} · ${labelSelezionata}`,
             tipo_emergenza: tipoSelezionato,
+            priorita: prioritaSelezionata,
             telefono: currentUser.telefono || null,
             gps_lat: currentGPS.lat,
             gps_lon: currentGPS.lon
           })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
           // Salva ID messaggio per eventuale aggiornamento
           window.lastSosId = data.messaggio?.id;
-          
+
           // Aggiungi alla lista messaggi inviati
-          aggiungiMessaggioInviato('sos', `SOS ${tipoSelezionato.toUpperCase()}`);
+          aggiungiMessaggioInviato('sos', `P${prioritaSelezionata} · ${labelSelezionata}`);
           
           // Mostra popup conferma con opzione dettagli
           document.getElementById('sosGpsInfo').textContent = 
@@ -11378,6 +11510,8 @@
         mostraInoltraSos({
           id_messaggio: el.dataset.msgId,
           tipo: el.dataset.tipo,
+          tipo_emergenza: el.dataset.tipoEmergenza || null,
+          priorita: el.dataset.priorita ? parseInt(el.dataset.priorita) : null,
           numero_pilota: el.dataset.num,
           nomePilota: el.dataset.nome,
           testo: el.dataset.testo,
@@ -11627,6 +11761,8 @@
           body: JSON.stringify({
             id_messaggio: sos.id_messaggio || null,
             tipo: sos.tipo || 'SOS',
+            tipo_emergenza: sos.tipo_emergenza || null,
+            priorita: sos.priorita != null ? sos.priorita : null,
             testo: sos.testo || '',
             numero_pilota: sos.numero_pilota,
             nome_pilota: sos.nomePilota || '',
@@ -12100,42 +12236,64 @@
         return;
       }
       
-      // Ordina: non letti prima, poi per data (recenti prima)
-      // Letti vanno in fondo
+      // Colori, icone, priorità per tipo (5 categorie nuove + fallback legacy)
+      const tipoConfig = {
+        // Nuove categorie canoniche (5)
+        emergenza_medica:  { icon: '🚨', color: '#ef4444', bg: '#4a0f0f', border: '#dc2626', label: 'MEDICA',    priorita: 1 },
+        incidente:         { icon: '💥', color: '#ea580c', bg: '#3d1a07', border: '#ea580c', label: 'INCIDENTE', priorita: 2 },
+        ostacolo_percorso: { icon: '⚠️', color: '#f59e0b', bg: '#3d2607', border: '#f59e0b', label: 'OSTACOLO',  priorita: 3 },
+        guasto_meccanico:  { icon: '🔧', color: '#3b82f6', bg: '#1e3a5f', border: '#3b82f6', label: 'GUASTO',    priorita: 4 },
+        info_non_urgente:  { icon: 'ℹ️', color: '#22c55e', bg: '#1e4d3a', border: '#22c55e', label: 'INFO',      priorita: 5 },
+        // Legacy aliases
+        sos:        { icon: '🆘', color: '#ef4444', bg: '#3d0f0f', border: '#ef4444', label: 'SOS',        priorita: 1 },
+        pericolo:   { icon: '⚠️', color: '#f97316', bg: '#3d2607', border: '#f97316', label: 'PERICOLO',   priorita: 3 },
+        assistenza: { icon: '🔧', color: '#3b82f6', bg: '#1e3a5f', border: '#3b82f6', label: 'ASSISTENZA', priorita: 4 },
+        info:       { icon: 'ℹ️', color: '#22c55e', bg: '#1e4d3a', border: '#22c55e', label: 'INFO',       priorita: 5 },
+        altro:      { icon: '💬', color: '#a855f7', bg: '#3d1f5c', border: '#a855f7', label: 'ALTRO',      priorita: 3 }
+      };
+
+      // Funzione: chiave tipo canonica (prima tipo_emergenza, poi tipo)
+      const tipoKey = (m) => m.tipo_emergenza || m.tipo || 'altro';
+      const prioOf = (m) => {
+        if (m.priorita != null) return m.priorita;
+        const c = tipoConfig[tipoKey(m)];
+        return c ? c.priorita : 3;
+      };
+
+      // Ordina: priorità ASC (1=più grave), a parità data DESC (recenti prima), letti in fondo
       const ordinati = [...messaggi].sort((a, b) => {
         if (a.letto !== b.letto) return a.letto ? 1 : -1;
+        const dp = prioOf(a) - prioOf(b);
+        if (dp !== 0) return dp;
         return new Date(b.created_at) - new Date(a.created_at);
       });
-      
-      // Colori e icone per tipo
-      const tipoConfig = {
-        sos: { icon: '🆘', color: '#ef4444', bg: '#3d0f0f', border: '#ef4444', label: 'SOS' },
-        pericolo: { icon: '⚠️', color: '#f97316', bg: '#3d2607', border: '#f97316', label: 'PERICOLO' },
-        assistenza: { icon: '🔧', color: '#3b82f6', bg: '#1e3a5f', border: '#3b82f6', label: 'ASSISTENZA' },
-        info: { icon: 'ℹ️', color: '#22c55e', bg: '#1e4d3a', border: '#22c55e', label: 'INFO' },
-        altro: { icon: '💬', color: '#a855f7', bg: '#3d1f5c', border: '#a855f7', label: 'ALTRO' }
-      };
-      
-      // Suona allarme SOLO per SOS/pericoli non letti MAI suonati prima (dedup)
+
+      // Suona allarme SOLO per priorità <= 2 (medica + incidente) e mai suonati prima
       window._ddgAlertedIds = window._ddgAlertedIds || new Set();
-      const urgenti = ordinati.filter(m => (m.tipo === 'sos' || m.tipo === 'pericolo') && !m.letto);
+      const urgenti = ordinati.filter(m => prioOf(m) <= 2 && !m.letto);
       const urgentiNuovi = urgenti.filter(m => !window._ddgAlertedIds.has(String(m.id)));
       if (urgentiNuovi.length > 0) {
         playNotificationSound();
         urgentiNuovi.forEach(m => window._ddgAlertedIds.add(String(m.id)));
       }
-      
+
+      // Colori badge priorità
+      const prioColor = { 1: '#dc2626', 2: '#ea580c', 3: '#f59e0b', 4: '#3b82f6', 5: '#22c55e' };
+
       container.innerHTML = ordinati.map(m => {
-        const config = tipoConfig[m.tipo] || tipoConfig.altro;
+        const config = tipoConfig[tipoKey(m)] || tipoConfig.altro;
+        const p = prioOf(m);
         const opacita = m.letto ? 'opacity: 0.5;' : '';
-        const animazione = (!m.letto && (m.tipo === 'sos' || m.tipo === 'pericolo')) ? 'animation: pulse 2s infinite;' : '';
+        const animazione = (!m.letto && p <= 2) ? 'animation: pulse 2s infinite;' : '';
         const nomePilota = [m.cognome, m.nome].filter(Boolean).join(' ');
-        
+        const isSos = m.tipo === 'sos' || config.priorita <= 3;
+
         return `
-        <div class="ddg-msg-card" data-tipo="${m.tipo}" style="background: ${config.bg}; border: 2px solid ${config.border}; border-radius: 8px; padding: 12px; margin-bottom: 10px; ${opacita} ${animazione}" data-msg-id="${m.id}">
+        <div class="ddg-msg-card" data-tipo="${tipoKey(m)}" data-prio="${p}" style="background: ${config.bg}; border: 2px solid ${config.border}; border-radius: 8px; padding: 12px; margin-bottom: 10px; ${opacita} ${animazione}" data-msg-id="${m.id}">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
             <div>
               <div style="font-weight: bold; color: ${config.color}; font-size: 16px;">
+                <span style="display:inline-block;background:${prioColor[p] || '#666'};color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:4px;margin-right:6px;vertical-align:middle;letter-spacing:0.5px;">P${p}</span>
                 ${config.icon} #${m.numero_pilota} ${nomePilota} <span style="margin-left: 10px;">${new Date(m.created_at).toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'})}</span>
               </div>
               <div style="color: ${config.color}; font-size: 12px; opacity: 0.8;">
@@ -12143,26 +12301,26 @@
               </div>
             </div>
             ${m.gps_lat && m.gps_lon ? `
-              <a href="https://www.google.com/maps?q=${m.gps_lat},${m.gps_lon}" target="_blank" 
+              <a href="https://www.google.com/maps?q=${m.gps_lat},${m.gps_lon}" target="_blank"
                  style="background: ${config.color}; color: white; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 11px;">
                 📍 GPS
               </a>
             ` : ''}
           </div>
-          
+
           ${m.testo ? `
             <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-bottom: 10px; color: #e2e8f0; font-size: 14px;">
               ${m.testo}
             </div>
           ` : ''}
-          
+
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button onclick="segnaVistoAllarme('${m.id}')" 
+            <button onclick="segnaVistoAllarme('${m.id}')"
               style="flex: 1; min-width: 80px; min-height: 44px; padding: 12px; background: ${m.letto ? '#374151' : '#22c55e'}; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; -webkit-tap-highlight-color: rgba(0,0,0,0.1); touch-action: manipulation;">
               ${m.letto ? '✓ VISTO' : '👁 VISTO'}
             </button>
-            ${m.tipo === 'sos' ? `
-              <button data-action="inoltra-sos" data-msg-id="${m.id}" data-tipo="${config.label}" data-num="${m.numero_pilota}" data-nome="${nomePilota}" data-testo="${(m.testo || '').replace(/"/g, '&quot;')}" data-lat="${m.gps_lat || ''}" data-lon="${m.gps_lon || ''}"
+            ${isSos ? `
+              <button data-action="inoltra-sos" data-msg-id="${m.id}" data-tipo="${config.label}" data-tipo-emergenza="${tipoKey(m)}" data-priorita="${p}" data-num="${m.numero_pilota}" data-nome="${nomePilota}" data-testo="${(m.testo || '').replace(/"/g, '&quot;')}" data-lat="${m.gps_lat || ''}" data-lon="${m.gps_lon || ''}"
                 style="flex: 1; min-width: 80px; min-height: 44px; padding: 12px; background: linear-gradient(135deg,#f59e0b,#d97706); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight:700; cursor: pointer; -webkit-tap-highlight-color: rgba(0,0,0,0.1); touch-action: manipulation;">
                 📡 Inoltra addetto
               </button>
@@ -13611,6 +13769,26 @@ ${mapsLink}`;
       }
     }
 
+    // Mappa categorie anche lato addetto per icone/colori/label
+    const ADDETTO_TIPO_CONFIG = {
+      emergenza_medica:  { icon: '🚨', label: 'EMERGENZA MEDICA', color: '#dc2626', priorita: 1 },
+      incidente:         { icon: '💥', label: 'INCIDENTE',        color: '#ea580c', priorita: 2 },
+      ostacolo_percorso: { icon: '⚠️', label: 'OSTACOLO',         color: '#f59e0b', priorita: 3 },
+      guasto_meccanico:  { icon: '🔧', label: 'GUASTO',           color: '#3b82f6', priorita: 4 },
+      info_non_urgente:  { icon: 'ℹ️', label: 'INFO',             color: '#22c55e', priorita: 5 },
+      sos:        { icon: '🆘', label: 'SOS',        color: '#dc2626', priorita: 1 },
+      pericolo:   { icon: '⚠️', label: 'PERICOLO',   color: '#f59e0b', priorita: 3 },
+      assistenza: { icon: '🔧', label: 'ASSISTENZA', color: '#3b82f6', priorita: 4 },
+      info:       { icon: 'ℹ️', label: 'INFO',       color: '#22c55e', priorita: 5 },
+      altro:      { icon: '💬', label: 'ALTRO',      color: '#a855f7', priorita: 3 }
+    };
+    function addettoTipoKey(a) { return a.tipo_emergenza || a.tipo || 'altro'; }
+    function addettoPrio(a) {
+      if (a.priorita != null) return a.priorita;
+      const c = ADDETTO_TIPO_CONFIG[addettoTipoKey(a)];
+      return c ? c.priorita : 3;
+    }
+
     function mostraNuovoAlertPopup(alert) {
       const titleEl = document.getElementById('nuovoAlertTitle');
       const bodyEl = document.getElementById('nuovoAlertBody');
@@ -13619,7 +13797,10 @@ ${mapsLink}`;
       const takeBtn = document.getElementById('nuovoAlertTakeBtn');
       if (!titleEl || !bodyEl) return;
       const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-      titleEl.textContent = `🆘 ${alert.tipo === 'sos' ? 'SOS' : 'Allarme'} Pilota #${alert.pilota_numero || '?'}${alert.pilota_nome ? ' ' + alert.pilota_nome : ''}`;
+      const cfg = ADDETTO_TIPO_CONFIG[addettoTipoKey(alert)] || ADDETTO_TIPO_CONFIG.altro;
+      const p = addettoPrio(alert);
+      titleEl.innerHTML = `<span style="background:${cfg.color};color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:900;margin-right:6px;">P${p}</span>${cfg.icon} ${cfg.label} · Pilota #${alert.pilota_numero || '?'}${alert.pilota_nome ? ' ' + alert.pilota_nome : ''}`;
+      titleEl.style.color = cfg.color;
       bodyEl.innerHTML = alert.testo ? esc(alert.testo) : '<em>Nessun testo</em>';
       const when = new Date(alert.created_at).toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
       const dist = alert.distanza_m != null ? ` · 📏 ${alert.distanza_m < 1000 ? alert.distanza_m + 'm' : (alert.distanza_m/1000).toFixed(1) + 'km'}` : '';
@@ -13632,7 +13813,12 @@ ${mapsLink}`;
       }
       takeBtn.onclick = () => { prendiInCaricoAlert(alert.id); chiudiNuovoAlertPopup(); };
       document.getElementById('addettoNewAlertPopup').classList.add('active');
-      try { if (navigator.vibrate) navigator.vibrate([300,100,300,100,300]); } catch(e) {}
+      // Vibrazione differenziata per priorità
+      try {
+        if (navigator.vibrate) {
+          navigator.vibrate(p <= 2 ? [300,100,300,100,300,100,300] : [200,80,200]);
+        }
+      } catch(e) {}
     }
     window.mostraNuovoAlertPopup = mostraNuovoAlertPopup;
 
@@ -13680,22 +13866,37 @@ ${mapsLink}`;
       const container = document.getElementById('addettoAlertsList');
       if (!container) return;
       if (!alerts || alerts.length === 0) {
-        container.innerHTML = '<p class="addetto-help">Nessun allarme in corso. Riceverai una notifica push se arriva un SOS.</p>';
+        container.innerHTML = '<p class="addetto-help">Nessun messaggio ricevuto. Riceverai una notifica push se arriva un SOS.</p>';
         return;
       }
       const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-      container.innerHTML = alerts.map(a => {
+      const prioColor = { 1: '#dc2626', 2: '#ea580c', 3: '#f59e0b', 4: '#3b82f6', 5: '#22c55e' };
+
+      // Ordina: presi in carico in fondo, poi per priorità asc, poi data desc
+      const ordinati = [...alerts].sort((a, b) => {
+        if (a.preso_in_carico !== b.preso_in_carico) return a.preso_in_carico ? 1 : -1;
+        const dp = addettoPrio(a) - addettoPrio(b);
+        if (dp !== 0) return dp;
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+
+      container.innerHTML = ordinati.map(a => {
         const when = new Date(a.created_at);
         const timeStr = when.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
         const hasGps = a.gps_lat != null && a.gps_lon != null;
         const mapsUrl = hasGps ? `https://www.google.com/maps?q=${a.gps_lat},${a.gps_lon}` : null;
-        const titolo = a.tipo === 'sos' ? `🆘 SOS Pilota #${a.pilota_numero}` : `Allarme #${a.pilota_numero}`;
+        const cfg = ADDETTO_TIPO_CONFIG[addettoTipoKey(a)] || ADDETTO_TIPO_CONFIG.altro;
+        const p = addettoPrio(a);
+        const titolo = `${cfg.icon} ${cfg.label} · Pilota #${a.pilota_numero}`;
         const distStr = a.distanza_m != null ? `📏 ${a.distanza_m < 1000 ? a.distanza_m + 'm' : (a.distanza_m/1000).toFixed(1) + 'km'}` : '';
         return `
-          <div class="addetto-alert${a.preso_in_carico ? ' taken' : ''}">
+          <div class="addetto-alert${a.preso_in_carico ? ' taken' : ''}" style="border-left:4px solid ${prioColor[p] || '#888'};">
             <div class="addetto-alert-head">
-              <div class="addetto-alert-ico">${a.preso_in_carico ? '✅' : '🆘'}</div>
-              <div class="addetto-alert-title">${titolo}</div>
+              <div class="addetto-alert-ico">${a.preso_in_carico ? '✅' : cfg.icon}</div>
+              <div class="addetto-alert-title">
+                <span style="background:${prioColor[p] || '#888'};color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:900;margin-right:4px;">P${p}</span>
+                ${titolo}
+              </div>
               <div class="addetto-alert-time">${timeStr}</div>
             </div>
             ${a.pilota_nome ? `<div class="addetto-alert-body"><strong>${esc(a.pilota_nome)}</strong></div>` : ''}

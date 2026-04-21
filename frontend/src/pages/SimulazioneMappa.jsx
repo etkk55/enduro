@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { API_BASE } from '../services/api';
 import { pickDefaultEvent, setActiveEventId } from '../utils/activeEvent';
-import { Play, Pause, RotateCcw, Flag, AlertTriangle, Navigation, Activity } from 'lucide-react';
+import { Play, Pause, RotateCcw, AlertTriangle, Navigation, Activity } from 'lucide-react';
 
 // Velocità simulazione (moltiplicatore)
 const SPEED_PRESETS = [1, 2, 5, 10];
@@ -82,7 +82,6 @@ export default function SimulazioneMappa() {
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [pilotiCount, setPilotiCount] = useState(PILOTI_COUNT_DEFAULT);
-  const [flag, setFlag] = useState('verde'); // verde | gialla | rossa
   const [selected, setSelected] = useState(null); // numero pilota per tooltip
   const [alertsCount, setAlertsCount] = useState({ allarmi: 0, fuori: 0, fermi: 0, notifichePush: 0 });
 
@@ -362,6 +361,49 @@ export default function SimulazioneMappa() {
 
   useEffect(() => () => stopSim(), []);
 
+  // Aggiornamento DINAMICO numero piloti: aggiunge/rimuove senza reset
+  useEffect(() => {
+    if (!tracciato || tracciato.length === 0) return;
+    const current = pilotiRef.current;
+    const target = pilotiCount;
+    if (current.length === target) return;
+    if (target > current.length) {
+      // Aggiungi nuovi piloti in posizioni distribuite lungo il tracciato
+      const coords = tracciato;
+      const newOnes = [];
+      const existingIds = new Set(current.map(p => p.id));
+      const existingNumbers = new Set(current.map(p => p.numero));
+      let nextId = 1;
+      let nextNumero = 10;
+      for (let i = current.length; i < target; i++) {
+        while (existingIds.has(nextId)) nextId++;
+        while (existingNumbers.has(nextNumero)) nextNumero++;
+        const idx = Math.floor((coords.length / target) * i);
+        const [lon, lat] = coords[idx];
+        newOnes.push({
+          id: nextId, numero: nextNumero, lat, lon,
+          heading: 0, speedKmh: 40 + Math.random() * 40,
+          stato: 'in_moto', trackIdx: idx, trail: [], statoFinoA: 0, fpOffset: null
+        });
+        existingIds.add(nextId); existingNumbers.add(nextNumero);
+        nextId++; nextNumero++;
+      }
+      pilotiRef.current = [...current, ...newOnes];
+      setPiloti(pilotiRef.current);
+    } else {
+      // Rimuovi eccedenze (ultimi aggiunti)
+      const daRimuovere = current.slice(target);
+      const lf = leafletRef.current;
+      daRimuovere.forEach(p => {
+        const m = lf.markers.get(p.id); if (m) { lf.map.removeLayer(m); lf.markers.delete(p.id); }
+        const t = lf.trails.get(p.id); if (t) { lf.map.removeLayer(t); lf.trails.delete(p.id); }
+        lastNotificatoRef.current.delete(p.id);
+      });
+      pilotiRef.current = current.slice(0, target);
+      setPiloti(pilotiRef.current);
+    }
+  }, [pilotiCount, tracciato]);
+
   const pilotaSel = piloti.find(p => p.id === selected);
 
   return (
@@ -422,24 +464,6 @@ export default function SimulazioneMappa() {
           />
         </div>
 
-        <div className="flex items-center gap-1 border-l border-border-subtle pl-3">
-          <Flag className="w-4 h-4 text-content-tertiary" />
-          {[
-            { v: 'verde', label: '🟢', title: 'In corso' },
-            { v: 'gialla', label: '🟡', title: 'Neutralizzazione' },
-            { v: 'rossa', label: '🔴', title: 'Bandiera rossa' },
-          ].map(f => (
-            <button
-              key={f.v}
-              title={f.title}
-              onClick={() => setFlag(f.v)}
-              className={`px-2 py-1 rounded text-base ${flag === f.v ? 'bg-surface-3' : 'hover:bg-surface-2'}`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-
         <div className="ml-auto flex items-center gap-3 text-xs">
           <span className="flex items-center gap-1 text-rose-600"><AlertTriangle className="w-3 h-3" /> {alertsCount.allarmi}</span>
           <span className="flex items-center gap-1 text-sky-600"><Navigation className="w-3 h-3" /> {alertsCount.fuori}</span>
@@ -447,13 +471,6 @@ export default function SimulazioneMappa() {
           <span className="text-content-tertiary">Push DdG: <b>{alertsCount.notifichePush}</b></span>
         </div>
       </header>
-
-      {/* Flag banner */}
-      {flag !== 'verde' && (
-        <div className={`text-center text-sm font-bold py-1.5 ${flag === 'gialla' ? 'bg-yellow-500 text-yellow-900' : 'bg-red-600 text-white'}`}>
-          {flag === 'gialla' ? '🟡 NEUTRALIZZAZIONE — Rallentare, nessun sorpasso' : '🔴 BANDIERA ROSSA — Rientrare ai box/Fermarsi in sicurezza'}
-        </div>
-      )}
 
       {/* Mappa */}
       <div className="relative flex-1">

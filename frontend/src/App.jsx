@@ -32,7 +32,7 @@ const SetupGaraFicr = lazy(() => import('./pages/SetupGaraFicr'));
 const Addetti = lazy(() => import('./pages/Addetti'));
 const Mappa = lazy(() => import('./pages/Mappa'));
 const SosRouting = lazy(() => import('./pages/SosRouting'));
-const SimulazioneMappa = lazy(() => import('./pages/SimulazioneMappa'));
+const Simulazione = lazy(() => import('./pages/Simulazione'));
 
 function PageLoader() {
   return (
@@ -63,8 +63,7 @@ const NAV_GROUPS = [
       { to: '/eventi', icon: Calendar, label: 'Eventi' },
       { to: '/piloti', icon: Users, label: 'Piloti' },
       { to: '/setup-gara', icon: Settings, label: 'Setup Gara' },
-      { to: '/controllo-gara', icon: Activity, label: 'Simulazione Gara' },
-      { to: '/simulazione-mappa', icon: MapPin, label: 'Simulazione Mappa' },
+      { to: '/simulazione', icon: Activity, label: 'Simulazione' },
       { to: '/import-ficr', icon: Download, label: 'Import FICR' },
     ],
   },
@@ -190,7 +189,7 @@ function AppLayout({ children, onOpenPalette }) {
           collapsed={collapsed}
           footer={(isCollapsed) => (
             <div className={cn('text-xs text-content-tertiary font-mono', isCollapsed ? 'text-center' : 'px-2')}>
-              v1.2.10
+              v1.2.11
             </div>
           )}
         />
@@ -258,7 +257,9 @@ export default function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/eventi" element={<Eventi />} />
               <Route path="/piloti" element={<Piloti />} />
-              <Route path="/controllo-gara" element={<ControlloGara />} />
+              <Route path="/simulazione" element={<Simulazione />} />
+              <Route path="/controllo-gara" element={<Simulazione />} />
+              <Route path="/simulazione-mappa" element={<Simulazione />} />
               <Route path="/live" element={<LiveTiming />} />
               <Route path="/la-mia-gara" element={<LaMiaGara />} />
               <Route path="/help-live" element={<HelpLive />} />
@@ -272,7 +273,6 @@ export default function App() {
               <Route path="/addetti" element={<Addetti />} />
               <Route path="/mappa" element={<Mappa />} />
               <Route path="/sos-routing" element={<SosRouting />} />
-              <Route path="/simulazione-mappa" element={<SimulazioneMappa />} />
               <Route path="/import-ficr" element={<ImportFicr />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

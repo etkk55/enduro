@@ -78,7 +78,7 @@ function markerSVG(p) {
 export default function SimulazioneMappa() {
   const [eventi, setEventi] = useState([]);
   const [eventoId, setEventoId] = useState('');
-  const [tracciato, setTracciato] = useState(null); // GeoJSON LineString
+  const [tracciato, setTracciato] = useState(null); // Coordinates [[lon,lat], ...]
   const [piloti, setPiloti] = useState([]);
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
@@ -110,7 +110,28 @@ export default function SimulazioneMappa() {
     if (ev) setActiveEventId(eventoId, ev?.codice_gara);
     fetch(`${API_BASE}/api/eventi/${eventoId}/tracciato`)
       .then(r => r.ok ? r.json() : null)
-      .then(data => setTracciato(data?.tracciato_geojson || null))
+      .then(data => {
+        const g = data?.tracciato_geojson;
+        if (!g) { setTracciato(null); return; }
+        // Accetta FeatureCollection (salvato da Mappa.jsx), Feature singolo, o LineString diretta
+        let coords = null;
+        if (g.type === 'FeatureCollection' && Array.isArray(g.features)) {
+          const line = g.features.find(f => f?.geometry?.type === 'LineString')
+                   || g.features.find(f => f?.geometry?.type === 'MultiLineString');
+          if (line) {
+            coords = line.geometry.type === 'MultiLineString'
+              ? line.geometry.coordinates.flat()
+              : line.geometry.coordinates;
+          }
+        } else if (g.type === 'Feature' && g.geometry?.coordinates) {
+          coords = g.geometry.type === 'MultiLineString' ? g.geometry.coordinates.flat() : g.geometry.coordinates;
+        } else if (g.type === 'LineString' && Array.isArray(g.coordinates)) {
+          coords = g.coordinates;
+        } else if (Array.isArray(g.coordinates)) {
+          coords = g.coordinates;
+        }
+        setTracciato(coords && coords.length > 1 ? coords : null);
+      })
       .catch(() => setTracciato(null));
     resetSimulation();
   }, [eventoId]);
@@ -138,9 +159,9 @@ export default function SimulazioneMappa() {
     const { map, L, track } = leafletRef.current;
     if (!map || !L) return;
     if (track) { map.removeLayer(track); leafletRef.current.track = null; }
-    if (!tracciato || !tracciato.geometry?.coordinates) return;
-    const coords = tracciato.geometry.coordinates.map(([lon, lat]) => [lat, lon]);
-    const poly = L.polyline(coords, { color: '#2563eb', weight: 4, opacity: 0.85 }).addTo(map);
+    if (!tracciato) return;
+    const latlngs = tracciato.map(([lon, lat]) => [lat, lon]);
+    const poly = L.polyline(latlngs, { color: '#2563eb', weight: 4, opacity: 0.85 }).addTo(map);
     leafletRef.current.track = poly;
     map.fitBounds(poly.getBounds(), { padding: [30, 30] });
   }, [tracciato]);
@@ -162,8 +183,8 @@ export default function SimulazioneMappa() {
   }
 
   function initPiloti() {
-    if (!tracciato?.geometry?.coordinates) { alert('Nessun tracciato caricato. Caricalo dalla pagina Mappa.'); return; }
-    const coords = tracciato.geometry.coordinates; // [lon,lat]
+    if (!tracciato || tracciato.length === 0) { alert('Nessun tracciato caricato. Caricalo dalla pagina Mappa.'); return; }
+    const coords = tracciato; // [[lon,lat], ...]
     const list = [];
     for (let i = 0; i < pilotiCount; i++) {
       const idx = Math.floor((coords.length / pilotiCount) * i);
@@ -186,9 +207,9 @@ export default function SimulazioneMappa() {
 
   function tick() {
     const lf = leafletRef.current;
-    if (!lf.map || !lf.L || !tracciato?.geometry?.coordinates) return;
+    if (!lf.map || !lf.L || !tracciato) return;
     const L = lf.L;
-    const coords = tracciato.geometry.coordinates;
+    const coords = tracciato;
     const now = Date.now();
     let allarmi = 0, fuori = 0, fermi = 0;
 

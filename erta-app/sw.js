@@ -1,7 +1,7 @@
 // ERTA Service Worker - Push Notifications
 // Chat 25 - nw25-01
 
-const CACHE_NAME = 'erta-v1.1.12';
+const CACHE_NAME = 'erta-v1.1.13';
 
 // Installazione Service Worker
 self.addEventListener('install', (event) => {

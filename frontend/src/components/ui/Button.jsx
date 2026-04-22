@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import { cn } from './utils';
 
 const VARIANTS = {
-  primary: 'bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-700 shadow-sm',
+  primary: 'bg-gradient-to-br from-brand-500 to-brand-700 text-white hover:from-brand-600 hover:to-brand-700 active:from-brand-700 active:to-brand-700 shadow-sm hover:shadow-md',
   secondary: 'bg-surface text-content-primary border border-border hover:bg-surface-2 active:bg-surface-3',
   ghost: 'bg-transparent text-content-secondary hover:bg-surface-2 hover:text-content-primary',
   danger: 'bg-danger-fg text-white hover:opacity-90 active:opacity-85 shadow-sm',

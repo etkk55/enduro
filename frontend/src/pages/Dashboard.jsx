@@ -1,15 +1,102 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Calendar, Users, Activity, ArrowRight, Radio, Settings, Download, Trophy, MapPin, Clock
+  Calendar, Users, Activity, ArrowRight, Radio, Settings, Download, Trophy, MapPin, Clock,
+  AlertTriangle, Navigation, MessageSquare, Flag
 } from 'lucide-react';
 import { getEventi, getPiloti } from '../services/api';
+import { API_BASE } from '../services/api';
 import { Card, CardBody } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import { Skeleton } from '../components/ui/Skeleton';
 import LiveDot from '../components/ui/LiveDot';
 import AnimatedNumber from '../components/ui/AnimatedNumber';
+import { getActiveEventId } from '../utils/activeEvent';
+
+// ============================================================
+// Hero card — evento attivo in primo piano, gradient brand
+// ============================================================
+function HeroActiveEvent({ evento, loading }) {
+  if (loading) {
+    return (
+      <div className="relative overflow-hidden rounded-2xl border border-border-subtle bg-gradient-to-br from-brand-500/10 via-brand-500/5 to-transparent p-6 mb-6">
+        <Skeleton className="h-6 w-48 mb-2" />
+        <Skeleton className="h-4 w-64" />
+      </div>
+    );
+  }
+  if (!evento) {
+    return (
+      <div className="relative overflow-hidden rounded-2xl border border-dashed border-border-default bg-surface-2/50 p-6 mb-6">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center text-content-tertiary">
+            <Flag className="w-6 h-6" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-lg font-bold text-content-primary">Nessun evento attivo</h2>
+            <p className="text-sm text-content-secondary mt-1">Seleziona un evento da una delle pagine (Eventi, Piloti…) per attivarlo come contesto di lavoro.</p>
+          </div>
+          <Button as={Link} to="/eventi" variant="primary" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>Vai agli eventi</Button>
+        </div>
+      </div>
+    );
+  }
+  const dataFmt = evento.data_inizio ? new Date(evento.data_inizio).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-brand-500/30 bg-gradient-to-br from-brand-500/15 via-brand-500/5 to-surface p-6 mb-6 shadow-sm">
+      {/* Decoro geometrico */}
+      <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-brand-500/10 blur-3xl pointer-events-none" aria-hidden="true" />
+      <div className="absolute bottom-0 right-6 text-brand-500/5 pointer-events-none" aria-hidden="true">
+        <Trophy className="w-32 h-32" />
+      </div>
+
+      <div className="relative flex items-start justify-between gap-6 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2">
+            <LiveDot tone="brand" size="sm" />
+            <span className="text-overline text-brand-700 dark:text-brand-500">Evento attivo</span>
+          </div>
+          <h2 className="text-2xl lg:text-3xl font-bold text-content-primary leading-tight">{evento.nome_evento || evento.codice_gara}</h2>
+          <div className="flex items-center gap-3 mt-2 text-sm text-content-secondary flex-wrap">
+            {dataFmt && <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-content-tertiary" /> {dataFmt}</span>}
+            {evento.luogo && <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-content-tertiary" /> {evento.luogo}</span>}
+            {evento.codice_gara && <span className="font-mono text-content-tertiary">{evento.codice_gara}</span>}
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Button as={Link} to="/live" variant="primary" rightIcon={<ArrowRight className="w-4 h-4" />}>Live Timing</Button>
+          <Button as={Link} to="/messaggi-piloti" variant="secondary">Allarmi</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// Counter tiles — stile ERTA DdG (icone colorate su fondo bg/10)
+// ============================================================
+function CounterTile({ label, value, icon: Icon, tone, to }) {
+  const toneMap = {
+    danger:  { bg: 'bg-rose-500/10 border-rose-500/30 hover:bg-rose-500/15', ico: 'bg-rose-500 text-white', num: 'text-rose-600 dark:text-rose-400' },
+    warning: { bg: 'bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/15', ico: 'bg-amber-500 text-white', num: 'text-amber-700 dark:text-amber-400' },
+    info:    { bg: 'bg-sky-500/10 border-sky-500/30 hover:bg-sky-500/15', ico: 'bg-sky-500 text-white', num: 'text-sky-700 dark:text-sky-400' },
+    success: { bg: 'bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/15', ico: 'bg-emerald-500 text-white', num: 'text-emerald-700 dark:text-emerald-400' },
+  };
+  const t = toneMap[tone] || toneMap.info;
+  const content = (
+    <div className={`rounded-xl border ${t.bg} p-4 transition-colors cursor-pointer`}>
+      <div className="flex items-start justify-between mb-1">
+        <div className={`w-9 h-9 rounded-lg ${t.ico} flex items-center justify-center shadow-sm`}>
+          <Icon className="w-4 h-4" strokeWidth={2.5} />
+        </div>
+        <div className="text-[10px] uppercase tracking-wider font-semibold text-content-tertiary">{label}</div>
+      </div>
+      <div className={`text-3xl font-black tabular-nums leading-none mt-3 ${t.num}`}>{value}</div>
+    </div>
+  );
+  return to ? <Link to={to}>{content}</Link> : content;
+}
 
 function StatCard({ label, value, icon: Icon, trend, tone = 'brand', loading, animated }) {
   const toneMap = {
@@ -115,6 +202,7 @@ function EventRow({ evento }) {
 
 export default function Dashboard() {
   const [stats, setStats] = useState({ eventi: [], piloti: 0, loading: true });
+  const [counters, setCounters] = useState({ sos: 0, fermi: 0, gpsPersi: 0, messaggi: 0 });
 
   useEffect(() => {
     let cancelled = false;
@@ -136,6 +224,40 @@ export default function Dashboard() {
     return () => { cancelled = true; };
   }, []);
 
+  // Polling contatori live evento attivo
+  useEffect(() => {
+    let cancelled = false;
+    const tick = async () => {
+      const id = getActiveEventId();
+      if (!id) return;
+      const ev = stats.eventi.find(e => e.id === id);
+      if (!ev?.codice_gara) return;
+      try {
+        const r = await fetch(`${API_BASE}/api/messaggi-piloti/${encodeURIComponent(ev.codice_gara)}`);
+        const d = await r.json();
+        if (cancelled) return;
+        const msgs = Array.isArray(d?.messaggi) ? d.messaggi : (Array.isArray(d) ? d : []);
+        const sos = msgs.filter(m => !m.letto && (m.tipo === 'sos' || m.tipo_emergenza)).length;
+        const messaggi = msgs.filter(m => !m.letto).length;
+        setCounters(c => ({ ...c, sos, messaggi }));
+      } catch {}
+      try {
+        const r2 = await fetch(`${API_BASE}/api/ddg/multi/${encodeURIComponent(ev.codice_gara)}`);
+        const d2 = await r2.json();
+        if (cancelled) return;
+        const fermi = Array.isArray(d2?.piloti_fermi) ? d2.piloti_fermi.length : 0;
+        const gpsPersi = Array.isArray(d2?.piloti_segnale_perso) ? d2.piloti_segnale_perso.length : 0;
+        setCounters(c => ({ ...c, fermi, gpsPersi }));
+      } catch {}
+    };
+    tick();
+    const t = setInterval(tick, 20000);
+    return () => { cancelled = true; clearInterval(t); };
+  }, [stats.eventi]);
+
+  const activeEventId = getActiveEventId();
+  const eventoAttivo = stats.eventi.find(e => e.id === activeEventId) || null;
+
   const eventiRecenti = [...stats.eventi]
     .sort((a, b) => new Date(b.data_inizio || 0) - new Date(a.data_inizio || 0))
     .slice(0, 5);
@@ -149,6 +271,19 @@ export default function Dashboard() {
         <h1 className="text-heading-1 text-content-primary">Benvenuto</h1>
         <p className="text-content-secondary mt-1">Panoramica del tuo sistema di timing.</p>
       </div>
+
+      {/* Hero evento attivo */}
+      <HeroActiveEvent evento={eventoAttivo} loading={stats.loading} />
+
+      {/* Counter tiles live — stile ERTA DdG (visibili solo se c'e' un evento attivo) */}
+      {eventoAttivo && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          <CounterTile label="SOS" value={counters.sos} icon={AlertTriangle} tone="danger" to="/messaggi-piloti" />
+          <CounterTile label="Piloti fermi" value={counters.fermi} icon={Clock} tone="warning" to="/piloti" />
+          <CounterTile label="GPS persi" value={counters.gpsPersi} icon={Navigation} tone="danger" to="/piloti" />
+          <CounterTile label="Messaggi" value={counters.messaggi} icon={MessageSquare} tone="info" to="/messaggi-piloti" />
+        </div>
+      )}
 
       {/* Stats grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { API_BASE } from '../services/api';
 import { pickDefaultEvent, setActiveEventId } from '../utils/activeEvent';
-import { Play, Pause, RotateCcw, AlertTriangle, Navigation, Activity } from 'lucide-react';
+import { Play, Pause, RotateCcw, AlertTriangle, Navigation, Activity, ChevronRight, ChevronLeft } from 'lucide-react';
+import { usePrevious } from '../hooks/usePrevious';
 
 // Velocità simulazione (moltiplicatore)
 const SPEED_PRESETS = [1, 2, 5, 10];
@@ -106,6 +107,7 @@ export default function SimulazioneMappa() {
   const [pilotiCount, setPilotiCount] = useState(PILOTI_COUNT_DEFAULT);
   const [selected, setSelected] = useState(null); // numero pilota per tooltip
   const [mapReady, setMapReady] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [alertsCount, setAlertsCount] = useState({ allarmi: 0, fuori: 0, fermi: 0, notifichePush: 0 });
 
   const mapRef = useRef(null);
@@ -454,6 +456,8 @@ export default function SimulazioneMappa() {
   // Classifica calcolata live
   const classificaAssoluta = [...piloti].sort((a, b) => (b.progress || 0) - (a.progress || 0));
   const posAssoluta = new Map(classificaAssoluta.map((p, i) => [p.id, i + 1]));
+  // Mappa posizione precedente per detect change
+  const prevPosAssoluta = usePrevious(posAssoluta);
   const posClasse = new Map();
   const perClasse = {};
   classificaAssoluta.forEach(p => {
@@ -539,8 +543,24 @@ export default function SimulazioneMappa() {
       <div className="relative flex-1">
         <div ref={mapRef} style={{ width: '100%', height: '100%', minHeight: 420 }} />
 
+        {/* Toggle sidebar (collapse/expand) */}
+        <button
+          onClick={() => setSidebarOpen(o => !o)}
+          className="absolute top-4 right-4 z-[410] w-9 h-9 rounded-full bg-surface border border-border-subtle shadow-md hover:shadow-lg flex items-center justify-center text-content-secondary hover:text-content-primary transition-all"
+          aria-label={sidebarOpen ? 'Nascondi pannello classifica' : 'Mostra pannello classifica'}
+          title={sidebarOpen ? 'Nascondi pannello' : 'Mostra pannello'}
+          style={{ transform: sidebarOpen ? 'translateX(0)' : 'translateX(0)' }}
+        >
+          {sidebarOpen ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
+
         {/* Colonna sidebar destra: Leaderboard + Tooltip (non coprono il tracciato) */}
-        <div className="absolute top-4 right-4 flex flex-col gap-3 z-[400]" style={{ width: 340 }}>
+        <div
+          className={`absolute top-16 right-4 flex flex-col gap-3 z-[400] transition-all duration-200 ease-out ${
+            sidebarOpen ? 'translate-x-0 opacity-100' : 'translate-x-[calc(100%+1rem)] opacity-0 pointer-events-none'
+          }`}
+          style={{ width: 340 }}
+        >
           {/* LEADERBOARD resizable */}
           {piloti.length > 0 && (
             <div
@@ -562,11 +582,15 @@ export default function SimulazioneMappa() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border-subtle">
-                  {classificaAssoluta.map(p => (
+                  {classificaAssoluta.map(p => {
+                    const curPos = posAssoluta.get(p.id);
+                    const prevPos = prevPosAssoluta ? prevPosAssoluta.get(p.id) : curPos;
+                    const posChanged = prevPos != null && curPos !== prevPos;
+                    return (
                     <tr
                       key={p.id}
                       onClick={() => setSelected(p.id)}
-                      className={`cursor-pointer hover:bg-surface-2 ${selected === p.id ? 'bg-rose-50 dark:bg-rose-900/20' : ''}`}
+                      className={`cursor-pointer hover:bg-surface-2 ${selected === p.id ? 'bg-rose-50 dark:bg-rose-900/20' : ''} ${posChanged ? 'u-row-highlight' : ''}`}
                     >
                       <td className="px-2 py-1 font-bold">{posAssoluta.get(p.id)}°</td>
                       <td className="px-2 py-1 font-mono">#{p.numero}</td>
@@ -576,7 +600,8 @@ export default function SimulazioneMappa() {
                       </td>
                       <td className="px-2 py-1 text-right font-mono text-content-tertiary">{posClasse.get(p.id)}°</td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

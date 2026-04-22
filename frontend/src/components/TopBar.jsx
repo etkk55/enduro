@@ -3,6 +3,7 @@ import { Moon, Sun, PanelLeftClose, PanelLeft, Menu, Search, Command, Rows3 } fr
 import Button from './ui/Button';
 import { cn } from './ui/utils';
 import { useDensity } from '../hooks/useDensity';
+import { toast } from './ui/Toast';
 
 const PAGE_TITLES = {
   '/': { title: 'Dashboard', description: 'Panoramica generale' },
@@ -86,9 +87,13 @@ export default function TopBar({ onToggleSidebar, sidebarCollapsed, darkMode, on
         <Button
           variant="ghost"
           size="icon-sm"
-          onClick={cycleDensity}
+          onClick={() => {
+            const next = density === 'comfortable' ? 'compact' : density === 'compact' ? 'dense' : 'comfortable';
+            cycleDensity();
+            toast({ title: `Densità: ${densityLabels[next]}`, duration: 1400, variant: 'info' });
+          }}
           aria-label={`Densità: ${densityLabels[density]} (click per cambiare)`}
-          title={`Densità: ${densityLabels[density]}`}
+          title={`Densità: ${densityLabels[density]} — click per cambiare`}
           className="hidden sm:inline-flex"
         >
           <Rows3 className="w-[18px] h-[18px]" />

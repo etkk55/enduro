@@ -252,13 +252,16 @@
   }
   .u-row-highlight { animation: row-highlight 650ms ease-out; }
 
-  /* ==================== Density scale ==================== */
-  :root { --density-scale: 1; }
-  html[data-density="compact"] { --density-scale: 0.92; }
-  html[data-density="dense"]   { --density-scale: 0.84; }
+  /* ==================== Density scale ====================
+     Tailwind usa rem per spacing/typography: scalando la root font-size
+     ridimensioniamo proporzionalmente padding, altezze, font, gap senza
+     toccare ogni componente. */
+  html { font-size: 16px; }
+  html[data-density="compact"] { font-size: 15px; }  /* ~6% piu' denso */
+  html[data-density="dense"]   { font-size: 14px; }  /* ~12% piu' denso */
 
-  /* Utility class applicabile a tabelle / liste dense */
-  .u-dense-row { height: calc(40px * var(--density-scale)); font-size: calc(14px * var(--density-scale)); }
+  /* Transizione morbida al cambio densita */
+  html, body { transition: font-size 180ms ease-out; }
 
   /* ==================== Reduced motion ==================== */
   @media (prefers-reduced-motion: reduce) {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Trophy, Users, Building2 } from 'lucide-react';
+import { Trophy, Users, Building2, Search, X } from 'lucide-react';
 import { API_BASE as _API_BASE } from '../services/api';
 import { Card } from '../components/ui/Card';
 import { Select, Label } from '../components/ui/Input';
@@ -50,6 +50,17 @@ function PositionBadge({ position }) {
   const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : null;
   if (medal) return <span className="text-2xl" aria-label={`Posizione ${position}`}>{medal}</span>;
   return <span className="font-mono tabular-nums font-semibold text-content-primary">{position}</span>;
+}
+
+// Match di un pilota contro la query di ricerca (nome/cognome include OR numero prefix).
+// Accetta sia p.num (classifica export-replay) sia p.numero_gara (altri formati).
+function pilotaMatch(p, q) {
+  const s = (q || '').toLowerCase().trim();
+  if (!s) return true;
+  const num = String(p.num ?? p.numero_gara ?? '');
+  if (num.startsWith(s)) return true;
+  const full = `${p.cognome || ''} ${p.nome || ''}`.toLowerCase();
+  return full.includes(s);
 }
 
 // Conta PS completate (ha tempo valido) su array prove
@@ -196,6 +207,7 @@ export default function Classifiche() {
   const [vista, setVista] = useState('classi'); // 'classi' | 'club' | 'squadre'
   const [filtroClasse, setFiltroClasse] = useState('');
   const [filtroTeam, setFiltroTeam] = useState('');
+  const [search, setSearch] = useState('');
 
   useEffect(() => { loadEventi(); }, []);
   useEffect(() => { if (eventoSelezionato) loadDati(eventoSelezionato); }, [eventoSelezionato]);
@@ -227,7 +239,7 @@ export default function Classifiche() {
       // Prendi l'ultimo snapshot con piloti attivi, altrimenti l'ultimo
       const snap = [...snapshots].reverse().find(s => s.classifica?.some(p => p.stato === 'attivo')) || snapshots[snapshots.length - 1];
       setClassificaGen(snap?.classifica || []);
-      setFiltroClasse(''); setFiltroTeam('');
+      setFiltroClasse(''); setFiltroTeam(''); setSearch('');
     } catch (err) {
       console.error('[Classifiche]', err);
       setClassificaGen([]);
@@ -253,12 +265,13 @@ export default function Classifiche() {
     let dati = [...classificaEnriched];
     if (filtroClasse) dati = dati.filter(p => p.classe === filtroClasse);
     if (filtroTeam) dati = dati.filter(p => p.team === filtroTeam);
+    if (search.trim()) dati = dati.filter(p => pilotaMatch(p, search));
     dati.sort((a, b) => {
       if (b.psCompletate !== a.psCompletate) return b.psCompletate - a.psCompletate;
       return a.tempoSec - b.tempoSec;
     });
     return dati;
-  }, [classificaEnriched, filtroClasse, filtroTeam]);
+  }, [classificaEnriched, filtroClasse, filtroTeam, search]);
 
   // Vista Squadre: punti per motoclub
   const classificaSquadre = useMemo(() => {
@@ -316,8 +329,14 @@ export default function Classifiche() {
       if (b.totPunti !== a.totPunti) return b.totPunti - a.totPunti;
       return a.migliorTempoAss - b.migliorTempoAss;
     });
-    return arr;
-  }, [classificaEnriched]);
+    // Applica ricerca: match su nome motoclub o su uno qualsiasi dei piloti della top-3
+    const s = search.trim().toLowerCase();
+    if (!s) return arr;
+    return arr.filter(sq =>
+      (sq.motoclub || '').toLowerCase().includes(s) ||
+      sq.piloti.some(p => pilotaMatch(p, s))
+    );
+  }, [classificaEnriched, search]);
 
   const eventoCorrente = eventi.find(e => e.id === eventoSelezionato);
 
@@ -366,26 +385,54 @@ export default function Classifiche() {
         />
       </div>
 
-      {/* Filtri contestuali */}
-      {(vista === 'classi' || vista === 'club') && classificaGen.length > 0 && (
+      {/* Filtri contestuali: search sempre, Classe solo in 'classi', Motoclub solo in 'club' */}
+      {classificaGen.length > 0 && (
         <Card className="mb-5">
-          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {vista === 'classi' && classi.length > 0 && (
-              <div>
-                <Label>Classe</Label>
-                <Select value={filtroClasse} onChange={(e) => setFiltroClasse(e.target.value)}>
-                  <option value="">Tutte le classi ({classi.length})</option>
-                  {classi.map(c => <option key={c} value={c}>{c}</option>)}
-                </Select>
+          <div className="p-4 space-y-3">
+            <div>
+              <Label>Cerca pilota (nome, cognome o numero)</Label>
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-content-tertiary pointer-events-none" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Es. 'Rossi' oppure '101'"
+                  className="w-full pl-9 pr-9 py-2 rounded-md border border-border bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => setSearch('')}
+                    aria-label="Azzera ricerca"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-content-tertiary hover:text-content-primary"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
-            )}
-            {vista === 'club' && teams.length > 0 && (
-              <div>
-                <Label>Motoclub</Label>
-                <Select value={filtroTeam} onChange={(e) => setFiltroTeam(e.target.value)}>
-                  <option value="">Tutti i Motoclub ({teams.length})</option>
-                  {teams.map(t => <option key={t} value={t}>{t}</option>)}
-                </Select>
+            </div>
+
+            {(vista === 'classi' || vista === 'club') && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {vista === 'classi' && classi.length > 0 && (
+                  <div>
+                    <Label>Classe</Label>
+                    <Select value={filtroClasse} onChange={(e) => setFiltroClasse(e.target.value)}>
+                      <option value="">Tutte le classi ({classi.length})</option>
+                      {classi.map(c => <option key={c} value={c}>{c}</option>)}
+                    </Select>
+                  </div>
+                )}
+                {vista === 'club' && teams.length > 0 && (
+                  <div>
+                    <Label>Motoclub</Label>
+                    <Select value={filtroTeam} onChange={(e) => setFiltroTeam(e.target.value)}>
+                      <option value="">Tutti i Motoclub ({teams.length})</option>
+                      {teams.map(t => <option key={t} value={t}>{t}</option>)}
+                    </Select>
+                  </div>
+                )}
               </div>
             )}
           </div>

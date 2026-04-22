@@ -13,6 +13,7 @@ import { API_BASE, SIMULATOR_URL as SIMULATORE_URL } from '../services/api';
 import PodiumBadge from '../components/ui/PodiumBadge';
 import RaceTime from '../components/ui/RaceTime';
 import LiveDot from '../components/ui/LiveDot';
+import AlertsBanner from '../components/AlertsBanner';
 
 // p35: Larghezze default colonne
 const DEFAULT_COLUMN_WIDTHS = {
@@ -1428,6 +1429,9 @@ export default function LiveTiming() {
 
   return (
     <div className="w-full px-3 lg:px-6 py-4 space-y-4">
+      {/* Banner allarmi attivi (visibile solo se >0 SOS non letti) */}
+      <AlertsBanner codiceGara={replayData?.evento?.codice_gara || eventoObj?.codice_gara} />
+
       {/* Event header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 py-2">
         <div className="flex items-center gap-3 min-w-0">

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { AlertTriangle, MessageSquare, MapPin, Check, CheckCheck, Volume2, VolumeX, RefreshCw, ExternalLink, Clock, Radio, SignalZero } from 'lucide-react';
+import { AlertTriangle, MessageSquare, MapPin, Check, CheckCheck, Volume2, VolumeX, RefreshCw, ExternalLink, Clock, Radio, SignalZero, Trash2 } from 'lucide-react';
+import { toast } from '../components/ui/Toast';
 import { API_BASE } from '../services/api';
 import { Card } from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -128,6 +129,30 @@ export default function MessaggiPiloti() {
     } catch (err) { console.error(err); }
   }
 
+  async function eliminaMessaggio(id) {
+    if (!confirm('Eliminare definitivamente questo messaggio?')) return;
+    try {
+      await fetch(`${API_BASE}/api/messaggi-piloti/${id}`, { method: 'DELETE' });
+      toast({ title: 'Messaggio eliminato', variant: 'success', duration: 2000 });
+      loadMessaggi();
+    } catch (err) { console.error(err); toast({ title: 'Errore eliminazione', variant: 'danger' }); }
+  }
+
+  async function eliminaBulk(stato) {
+    const label = stato === 'letti' ? 'i messaggi già LETTI' : 'TUTTI i messaggi (letti e non letti)';
+    if (!confirm(`Eliminare definitivamente ${label} di ${codiceGara}? L'operazione non è reversibile.`)) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/messaggi-piloti/codice/${encodeURIComponent(codiceGara)}?stato=${stato}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        toast({ title: `${data.deleted} messaggi eliminati`, variant: 'success', duration: 2500 });
+        loadMessaggi();
+      } else {
+        toast({ title: 'Errore eliminazione bulk', variant: 'danger' });
+      }
+    } catch (err) { console.error(err); toast({ title: 'Errore di rete', variant: 'danger' }); }
+  }
+
   const messaggiFiltrati = messaggi.filter(m =>
     filtro === 'sos' ? m.tipo === 'sos' :
     filtro === 'non_letti' ? !m.letto :
@@ -228,6 +253,16 @@ export default function MessaggiPiloti() {
               <Button size="md" onClick={segnaTuttiLetti} leftIcon={<CheckCheck className="w-4 h-4" />}>
                 Segna tutti letti
               </Button>
+            )}
+            {messaggi.length > 0 && (
+              <>
+                <Button size="md" variant="secondary" onClick={() => eliminaBulk('letti')} leftIcon={<Trash2 className="w-4 h-4" />}>
+                  Elimina letti
+                </Button>
+                <Button size="md" variant="danger" onClick={() => eliminaBulk('tutti')} leftIcon={<Trash2 className="w-4 h-4" />}>
+                  Elimina tutti
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -376,6 +411,9 @@ export default function MessaggiPiloti() {
                             <CheckCheck className="w-3.5 h-3.5" /> Letto
                           </span>
                         )}
+                        <Button size="sm" variant="ghost" onClick={() => eliminaMessaggio(msg.id)} leftIcon={<Trash2 className="w-3.5 h-3.5" />} className="text-danger-fg hover:bg-danger-bg">
+                          Elimina
+                        </Button>
                       </div>
                     </div>
                   </div>

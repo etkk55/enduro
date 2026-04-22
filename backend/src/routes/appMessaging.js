@@ -124,6 +124,24 @@ router.delete('/api/messaggi-piloti/:id', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ELIMINA IN BULK i messaggi di una gara. Query ?stato=tutti (default) | letti
+router.delete('/api/messaggi-piloti/codice/:codice_gara', async (req, res, next) => {
+  try {
+    const { codice_gara } = req.params;
+    const stato = (req.query.stato || 'tutti').toLowerCase();
+    let sql, params;
+    if (stato === 'letti') {
+      sql = 'DELETE FROM messaggi_piloti WHERE codice_gara = $1 AND letto = TRUE RETURNING id';
+      params = [codice_gara];
+    } else {
+      sql = 'DELETE FROM messaggi_piloti WHERE codice_gara = $1 RETURNING id';
+      params = [codice_gara];
+    }
+    const result = await pool.query(sql, params);
+    res.json({ success: true, deleted: result.rowCount });
+  } catch (err) { next(err); }
+});
+
 // AGGIORNA TESTO MESSAGGIO
 router.patch('/api/messaggi-piloti/:id/testo', async (req, res, next) => {
   try {

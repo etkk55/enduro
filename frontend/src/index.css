@@ -14,8 +14,8 @@
     /* Text */
     --text-primary: 15 23 42;         /* #0F172A - headings */
     --text-secondary: 71 85 105;      /* #475569 - body */
-    --text-tertiary: 148 163 184;     /* #94A3B8 - captions, placeholders */
-    --text-disabled: 203 213 225;     /* #CBD5E1 */
+    --text-tertiary: 100 116 139;     /* #64748B slate-500 - captions, placeholders (AA 4.8:1) */
+    --text-disabled: 148 163 184;     /* #94A3B8 - testo disabilitato */
 
     /* Borders */
     --border-subtle: 226 232 240;     /* #E2E8F0 */

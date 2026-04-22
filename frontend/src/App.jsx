@@ -189,7 +189,7 @@ function AppLayout({ children, onOpenPalette }) {
           collapsed={collapsed}
           footer={(isCollapsed) => (
             <div className={cn('text-xs text-content-tertiary font-mono', isCollapsed ? 'text-center' : 'px-2')}>
-              v1.2.24
+              v1.2.25
             </div>
           )}
         />

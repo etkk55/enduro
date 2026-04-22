@@ -244,4 +244,29 @@
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
+
+  /* ==================== Row highlight on change ==================== */
+  @keyframes row-highlight {
+    0%   { background: rgb(var(--brand-100) / 0.8); }
+    100% { background: transparent; }
+  }
+  .u-row-highlight { animation: row-highlight 650ms ease-out; }
+
+  /* ==================== Density scale ==================== */
+  :root { --density-scale: 1; }
+  html[data-density="compact"] { --density-scale: 0.92; }
+  html[data-density="dense"]   { --density-scale: 0.84; }
+
+  /* Utility class applicabile a tabelle / liste dense */
+  .u-dense-row { height: calc(40px * var(--density-scale)); font-size: calc(14px * var(--density-scale)); }
+
+  /* ==================== Reduced motion ==================== */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }

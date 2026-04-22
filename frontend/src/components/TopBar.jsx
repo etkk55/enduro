@@ -1,7 +1,8 @@
 import { useLocation } from 'react-router-dom';
-import { Moon, Sun, PanelLeftClose, PanelLeft, Menu, Search, Command } from 'lucide-react';
+import { Moon, Sun, PanelLeftClose, PanelLeft, Menu, Search, Command, Rows3 } from 'lucide-react';
 import Button from './ui/Button';
 import { cn } from './ui/utils';
+import { useDensity } from '../hooks/useDensity';
 
 const PAGE_TITLES = {
   '/': { title: 'Dashboard', description: 'Panoramica generale' },
@@ -25,6 +26,8 @@ export default function TopBar({ onToggleSidebar, sidebarCollapsed, darkMode, on
   const location = useLocation();
   const pageInfo = PAGE_TITLES[location.pathname] || { title: 'Enduro FMI', description: '' };
   const isMac = typeof navigator !== 'undefined' && /Mac/.test(navigator.platform);
+  const { density, cycle: cycleDensity } = useDensity();
+  const densityLabels = { comfortable: 'Normale', compact: 'Compatto', dense: 'Denso' };
 
   return (
     <header
@@ -78,6 +81,17 @@ export default function TopBar({ onToggleSidebar, sidebarCollapsed, darkMode, on
         {/* Mobile: search icon only */}
         <Button variant="ghost" size="icon-sm" className="md:hidden" onClick={onOpenPalette} aria-label="Cerca">
           <Search className="w-[18px] h-[18px]" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={cycleDensity}
+          aria-label={`Densità: ${densityLabels[density]} (click per cambiare)`}
+          title={`Densità: ${densityLabels[density]}`}
+          className="hidden sm:inline-flex"
+        >
+          <Rows3 className="w-[18px] h-[18px]" />
         </Button>
 
         <Button variant="ghost" size="icon-sm" onClick={onToggleDarkMode} aria-label={darkMode ? 'Tema chiaro' : 'Tema scuro'}>

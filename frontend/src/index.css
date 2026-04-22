@@ -256,11 +256,9 @@
      Tailwind usa rem per spacing/typography: scalando la root font-size
      ridimensioniamo proporzionalmente padding, altezze, font, gap senza
      toccare ogni componente. */
-  html { font-size: 60px; }                       /* default xxl — massima leggibilita */
-  html[data-density="xxl"] { font-size: 60px; }   /* Massimo */
-  html[data-density="xl"]  { font-size: 40px; }   /* Grande */
-  html[data-density="lg"]  { font-size: 26px; }   /* Medio */
-  html[data-density="md"]  { font-size: 18px; }   /* Normale (precedente compact) */
+  html { font-size: 26px; }                       /* default lg */
+  html[data-density="lg"]  { font-size: 26px; }   /* Grande */
+  html[data-density="md"]  { font-size: 18px; }   /* Normale */
   html[data-density="sm"]  { font-size: 14px; }   /* Denso (Tailwind originale) */
 
   /* Transizione morbida al cambio densita */

@@ -28,8 +28,8 @@ export default function TopBar({ onToggleSidebar, sidebarCollapsed, darkMode, on
   const pageInfo = PAGE_TITLES[location.pathname] || { title: 'Enduro FMI', description: '' };
   const isMac = typeof navigator !== 'undefined' && /Mac/.test(navigator.platform);
   const { density, cycle: cycleDensity } = useDensity();
-  const densityLabels = { xxl: 'Massimo', xl: 'Grande', lg: 'Medio', md: 'Normale', sm: 'Denso' };
-  const densityOrder = ['xxl', 'xl', 'lg', 'md', 'sm'];
+  const densityLabels = { lg: 'Grande', md: 'Normale', sm: 'Denso' };
+  const densityOrder = ['lg', 'md', 'sm'];
 
   return (
     <header

@@ -105,21 +105,35 @@ router.post('/api/tempi', async (req, res, next) => {
 router.get('/api/eventi/:id_evento/classifica', async (req, res, next) => {
   try {
     const { id_evento } = req.params;
+    // Ritorna anche:
+    //  - ps_completate: quante PS hanno un tempo valido (non ritirato/squalificato)
+    //  - num_prove: totale PS configurate per l'evento (per mostrare "2/5" in UI)
+    //  - moto
+    // Ordinamento: ps_completate DESC, poi tempo ASC (come Live Timing).
     const result = await pool.query(
-      `SELECT
-        p.id,
-        p.numero_gara,
-        p.nome,
-        p.cognome,
-        p.classe,
-        p.team,
-        SUM(t.tempo_secondi + t.penalita_secondi) as tempo_totale
-       FROM piloti p
-       LEFT JOIN tempi t ON p.id = t.id_pilota
-       LEFT JOIN prove_speciali ps ON t.id_ps = ps.id
-       WHERE p.id_evento = $1
-       GROUP BY p.id
-       ORDER BY tempo_totale ASC NULLS LAST`,
+      `WITH totali AS (
+         SELECT
+           p.id, p.numero_gara, p.nome, p.cognome, p.classe, p.team, p.moto,
+           COUNT(CASE WHEN t.tempo_secondi IS NOT NULL
+                       AND COALESCE(t.ritirato, FALSE) = FALSE
+                       AND COALESCE(t.squalificato, FALSE) = FALSE
+                      THEN 1 END)::int AS ps_completate,
+           SUM(CASE WHEN COALESCE(t.ritirato, FALSE) = FALSE
+                     AND COALESCE(t.squalificato, FALSE) = FALSE
+                    THEN COALESCE(t.tempo_secondi, 0) + COALESCE(t.penalita_secondi, 0) END) AS tempo_totale,
+           BOOL_OR(COALESCE(t.ritirato, FALSE))    AS ritirato,
+           BOOL_OR(COALESCE(t.squalificato, FALSE)) AS squalificato
+         FROM piloti p
+         LEFT JOIN tempi t ON p.id = t.id_pilota
+         WHERE p.id_evento = $1
+         GROUP BY p.id
+       ),
+       meta AS (
+         SELECT COUNT(*)::int AS num_prove FROM prove_speciali WHERE id_evento = $1
+       )
+       SELECT t.*, m.num_prove
+       FROM totali t CROSS JOIN meta m
+       ORDER BY t.ps_completate DESC, t.tempo_totale ASC NULLS LAST`,
       [id_evento]
     );
     res.json(result.rows);

@@ -30,6 +30,7 @@ export default function Tempi() {
   const [loadingEventi, setLoadingEventi] = useState(true);
   const [loadingProve, setLoadingProve] = useState(false);
   const [loadingTempi, setLoadingTempi] = useState(false);
+  const [iscrittiCount, setIscrittiCount] = useState(null);
   const [errore, setErrore] = useState('');
 
   // 1. Load eventi
@@ -62,20 +63,29 @@ export default function Tempi() {
     }
   }, [eventoSelezionato, eventi]);
 
-  // 2. Load prove when event changes
+  // 2. Load prove + conteggio iscritti quando cambia evento
   useEffect(() => {
-    if (!eventoSelezionato) { setProve([]); setProvaSelezionata(''); return; }
+    if (!eventoSelezionato) { setProve([]); setProvaSelezionata(''); setIscrittiCount(null); return; }
     (async () => {
       setLoadingProve(true);
       try {
-        const res = await fetch(`${API_BASE}/eventi/${eventoSelezionato}/prove`);
-        const data = await res.json();
+        const [resProve, resPiloti] = await Promise.all([
+          fetch(`${API_BASE}/eventi/${eventoSelezionato}/prove`),
+          fetch(`${API_BASE}/eventi/${eventoSelezionato}/piloti`),
+        ]);
+        const data = await resProve.json();
         const sorted = Array.isArray(data) ? data.sort((a, b) => (a.numero_ordine || 0) - (b.numero_ordine || 0)) : [];
         setProve(sorted);
         setProvaSelezionata(sorted[0]?.id || '');
+        try {
+          const piloti = await resPiloti.json();
+          const arr = Array.isArray(piloti?.piloti) ? piloti.piloti : (Array.isArray(piloti) ? piloti : []);
+          setIscrittiCount(arr.length);
+        } catch { setIscrittiCount(null); }
       } catch (e) {
         console.error('[Tempi]', e);
         setProve([]);
+        setIscrittiCount(null);
       } finally {
         setLoadingProve(false);
       }
@@ -203,14 +213,32 @@ export default function Tempi() {
       </Card>
 
       {/* Stats row */}
-      {classifica.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-          <Card><div className="p-4"><div className="text-overline mb-1">Piloti al traguardo</div><div className="text-xl font-bold font-mono tabular-nums">{classifica.length}</div></div></Card>
-          <Card><div className="p-4"><div className="text-overline mb-1">Ritirati</div><div className={`text-xl font-bold font-mono tabular-nums ${ritirati.length > 0 ? 'text-warning-fg' : ''}`}>{ritirati.length}</div></div></Card>
-          <Card><div className="p-4"><div className="text-overline mb-1">Miglior tempo</div><div className="text-xl font-bold font-mono tabular-nums">{classifica[0] ? formatSeconds(classifica[0].tempo_totale_num) : '—'}</div></div></Card>
-          <Card><div className="p-4"><div className="text-overline mb-1">Gap 1°-ultimo</div><div className="text-xl font-bold font-mono tabular-nums">{classifica.length > 1 ? `+${formatSeconds(classifica[classifica.length - 1].tempo_totale_num - classifica[0].tempo_totale_num)}` : '—'}</div></div></Card>
-        </div>
-      )}
+      {classifica.length > 0 && (() => {
+        // "Non presenti" = iscritti totali - piloti con tempo in questa PS (inclusi ritirati flaggati)
+        // Se iscrittiCount non disponibile, mostra solo ritirati flag
+        const nonPresenti = iscrittiCount != null ? Math.max(0, iscrittiCount - tempiFlat.length) : null;
+        // "Totale out" dal punto di vista del DdG = ritirati flag + non presenti (non sono passati qui)
+        const totaleOut = ritirati.length + (nonPresenti || 0);
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <Card><div className="p-4">
+              <div className="text-overline mb-1">Al traguardo</div>
+              <div className="text-xl font-bold font-mono tabular-nums">{classifica.length}{iscrittiCount != null ? <span className="text-content-tertiary text-sm font-normal">/{iscrittiCount}</span> : null}</div>
+            </div></Card>
+            <Card><div className="p-4">
+              <div className="text-overline mb-1">Ritirati / Assenti</div>
+              <div className={`text-xl font-bold font-mono tabular-nums ${totaleOut > 0 ? 'text-warning-fg' : ''}`}>{totaleOut}</div>
+              <div className="text-2xs text-content-tertiary mt-0.5">
+                {ritirati.length > 0 && <>ritirati: {ritirati.length}</>}
+                {ritirati.length > 0 && nonPresenti ? ' · ' : ''}
+                {nonPresenti != null && nonPresenti > 0 && <>non transitati: {nonPresenti}</>}
+              </div>
+            </div></Card>
+            <Card><div className="p-4"><div className="text-overline mb-1">Miglior tempo</div><div className="text-xl font-bold font-mono tabular-nums">{classifica[0] ? formatSeconds(classifica[0].tempo_totale_num) : '—'}</div></div></Card>
+            <Card><div className="p-4"><div className="text-overline mb-1">Gap 1°-ultimo</div><div className="text-xl font-bold font-mono tabular-nums">{classifica.length > 1 ? `+${formatSeconds(classifica[classifica.length - 1].tempo_totale_num - classifica[0].tempo_totale_num)}` : '—'}</div></div></Card>
+          </div>
+        );
+      })()}
 
       {/* Results */}
       {errore ? (

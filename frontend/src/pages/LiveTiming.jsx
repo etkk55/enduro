@@ -1430,7 +1430,7 @@ export default function LiveTiming() {
   return (
     <div className="w-full px-3 lg:px-6 py-4 space-y-4">
       {/* Banner allarmi attivi (visibile solo se >0 SOS non letti) */}
-      <AlertsBanner codiceGara={replayData?.evento?.codice_gara || eventoObj?.codice_gara} />
+      <AlertsBanner codiceGara={replayData?.evento?.codice_gara} />
 
       {/* Event header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 py-2">

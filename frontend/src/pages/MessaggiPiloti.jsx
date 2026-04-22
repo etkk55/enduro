@@ -39,7 +39,17 @@ export default function MessaggiPiloti() {
   useEffect(() => {
     fetch(`${API_BASE}/api/eventi`)
       .then(r => r.json())
-      .then(setEventi)
+      .then(async (data) => {
+        setEventi(data);
+        // Auto-seleziona l'evento attivo (coerente con ContextBar e altre pagine)
+        if (Array.isArray(data) && data.length > 0) {
+          const { pickDefaultEvent, setActiveEventId } = await import('../utils/activeEvent');
+          const id = pickDefaultEvent(data);
+          setSelectedEvento(id);
+          const ev = data.find(e => e.id === id);
+          if (ev) setActiveEventId(id, ev.codice_gara);
+        }
+      })
       .catch(err => console.error('[MessaggiPiloti]', err));
   }, []);
 
@@ -101,13 +111,15 @@ export default function MessaggiPiloti() {
     try {
       const res = await fetch(`${API_BASE}/api/messaggi-piloti/${codiceGara}`);
       const data = await res.json();
-      if (data.success) {
-        setMessaggi(data.messaggi);
-        setStats({ non_letti: data.non_letti, sos_attivi: data.sos_attivi });
-        if (data.sos_attivi > lastSosCount && audioEnabled && lastSosCount > 0) playAlarm();
-        setLastSosCount(data.sos_attivi);
-        setLastSync(new Date());
-      }
+      // Accetta sia formato wrapped { success, messaggi, ... } sia array diretto
+      const msgs = Array.isArray(data?.messaggi) ? data.messaggi : (Array.isArray(data) ? data : []);
+      setMessaggi(msgs);
+      const non_letti = typeof data?.non_letti === 'number' ? data.non_letti : msgs.filter(m => !m.letto).length;
+      const sos_attivi = typeof data?.sos_attivi === 'number' ? data.sos_attivi : msgs.filter(m => !m.letto && (m.tipo === 'sos' || m.tipo_emergenza)).length;
+      setStats({ non_letti, sos_attivi });
+      if (sos_attivi > lastSosCount && audioEnabled && lastSosCount > 0) playAlarm();
+      setLastSosCount(sos_attivi);
+      setLastSync(new Date());
     } catch (err) { console.error('[MessaggiPiloti]', err); }
   }
 

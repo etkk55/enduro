@@ -15,6 +15,8 @@ export function setActiveEventId(id, codiceGara) {
     if (id) localStorage.setItem(KEY, id);
     else localStorage.removeItem(KEY);
     if (codiceGara) localStorage.setItem(KEY_CODICE, codiceGara);
+    // Notifica sincrona nella stessa tab: l'evento 'storage' parte solo tra tab diverse
+    try { window.dispatchEvent(new CustomEvent('enduro-active-event-changed', { detail: { id, codiceGara } })); } catch {}
   } catch {}
 }
 

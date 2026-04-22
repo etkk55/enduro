@@ -8,7 +8,9 @@ import {
 import ErrorBoundary from './components/ErrorBoundary';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
+import ContextBar from './components/ContextBar';
 import CommandPalette from './components/CommandPalette';
+import { ToastViewport } from './components/ui/Toast';
 import { cn } from './components/ui/utils';
 
 // Eager - small and likely first page
@@ -189,7 +191,7 @@ function AppLayout({ children, onOpenPalette }) {
           collapsed={collapsed}
           footer={(isCollapsed) => (
             <div className={cn('text-xs text-content-tertiary font-mono', isCollapsed ? 'text-center' : 'px-2')}>
-              v1.2.25
+              v1.2.26
             </div>
           )}
         />
@@ -208,10 +210,12 @@ function AppLayout({ children, onOpenPalette }) {
           onOpenMobileMenu={() => setMobileOpen(true)}
           onOpenPalette={onOpenPalette}
         />
+        <ContextBar />
         <main className="flex-1">
           {children}
         </main>
       </div>
+      <ToastViewport />
     </div>
   );
 }

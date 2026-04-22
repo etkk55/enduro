@@ -151,13 +151,13 @@ function SquadraCard({ pos, squadra }) {
   const podio = pos <= 3;
   return (
     <Card className={`overflow-hidden ${podio ? 'border-warning-border bg-warning-bg/10' : ''}`}>
-      <div className="px-4 py-3 border-b border-border-subtle flex items-center gap-3">
+      <div className="px-4 py-3.5 border-b border-border-subtle flex items-center gap-3">
         <div className="flex-shrink-0">
           {podio ? <span className="text-3xl">{medals[pos]}</span> : <span className="text-xl font-bold text-content-primary">{pos}°</span>}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-bold text-content-primary truncate">{squadra.motoclub}</div>
-          <div className="text-xs text-content-tertiary">{squadra.pilotiCostituti}/{squadra.piloti.length} piloti a punti</div>
+          <div className="text-lg lg:text-xl font-black tracking-tight truncate text-brand-700 dark:text-brand-500">{squadra.motoclub}</div>
+          <div className="text-xs text-content-tertiary mt-0.5">{squadra.pilotiCostituti}/{squadra.piloti.length} piloti a punti</div>
         </div>
         <div className="text-right">
           <div className="text-2xl font-black tabular-nums text-content-primary">{squadra.totPunti}</div>
@@ -166,13 +166,15 @@ function SquadraCard({ pos, squadra }) {
       </div>
       <div className="divide-y divide-border-subtle">
         {squadra.piloti.map(p => (
-          <div key={p.num} className={`px-4 py-2 flex items-center gap-3 text-sm ${p.classeCostituta ? '' : 'opacity-60'}`}>
+          <div key={p.num} className="px-4 py-2 flex items-center gap-3 text-sm">
             <span className="font-mono text-xs text-content-tertiary">#{p.num}</span>
             <span className="flex-1 truncate">
-              <span className="font-semibold text-content-primary">{p.cognome}</span>
-              <span className="text-xs text-content-tertiary ml-2">{p.classe}{!p.classeCostituta ? ' · non costituita' : ''}</span>
+              <span className={`font-semibold ${p.classeCostituta ? 'text-content-primary' : 'text-danger-fg'}`}>{p.cognome}</span>
+              <span className={`text-xs ml-2 font-semibold ${p.classeCostituta ? 'text-content-tertiary' : 'text-danger-fg'}`}>
+                {p.classe}{!p.classeCostituta ? ' · non costituita' : ''}
+              </span>
             </span>
-            <span className={`font-mono font-bold ${p.classeCostituta ? 'text-content-primary' : 'text-content-tertiary'}`}>{p.classeCostituta ? p.punti : 0}pt</span>
+            <span className={`font-mono font-bold ${p.classeCostituta ? 'text-content-primary' : 'text-danger-fg'}`}>{p.classeCostituta ? p.punti : 0}pt</span>
           </div>
         ))}
       </div>
@@ -323,9 +325,18 @@ export default function Classifiche() {
     <div className="p-4 lg:p-8 max-w-[1400px] mx-auto animate-fade-in">
       <div className="mb-6">
         <h1 className="text-heading-1 flex items-center gap-2"><Trophy className="w-6 h-6 text-warning-fg" /> Classifica Generale</h1>
-        <p className="text-content-secondary mt-1 text-sm">
-          {eventoCorrente ? `${eventoCorrente.nome_evento} · ${eventoCorrente.luogo || '—'}` : 'Risultati ufficiali'}
-        </p>
+        {eventoCorrente ? (
+          <div className="mt-2 flex items-baseline gap-3 flex-wrap">
+            <span className="text-base font-semibold text-content-primary">{eventoCorrente.nome_evento}</span>
+            {eventoCorrente.luogo && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-brand-500/10 border border-brand-500/30 text-xl lg:text-2xl font-black tracking-tight text-brand-700 dark:text-brand-500">
+                📍 {eventoCorrente.luogo}
+              </span>
+            )}
+          </div>
+        ) : (
+          <p className="text-content-secondary mt-1 text-sm">Risultati ufficiali</p>
+        )}
       </div>
 
       {/* Event selector */}

@@ -52,6 +52,32 @@ function PositionBadge({ position }) {
   return <span className="font-mono tabular-nums font-semibold text-content-primary">{position}</span>;
 }
 
+// Input di ricerca riutilizzato nei filtri (Classi e Squadre)
+function SearchInput({ value, onChange, placeholder = "Es. 'Rossi' oppure '101'" }) {
+  return (
+    <div className="relative">
+      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-content-tertiary pointer-events-none" />
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full pl-9 pr-9 py-2 rounded-md border border-border bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+      />
+      {value && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          aria-label="Azzera ricerca"
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-content-tertiary hover:text-content-primary"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 // Match di un pilota contro la query di ricerca (nome/cognome include OR numero prefix).
 // Accetta sia p.num (classifica export-replay) sia p.numero_gara (altri formati).
 function pilotaMatch(p, q) {
@@ -265,13 +291,14 @@ export default function Classifiche() {
     let dati = [...classificaEnriched];
     if (filtroClasse) dati = dati.filter(p => p.classe === filtroClasse);
     if (filtroTeam) dati = dati.filter(p => p.team === filtroTeam);
-    if (search.trim()) dati = dati.filter(p => pilotaMatch(p, search));
+    // Search applicata solo alle viste dove l'utente la vede (non in Club)
+    if (vista === 'classi' && search.trim()) dati = dati.filter(p => pilotaMatch(p, search));
     dati.sort((a, b) => {
       if (b.psCompletate !== a.psCompletate) return b.psCompletate - a.psCompletate;
       return a.tempoSec - b.tempoSec;
     });
     return dati;
-  }, [classificaEnriched, filtroClasse, filtroTeam, search]);
+  }, [classificaEnriched, filtroClasse, filtroTeam, search, vista]);
 
   // Vista Squadre: punti per motoclub
   const classificaSquadre = useMemo(() => {
@@ -385,37 +412,16 @@ export default function Classifiche() {
         />
       </div>
 
-      {/* Filtri contestuali: search sempre, Classe solo in 'classi', Motoclub solo in 'club' */}
+      {/* Filtri contestuali per vista.
+          - Classi: Classe + Cerca pilota sulla stessa riga
+          - Club: solo Motoclub (no ricerca)
+          - Squadre: solo Cerca pilota (una riga) */}
       {classificaGen.length > 0 && (
         <Card className="mb-5">
-          <div className="p-4 space-y-3">
-            <div>
-              <Label>Cerca pilota (nome, cognome o numero)</Label>
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-content-tertiary pointer-events-none" />
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Es. 'Rossi' oppure '101'"
-                  className="w-full pl-9 pr-9 py-2 rounded-md border border-border bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-                />
-                {search && (
-                  <button
-                    type="button"
-                    onClick={() => setSearch('')}
-                    aria-label="Azzera ricerca"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-content-tertiary hover:text-content-primary"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {(vista === 'classi' || vista === 'club') && (
+          <div className="p-4">
+            {vista === 'classi' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {vista === 'classi' && classi.length > 0 && (
+                {classi.length > 0 && (
                   <div>
                     <Label>Classe</Label>
                     <Select value={filtroClasse} onChange={(e) => setFiltroClasse(e.target.value)}>
@@ -424,15 +430,27 @@ export default function Classifiche() {
                     </Select>
                   </div>
                 )}
-                {vista === 'club' && teams.length > 0 && (
-                  <div>
-                    <Label>Motoclub</Label>
-                    <Select value={filtroTeam} onChange={(e) => setFiltroTeam(e.target.value)}>
-                      <option value="">Tutti i Motoclub ({teams.length})</option>
-                      {teams.map(t => <option key={t} value={t}>{t}</option>)}
-                    </Select>
-                  </div>
-                )}
+                <div>
+                  <Label>Cerca pilota (nome, cognome o numero)</Label>
+                  <SearchInput value={search} onChange={setSearch} />
+                </div>
+              </div>
+            )}
+
+            {vista === 'club' && teams.length > 0 && (
+              <div>
+                <Label>Motoclub</Label>
+                <Select value={filtroTeam} onChange={(e) => setFiltroTeam(e.target.value)}>
+                  <option value="">Tutti i Motoclub ({teams.length})</option>
+                  {teams.map(t => <option key={t} value={t}>{t}</option>)}
+                </Select>
+              </div>
+            )}
+
+            {vista === 'squadre' && (
+              <div>
+                <Label>Cerca pilota o motoclub</Label>
+                <SearchInput value={search} onChange={setSearch} />
               </div>
             )}
           </div>

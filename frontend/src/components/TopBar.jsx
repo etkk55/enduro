@@ -28,7 +28,8 @@ export default function TopBar({ onToggleSidebar, sidebarCollapsed, darkMode, on
   const pageInfo = PAGE_TITLES[location.pathname] || { title: 'Enduro FMI', description: '' };
   const isMac = typeof navigator !== 'undefined' && /Mac/.test(navigator.platform);
   const { density, cycle: cycleDensity } = useDensity();
-  const densityLabels = { comfortable: 'Normale', compact: 'Compatto', dense: 'Denso' };
+  const densityLabels = { xxl: 'Massimo', xl: 'Grande', lg: 'Medio', md: 'Normale', sm: 'Denso' };
+  const densityOrder = ['xxl', 'xl', 'lg', 'md', 'sm'];
 
   return (
     <header
@@ -88,7 +89,8 @@ export default function TopBar({ onToggleSidebar, sidebarCollapsed, darkMode, on
           variant="ghost"
           size="icon-sm"
           onClick={() => {
-            const next = density === 'comfortable' ? 'compact' : density === 'compact' ? 'dense' : 'comfortable';
+            const i = densityOrder.indexOf(density);
+            const next = densityOrder[(i + 1) % densityOrder.length];
             cycleDensity();
             toast({ title: `Densità: ${densityLabels[next]}`, duration: 1400, variant: 'info' });
           }}

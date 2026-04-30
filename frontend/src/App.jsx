@@ -3,7 +3,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import {
   LayoutDashboard, Calendar, Users, Settings, Radio, Activity, User,
   MessageSquare, Bell, Download, LifeBuoy, Flag, Clock, Trophy, X,
-  LifeBuoy as SafetyIcon, MapPin, Shield
+  LifeBuoy as SafetyIcon, MapPin, Shield, Smartphone
 } from 'lucide-react';
 import ErrorBoundary from './components/ErrorBoundary';
 import Sidebar from './components/Sidebar';
@@ -35,6 +35,7 @@ const Addetti = lazy(() => import('./pages/Addetti'));
 const Mappa = lazy(() => import('./pages/Mappa'));
 const SosRouting = lazy(() => import('./pages/SosRouting'));
 const Simulazione = lazy(() => import('./pages/Simulazione'));
+const ErtaQrPiloti = lazy(() => import('./pages/ErtaQrPiloti'));
 
 function PageLoader() {
   return (
@@ -64,6 +65,7 @@ const NAV_GROUPS = [
     items: [
       { to: '/eventi', icon: Calendar, label: 'Eventi' },
       { to: '/piloti', icon: Users, label: 'Piloti' },
+      { to: '/erta-qr-piloti', icon: Smartphone, label: 'QR ERTA Piloti' },
       { to: '/setup-gara', icon: Settings, label: 'Setup Gara' },
       { to: '/simulazione', icon: Activity, label: 'Simulazione' },
       { to: '/import-ficr', icon: Download, label: 'Import FICR' },
@@ -191,7 +193,7 @@ function AppLayout({ children, onOpenPalette }) {
           collapsed={collapsed}
           footer={(isCollapsed) => (
             <div className={cn('text-xs text-content-tertiary font-mono', isCollapsed ? 'text-center' : 'px-2')}>
-              v1.2.40
+              v1.2.41
             </div>
           )}
         />
@@ -262,6 +264,7 @@ export default function App() {
               <Route path="/eventi" element={<Eventi />} />
               <Route path="/piloti" element={<Piloti />} />
               <Route path="/simulazione" element={<Simulazione />} />
+              <Route path="/erta-qr-piloti" element={<ErtaQrPiloti />} />
               <Route path="/controllo-gara" element={<Simulazione />} />
               <Route path="/simulazione-mappa" element={<Simulazione />} />
               <Route path="/live" element={<LiveTiming />} />

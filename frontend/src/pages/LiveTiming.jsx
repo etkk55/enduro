@@ -675,17 +675,24 @@ export default function LiveTiming() {
     const snapshot = replayData.snapshots[currentStep];
     // Se gara confermata conclusa, tutte le prove sono completate
     if (isGaraConclusa) return 'completata';
-    
-    // Chat 17: Calcola stato basandosi sui tempi REALI nella classifica
+
     const classifica = snapshot?.classifica || [];
     const totPiloti = replayData.piloti?.length || classifica.length || 186;
     if (totPiloti === 0) return 'da_svolgere';
-    
+
     const psTimeKey = `ps${provaNum}_time`;
     const pilotiConTempo = classifica.filter(p => p[psTimeKey] && p[psTimeKey] > 0).length;
-    
+
     if (pilotiConTempo === 0) return 'da_svolgere';
-    if (pilotiConTempo >= totPiloti * 0.9) return 'completata'; // 90%+ = completata
+
+    // Se NON in live polling, la gara non sta producendo nuovi tempi: qualsiasi PS
+    // con almeno 1 tempo va considerata completata. La 'LIVE' senza polling era
+    // un falso positivo (es. gara conclusa da giorni mostrata come live).
+    if (!liveMode) return 'completata';
+
+    // In live polling: soglia 60% (era 90%, troppo stretta per l'enduro dove e'
+    // normale avere 20-30% di ritiri/non transitati). Sotto la soglia mostra LIVE.
+    if (pilotiConTempo >= totPiloti * 0.6) return 'completata';
     return 'live';
   };
 
